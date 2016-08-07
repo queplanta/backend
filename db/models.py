@@ -1,6 +1,5 @@
-import datetime
-
 from django.db import models
+from django.utils import timezone
 from django.contrib.contenttypes.models import ContentType
 
 from ipware.ip import get_real_ip
@@ -128,7 +127,7 @@ class DocumentBase(models.Model):
         super(DocumentBase, self).save(**kwargs)
 
     def delete(self, **kwargs):
-        self.document.deleted_at = datetime.datetime.now()
+        self.document.deleted_at = timezone.now()
         self.document.save(update_fields=['deleted_at'])
 
         self.is_deleted = True

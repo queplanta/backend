@@ -39,8 +39,8 @@ class RevisionsTest(TestCase):
 
 		# compare db versions with local variable versions
 		self.assertEqual([created_page, updated_page], list(page_revisions))
-		self.assertEqual(updated_page.document.version_created_id, created_page.revision_id)
-		self.assertEqual(updated_page.document.version_tip_id, updated_page.revision_id)
+		self.assertEqual(updated_page.document.revision_created_id, created_page.revision_id)
+		self.assertEqual(updated_page.document.revision_tip_id, updated_page.revision_id)
 
 		updated_page.delete()
 		self.assertEqual(0, Page.objects.all().count())
