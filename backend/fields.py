@@ -13,7 +13,8 @@ def Viewer():
 
 
 class Error(graphene.ObjectType):
-    key = graphene.String()
+    code = graphene.String()
+    location = graphene.String()
     message = graphene.String().NonNull
 
 
@@ -23,7 +24,7 @@ def Errors():
 
 def LoginRequiredError():
     return Error(
-        key='login_required',
+        code='login_required',
         message=_("You should be logged in to perform this action"),
     )
 

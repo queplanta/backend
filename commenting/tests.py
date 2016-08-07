@@ -55,8 +55,7 @@ class CommentsTest(TestCase):
                                     }
                                 },
                                 errors {
-                                    key,
-                                    message,
+                                    code,
                                 },
                             }
                         }
@@ -116,8 +115,7 @@ class CommentsTest(TestCase):
                                     }
                                 }
                                 errors {
-                                    key,
-                                    message,
+                                    code,
                                 },
                             }
                         }

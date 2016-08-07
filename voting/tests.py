@@ -59,8 +59,7 @@ class VotesTest(TestCase):
                                 }
                             },
                             errors {
-                                key,
-                                message,
+                                code
                             },
                         }
                     }
@@ -124,8 +123,7 @@ class VotesTest(TestCase):
                                 }
                             }
                             errors {
-                                key,
-                                message,
+                                code
                             },
                         }
                     }
@@ -201,8 +199,7 @@ class VotesTest(TestCase):
                             clientMutationId,
                             voteDeletedID
                             errors {
-                                key,
-                                message,
+                                code
                             },
                         }
                     }

@@ -68,8 +68,7 @@ class PostsTest(TestCase):
                                     }
                                 },
                                 errors {
-                                    key,
-                                    message,
+                                    code,
                                 },
                             }
                         }
@@ -107,8 +106,7 @@ class PostsTest(TestCase):
                     'post': None,
                     'clientMutationId': '1',
                     'errors': [{
-                        'key': login_required_error.key,
-                        'message': str(login_required_error.message),
+                        'code': login_required_error.code,
                     }]
                 },
             }
