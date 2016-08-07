@@ -1,0 +1,9 @@
+django==1.9.7
+graphene[django]==0.10.2
+django-graphiql==0.4.4
+django-filter==0.13.0
+django-ipware==1.1.5
+
+# Tests
+django-nose==1.4.4
+coverage==4.1
