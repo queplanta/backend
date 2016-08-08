@@ -96,20 +96,15 @@ class CommentsTest(TestCase):
                         mutation M($input_0: CommentCreateInput!) {
                             commentCreate(input: $input_0) {
                                 clientMutationId,
-                                parent {
-                                    ... on Post {
-                                        id
-                                        commenting {
-                                            count
-                                            comments {
-                                                edges {
-                                                    node {
-                                                        body
-                                                        revisionCreated {
-                                                            author {
-                                                                username
-                                                            }
-                                                        }
+                                commenting {
+                                    count
+                                    comments {
+                                        edges {
+                                            node {
+                                                body
+                                                revisionCreated {
+                                                    author {
+                                                        username
                                                     }
                                                 }
                                             }
@@ -134,22 +129,19 @@ class CommentsTest(TestCase):
         expected = {
             'data': {
                 'commentCreate': {
-                    'parent': {
-                        'id': postId2,
-                        'commenting': {
-                            'count': 1,
-                            'comments': {
-                                'edges': [
-                                    {'node': {
-                                        'body': comment['body'],
-                                        'revisionCreated': {
-                                            'author': {
-                                                'username': self.user.username,
-                                            }
-                                        },
-                                    }}
-                                ]
-                            }
+                    'commenting': {
+                        'count': 1,
+                        'comments': {
+                            'edges': [
+                                {'node': {
+                                    'body': comment['body'],
+                                    'revisionCreated': {
+                                        'author': {
+                                            'username': self.user.username,
+                                        }
+                                    },
+                                }}
+                            ]
                         }
                     },
                     'clientMutationId': '1',
