@@ -16,8 +16,8 @@ class CommentsTest(TestCase):
         self.user.save()
 
     def _do_login(self):
-        response = self.client.post('/graphql', content_type='application/json',
-            data=json.dumps({
+        response = self.client.post(
+            '/graphql', content_type='application/json', data=json.dumps({
                 'query': '''
                         mutation M($auth: AuthenticateInput!) {
                             authenticate(input: $auth) {
@@ -42,8 +42,8 @@ class CommentsTest(TestCase):
         self.assertTrue(response.json()['data']['authenticate']['viewer']['me']['isAuthenticated'])
 
     def _do_create_page(self, client, post):
-        return client.post('/graphql', content_type='application/json',
-            data=json.dumps({
+        return client.post(
+            '/graphql', content_type='application/json', data=json.dumps({
                 'query': '''
                         mutation M($input_0: PostCreateInput!) {
                             postCreate(input: $input_0) {
@@ -90,8 +90,8 @@ class CommentsTest(TestCase):
         postId = response.json()['data']['postCreate']['post']['document']['id']
         postId2 = response.json()['data']['postCreate']['post']['id']
 
-        response = self.client.post('/graphql', content_type='application/json',
-            data=json.dumps({
+        response = self.client.post(
+            '/graphql', content_type='application/json', data=json.dumps({
                 'query': '''
                         mutation M($input_0: CommentCreateInput!) {
                             commentCreate(input: $input_0) {
@@ -99,14 +99,16 @@ class CommentsTest(TestCase):
                                 parent {
                                     ... on Post {
                                         id
-                                        comments {
+                                        commenting {
                                             count
-                                            edges {
-                                                node {
-                                                    body
-                                                    revisionCreated {
-                                                        author {
-                                                            username
+                                            comments {
+                                                edges {
+                                                    node {
+                                                        body
+                                                        revisionCreated {
+                                                            author {
+                                                                username
+                                                            }
                                                         }
                                                     }
                                                 }
@@ -134,18 +136,20 @@ class CommentsTest(TestCase):
                 'commentCreate': {
                     'parent': {
                         'id': postId2,
-                        'comments': {
+                        'commenting': {
                             'count': 1,
-                            'edges': [
-                                {'node': {
-                                    'body': comment['body'],
-                                    'revisionCreated': {
-                                        'author': {
-                                            'username': self.user.username,
-                                        }
-                                    },
-                                }}
-                            ]
+                            'comments': {
+                                'edges': [
+                                    {'node': {
+                                        'body': comment['body'],
+                                        'revisionCreated': {
+                                            'author': {
+                                                'username': self.user.username,
+                                            }
+                                        },
+                                    }}
+                                ]
+                            }
                         }
                     },
                     'clientMutationId': '1',
@@ -155,27 +159,28 @@ class CommentsTest(TestCase):
         }
         self.assertEqual(response.json(), expected)
 
-        response = self.client.post('/graphql',
-            content_type='application/json',
-            data=json.dumps({
+        response = self.client.post(
+            '/graphql', content_type='application/json', data=json.dumps({
                 'query': '''
                         query($id: ID!) {
                             post(id: $id) {
                                 document {
                                     id
                                 },
-                                comments {
+                                commenting {
                                     count,
-                                    edges {
-                                        node {
-                                            body,
-                                            revisionCreated {
-                                                author {
-                                                    username
+                                    comments {
+                                        edges {
+                                            node {
+                                                body,
+                                                revisionCreated {
+                                                    author {
+                                                        username
+                                                    }
                                                 }
-                                            }
-                                            parent {
-                                                id
+                                                parent {
+                                                    id
+                                                }
                                             }
                                         }
                                     }
@@ -194,21 +199,23 @@ class CommentsTest(TestCase):
                     'document': {
                         'id': postId,
                     },
-                    'comments': {
+                    'commenting': {
                         'count': 1,
-                        'edges': [
-                            {'node': {
-                                'body': comment['body'],
-                                'revisionCreated': {
-                                    'author': {
-                                        'username': self.user.username,
-                                    }
-                                },
-                                'parent': {
-                                    'id': postId
-                                },
-                            }}
-                        ]
+                        'comments': {
+                            'edges': [
+                                {'node': {
+                                    'body': comment['body'],
+                                    'revisionCreated': {
+                                        'author': {
+                                            'username': self.user.username,
+                                        }
+                                    },
+                                    'parent': {
+                                        'id': postId
+                                    },
+                                }}
+                            ]
+                        }
                     },
                 },
             }

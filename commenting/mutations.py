@@ -5,9 +5,7 @@ from graphql_relay.node.node import from_global_id
 from accounts.decorators import login_required
 from db.models_graphql import Document
 from backend.mutations import Mutation
-from .models_graphql import Comment
-
-from graphene.relay.types import Node
+from .models_graphql import Comment, Commenting
 
 
 def comment_save(comment, args, request):
@@ -25,7 +23,7 @@ class CommentCreate(Mutation):
         body = graphene.String().NonNull
 
     comment = graphene.Field(CommentEdge)
-    parent = graphene.Field(Node)
+    commenting = graphene.Field(Commenting)
 
     @classmethod
     @login_required
@@ -37,12 +35,14 @@ class CommentCreate(Mutation):
 
         comment = comment_save(comment, input, request)
 
-        schema = info.schema.graphene_schema
-        object_type = schema.get_type(gid_type)
-        parent = object_type(object_type.get_node(gid, request, info))
+        # schema = info.schema.graphene_schema
+        # object_type = schema.get_type(gid_type)
+        # parent = object_type(object_type.get_node(gid, request, info))
 
-        return CommentCreate(comment=CommentEdge(node=comment, cursor='.'),
-            parent=parent)
+        return CommentCreate(
+            comment=CommentEdge(node=comment, cursor='.'),
+            commenting=Commenting.get_node(gid, info)
+        )
 
 
 class CommentEdit(Mutation):
