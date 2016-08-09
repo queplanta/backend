@@ -9,6 +9,8 @@ from voting import mutations as voting_mutations
 
 class Mutation(graphene.ObjectType):
     register = graphene.Field(accounts_mutations.Register)
+    registerAndAuthenticate = graphene.Field(
+        accounts_mutations.RegisterAndAuthenticate)
     authenticate = graphene.Field(accounts_mutations.Authenticate)
     deauthenticate = graphene.Field(accounts_mutations.Deauthenticate)
     mePasswordChange = graphene.Field(accounts_mutations.PasswordChange)

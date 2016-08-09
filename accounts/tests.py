@@ -20,9 +20,10 @@ class AccountsTest(TestCase):
                 'variables': {
                     'auth': {
                         'clientMutationId': 'mutation1',
-                        'name': 'Alisson',
+                        'firstName': 'Alisson',
                         'username': 'alisson',
-                        'password': 'patricio',
+                        'password1': 'patricio',
+                        'password2': 'patricio',
                         'email': 'eu@alisson.net'
                     }
                 }
@@ -367,3 +368,44 @@ class AccountsTest(TestCase):
         })
 
         self._do_login(password='n3wp4ssw0rd2')
+
+    def test_register_and_authenticate(self):
+        response = self.client.post(
+            '/graphql', content_type='application/json', data=json.dumps({
+                'query': '''
+                        mutation M($auth: RegisterInput!) {
+                            registerAndAuthenticate(input: $auth) {
+                                clientMutationId,
+                                viewer {
+                                    me {
+                                        firstName
+                                    }
+                                }
+                            }
+                        }
+                        ''',
+                'variables': {
+                    'auth': {
+                        'clientMutationId': 'mutation1',
+                        'firstName': 'Alisson',
+                        'username': 'nossila',
+                        'password1': 'patricio',
+                        'password2': 'patricio',
+                        'email': 'nossila@alisson.net'
+                    }
+                }
+            }))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), {
+            'data': {
+                'registerAndAuthenticate': {
+                    'viewer': {
+                        'me': {
+                            'firstName': 'Alisson'
+                        },
+                    },
+                    'clientMutationId': 'mutation1'
+                },
+            }
+        })
+        self.assertTrue('sessionid' in response.cookies)

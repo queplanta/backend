@@ -1,12 +1,15 @@
 import graphene
 from graphene.utils import with_context
 
+from django import forms
 from django.contrib.auth import (
+    authenticate,
     login as auth_login,
     logout as auth_logout
 )
 from django.contrib.auth.forms import (
-    AuthenticationForm, PasswordChangeForm, PasswordResetForm, SetPasswordForm
+    AuthenticationForm, PasswordChangeForm, PasswordResetForm, SetPasswordForm,
+    UserCreationForm as DjangoUserCreationForm
 )
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.encoding import force_text
@@ -16,6 +19,7 @@ from django.utils.translation import ugettext_lazy as _
 from backend.fields import Error
 from backend.mutations import Mutation
 from .models_graphql import User
+from .models import User as UserModel
 from .decorators import login_required
 
 
@@ -31,26 +35,75 @@ def form_erros(form, errors=[]):
     return errors
 
 
+class UserCreationForm(DjangoUserCreationForm):
+    class Meta:
+        model = UserModel
+        fields = ("username", "email", "first_name")
+
+    def __init__(self, *args, **kwargs):
+        super(UserCreationForm, self).__init__(*args, **kwargs)
+        self.fields['email'].required = True
+
+    def clean_username(self):
+        username = self.cleaned_data.get("username")
+        if UserModel.objects.filter(username=username).exists():
+            raise forms.ValidationError(
+                _("Este usuario já esta usado por outra pessoa. "
+                  "Por favor, tente outro."),
+                code='username_being_used',
+            )
+        return username
+
+    def clean_email(self):
+        email = self.cleaned_data.get("email")
+        if UserModel.objects.filter(email=email).exists():
+            raise forms.ValidationError(
+                _("Este e-mail já esta usado por outra pessoa. "
+                  "Por favor, tente outro."),
+                code='email_being_used',
+            )
+        return email
+
+
 class Register(Mutation):
     class Input:
-        name = graphene.String()
+        first_name = graphene.String()
         username = graphene.String().NonNull
         email = graphene.String().NonNull
-        password = graphene.String().NonNull
+        password1 = graphene.String().NonNull
+        password2 = graphene.String().NonNull
 
     user = graphene.Field(User)
 
     @classmethod
     @with_context
     def mutate_and_get_payload(cls, input, request, info):
-        user = User._meta.model(
-            first_name=input.get('name'),
-            username=input.get('username'),
-            email=input.get('email'),
-        )
-        user.set_password(input.get('password'))
-        user.save(request=request)
-        return Register(user=user)
+        errors = []
+        user = None
+
+        form = UserCreationForm(data=input)
+        if form.is_valid():
+            user = form.save(commit=False)
+            user.save(request=request)
+        else:
+            errors = form_erros(form, errors)
+        return Register(user=user, errors=errors)
+
+
+class RegisterAndAuthenticate(Register):
+    @classmethod
+    @with_context
+    def mutate_and_get_payload(cls, input, request, info):
+        register = super(
+            RegisterAndAuthenticate,
+            cls).mutate_and_get_payload(input, request, info)
+        if register.user:
+            user_auth = authenticate(username=register.user.username,
+                                     password=input.get('password1'))
+            if user_auth:
+                auth_login(request, user_auth)
+        return RegisterAndAuthenticate(user=register.user,
+                                       errors=register.errors)
 
 
 class Authenticate(Mutation):
