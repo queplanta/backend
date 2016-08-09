@@ -98,10 +98,12 @@ class RegisterAndAuthenticate(Register):
             RegisterAndAuthenticate,
             cls).mutate_and_get_payload(input, request, info)
         if register.user:
+            # workarout to authenticate the user
+            # it just needs the auth backend associated
+            # to the user
             user_auth = authenticate(username=register.user.username,
                                      password=input.get('password1'))
-            if user_auth:
-                auth_login(request, user_auth)
+            auth_login(request, user_auth)
         return RegisterAndAuthenticate(user=register.user,
                                        errors=register.errors)
 
@@ -154,6 +156,13 @@ class PasswordChange(Mutation):
         if form.is_valid():
             user = form.save(commit=False)
             user.save(request=request)
+
+            # workarout to re authenticate the user
+            # it just needs the auth backend associated
+            # to the user
+            user_auth = authenticate(username=user.username,
+                                     password=input['new_password1'])
+            auth_login(request, user_auth)
         else:
             errors = form_erros(form, errors)
         return PasswordChange(errors=errors)
@@ -210,6 +219,13 @@ class PasswordResetComplete(Mutation):
             if form.is_valid():
                 user = form.save(commit=False)
                 user.save(request=request)
+
+                # workarout to re authenticate the user
+                # it just needs the auth backend associated
+                # to the user
+                user_auth = authenticate(username=user.username,
+                                         password=input['new_password1'])
+                auth_login(request, user_auth)
             else:
                 errors = form_erros(form, errors)
         else:
