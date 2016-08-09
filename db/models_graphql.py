@@ -19,7 +19,7 @@ class Revision(DjangoNode):
 
     def resolve_author(self, args, info):
         if self.author_id:
-            return User._meta.model.objects.get(pk=self.author_id)
+            return User._meta.model.objects.get(document_id=self.author_id)
 
     def resolve_after(self, args, info):
         return Revision._meta.model.objects.filter(
