@@ -18,6 +18,8 @@ class Mutation(graphene.ObjectType):
         accounts_mutations.PasswordResetEmail)
     mePasswordResetComplete = graphene.Field(
         accounts_mutations.PasswordResetComplete)
+    meProfileEdit = graphene.Field(
+        accounts_mutations.ProfileEdit)
 
     postCreate = graphene.Field(PostCreate)
     postEdit = graphene.Field(PostEdit)

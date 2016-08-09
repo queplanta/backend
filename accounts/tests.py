@@ -409,3 +409,54 @@ class AccountsTest(TestCase):
             }
         })
         self.assertTrue('sessionid' in response.cookies)
+
+    def test_profile_edit(self):
+        self._do_login()
+
+        def profile_edit(name, email, username):
+            return self.client.post(
+                '/graphql', content_type='application/json', data=json.dumps({
+                    'query': '''
+                            mutation M($auth: ProfileEditInput!) {
+                                meProfileEdit(input: $auth) {
+                                    clientMutationId,
+                                    errors {
+                                        code
+                                    }
+                                    viewer {
+                                        me {
+                                            firstName
+                                            email
+                                            username
+                                        }
+                                    }
+                                }
+                            }
+                            ''',
+                    'variables': {
+                        'auth': {
+                            'clientMutationId': 'profileEdit',
+                            'firstName': name,
+                            'email': email,
+                            'username': username,
+                        }
+                    }
+                }))
+
+        response = profile_edit('Patricio', 'nos@sila.net', 'nossila')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), {
+            'data': {
+                'meProfileEdit': {
+                    'viewer': {
+                        'me': {
+                            'firstName': 'Patricio',
+                            'email': 'nos@sila.net',
+                            'username': 'nossila'
+                        },
+                    },
+                    'errors': [],
+                    'clientMutationId': 'profileEdit'
+                },
+            }
+        })

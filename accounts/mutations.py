@@ -235,3 +235,58 @@ class PasswordResetComplete(Mutation):
             ))
 
         return PasswordResetComplete(errors=errors)
+
+
+class UserEditForm(forms.ModelForm):
+    class Meta:
+        model = UserModel
+        fields = ("username", "email", "first_name")
+
+    def __init__(self, *args, **kwargs):
+        super(UserEditForm, self).__init__(*args, **kwargs)
+        self.fields['email'].required = True
+
+    def clean_username(self):
+        username = self.cleaned_data.get("username")
+        if UserModel.objects.filter(username=username).exclude(
+                document_id=self.instance.document_id).exists():
+            raise forms.ValidationError(
+                _("Este usuario já esta usado por outra pessoa. "
+                  "Por favor, tente outro."),
+                code='username_being_used',
+            )
+        return username
+
+    def clean_email(self):
+        email = self.cleaned_data.get("email")
+        if UserModel.objects.filter(email=email).exclude(
+                document_id=self.instance.document_id).exists():
+            raise forms.ValidationError(
+                _("Este e-mail já esta usado por outra pessoa. "
+                  "Por favor, tente outro."),
+                code='email_being_used',
+            )
+        return email
+
+
+class ProfileEdit(Mutation):
+    class Input:
+        first_name = graphene.String()
+        username = graphene.String().NonNull
+        email = graphene.String().NonNull
+
+    user = graphene.Field(User)
+
+    @classmethod
+    @login_required
+    def mutate_and_get_payload(cls, input, request, info):
+        errors = []
+        user = request.user
+
+        form = UserEditForm(data=input, instance=user)
+        if form.is_valid():
+            user = form.save(commit=False)
+            user.save(request=request)
+        else:
+            errors = form_erros(form, errors)
+        return ProfileEdit(user=user, errors=errors)
