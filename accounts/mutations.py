@@ -2,8 +2,8 @@ import graphene
 from graphene.utils import with_context
 
 from django import forms
+from django.conf import settings
 from django.contrib.auth import (
-    authenticate,
     login as auth_login,
     logout as auth_logout
 )
@@ -98,12 +98,10 @@ class RegisterAndAuthenticate(Register):
             RegisterAndAuthenticate,
             cls).mutate_and_get_payload(input, request, info)
         if register.user:
-            # workarout to authenticate the user
-            # it just needs the auth backend associated
-            # to the user
-            user_auth = authenticate(username=register.user.username,
-                                     password=input.get('password1'))
-            auth_login(request, user_auth)
+            # workarout to re authenticate the user
+            # when as change the user on the DB it gets disconected
+            register.user.backend = settings.DEFAULT_AUTHENTICATION_BACKENDS
+            auth_login(request, register.user)
         return RegisterAndAuthenticate(user=register.user,
                                        errors=register.errors)
 
@@ -158,11 +156,9 @@ class PasswordChange(Mutation):
             user.save(request=request)
 
             # workarout to re authenticate the user
-            # it just needs the auth backend associated
-            # to the user
-            user_auth = authenticate(username=user.username,
-                                     password=input['new_password1'])
-            auth_login(request, user_auth)
+            # when as change the user on the DB it gets disconected
+            user.backend = settings.DEFAULT_AUTHENTICATION_BACKENDS
+            auth_login(request, user)
         else:
             errors = form_erros(form, errors)
         return PasswordChange(errors=errors)
@@ -221,11 +217,9 @@ class PasswordResetComplete(Mutation):
                 user.save(request=request)
 
                 # workarout to re authenticate the user
-                # it just needs the auth backend associated
-                # to the user
-                user_auth = authenticate(username=user.username,
-                                         password=input['new_password1'])
-                auth_login(request, user_auth)
+                # when as change the user on the DB it gets disconected
+                user.backend = settings.DEFAULT_AUTHENTICATION_BACKENDS
+                auth_login(request, user)
             else:
                 errors = form_erros(form, errors)
         else:
@@ -287,6 +281,11 @@ class ProfileEdit(Mutation):
         if form.is_valid():
             user = form.save(commit=False)
             user.save(request=request)
+
+            # workarout to re authenticate the user
+            # when as change the user on the DB it gets disconected
+            user.backend = settings.DEFAULT_AUTHENTICATION_BACKENDS
+            auth_login(request, user)
         else:
             errors = form_erros(form, errors)
         return ProfileEdit(user=user, errors=errors)
