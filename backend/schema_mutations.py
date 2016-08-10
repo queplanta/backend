@@ -20,6 +20,8 @@ class Mutation(graphene.ObjectType):
         accounts_mutations.PasswordResetComplete)
     meProfileEdit = graphene.Field(
         accounts_mutations.ProfileEdit)
+    meProfileChangeAvatar = graphene.Field(
+        accounts_mutations.ProfileChangeAvatar)
 
     postCreate = graphene.Field(PostCreate)
     postEdit = graphene.Field(PostEdit)

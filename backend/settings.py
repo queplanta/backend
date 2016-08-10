@@ -141,3 +141,6 @@ GRAPHENE_SCHEMA = 'backend.schema'
 # Testing
 EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
 # TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
+
+MEDIA_ROOT = os.path.join(BASE_DIR, 'public')
+MEDIA_URL = '/public/'

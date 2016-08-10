@@ -48,6 +48,7 @@ class User(AbstractBaseUser, PermissionsMixin, DocumentBase):
         ),
     )
     date_joined = models.DateTimeField(_('date joined'), default=timezone.now)
+    avatar = models.ImageField(max_length=512, blank=True, null=True)
 
     objects = UserManager()
 

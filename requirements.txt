@@ -3,6 +3,7 @@ graphene[django]==0.10.2
 django-graphiql==0.4.4
 django-filter==0.13.0
 django-ipware==1.1.5
+Pillow==3.3.0
 
 # Tests
 django-nose==1.4.4

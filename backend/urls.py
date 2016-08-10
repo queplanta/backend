@@ -1,21 +1,8 @@
-"""backend URL Configuration
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/1.9/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  url(r'^$', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  url(r'^$', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.conf.urls import url, include
-    2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
-"""
+from django.conf import settings
 from django.conf.urls import url, include
 from django.contrib import admin
 from django.views.decorators.csrf import csrf_exempt
+from django.views.static import serve as static_serve
 
 from graphene.contrib.django.views import GraphQLView
 from .schema import schema
@@ -34,4 +21,7 @@ urlpatterns = [
 
     url(r'^%s$' % URL_PASSWORD_RESET,
         dumb_view, name='password_reset_confirm'),
+
+    url(r'^public/(?P<path>.*)$', static_serve,
+        {'document_root': settings.MEDIA_ROOT, 'show_indexes': True}),
 ]

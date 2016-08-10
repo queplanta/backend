@@ -289,3 +289,36 @@ class ProfileEdit(Mutation):
         else:
             errors = form_erros(form, errors)
         return ProfileEdit(user=user, errors=errors)
+
+
+class UserAvatarForm(forms.ModelForm):
+    class Meta:
+        model = UserModel
+        fields = ("avatar",)
+
+
+class ProfileChangeAvatar(Mutation):
+    class Input:
+        pass
+    #     avatar = graphene.String()
+
+    user = graphene.Field(User)
+
+    @classmethod
+    @login_required
+    def mutate_and_get_payload(cls, input, request, info):
+        errors = []
+        user = request.user
+
+        form = UserAvatarForm(request.POST, request.FILES, instance=user)
+        if form.is_valid():
+            user = form.save(commit=False)
+            user.save(request=request)
+
+            # workarout to re authenticate the user
+            # when as change the user on the DB it gets disconected
+            user.backend = settings.DEFAULT_AUTHENTICATION_BACKENDS
+            auth_login(request, user)
+        else:
+            errors = form_erros(form, errors)
+        return ProfileChangeAvatar(user=user, errors=errors)

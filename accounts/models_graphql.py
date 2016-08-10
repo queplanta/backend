@@ -27,3 +27,9 @@ class User(DocumentBase, DjangoNode):
                 request.user.is_superuser):
             return self.email
         return _("Você não tem permissão")
+
+    @with_context
+    def resolve_avatar(self, args, request, info):
+        if self.avatar:
+            return self.avatar.url
+        return None
