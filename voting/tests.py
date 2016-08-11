@@ -51,7 +51,7 @@ class VotesTest(TestCase):
                             clientMutationId,
                             post {
                                 id
-                                votes {
+                                voting {
                                     count
                                     mine {
                                         value
@@ -98,17 +98,19 @@ class VotesTest(TestCase):
                             parent {
                                 ... on Post {
                                     id
-                                    votes {
+                                    voting {
                                         count
                                         mine {
                                             value
                                         }
-                                        edges {
-                                            node {
-                                                value
-                                                revisionCreated {
-                                                    author {
-                                                        username
+                                        votes {
+                                            edges {
+                                                node {
+                                                    value
+                                                    revisionCreated {
+                                                        author {
+                                                            username
+                                                        }
                                                     }
                                                 }
                                             }
@@ -142,21 +144,23 @@ class VotesTest(TestCase):
                 'voteSet': {
                     'parent': {
                         'id': post['id'],
-                        'votes': {
+                        'voting': {
                             'count': 1,
                             'mine': {
                                 'value': -1,
                             },
-                            'edges': [
-                                {'node': {
-                                    'value': -1,
-                                    'revisionCreated': {
-                                        'author': {
-                                            'username': self.user.username,
-                                        }
-                                    },
-                                }}
-                            ]
+                            'votes': {
+                                'edges': [
+                                    {'node': {
+                                        'value': -1,
+                                        'revisionCreated': {
+                                            'author': {
+                                                'username': self.user.username,
+                                            }
+                                        },
+                                    }}
+                                ]
+                            }
                         },
                     },
                     'vote': {
@@ -177,7 +181,7 @@ class VotesTest(TestCase):
                 'query': '''
                     query ($id_0: ID!) {
                         post(id: $id_0) {
-                          votes {
+                          voting {
                             mine {
                                 id
                             }
@@ -189,7 +193,7 @@ class VotesTest(TestCase):
                     'id_0': post['id']
                 }
             }))
-        vote = response.json()['data']['post']['votes']['mine']
+        vote = response.json()['data']['post']['voting']['mine']
 
         response = self.client.post(
             '/graphql', content_type='application/json', data=json.dumps({
@@ -217,7 +221,7 @@ class VotesTest(TestCase):
                 'query': '''
                     query ($id_0: ID!) {
                         post(id: $id_0) {
-                          votes {
+                          voting {
                             count
                             mine {
                                 id
@@ -231,4 +235,4 @@ class VotesTest(TestCase):
                 }
             }))
         self.assertEqual(response.json(), {
-            'data': {'post': {'votes': {'count': 0, 'mine': None}}}})
+            'data': {'post': {'voting': {'count': 0, 'mine': None}}}})

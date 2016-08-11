@@ -36,15 +36,6 @@ class Connection(DjangoConnection):
         return len(self.get_connection_data())
 
 
-class ConnectionField(DjangoConnectionField):
-    @with_context
-    def resolver(self, instance, args, context, info):
-        resolved = super(ConnectionField, self).resolver(
-            instance, args, context, info)
-        resolved._set_parent(instance)
-        return resolved
-
-
 class GetBy(Field):
     @with_context
     def resolver(self, instance, args, context, info):
