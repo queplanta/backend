@@ -95,23 +95,18 @@ class VotesTest(TestCase):
                     mutation M($input_0: VoteSetInput!) {
                         voteSet(input: $input_0) {
                             clientMutationId,
-                            parent {
-                                ... on Post {
-                                    id
-                                    voting {
-                                        count
-                                        mine {
+                            voting {
+                                count
+                                mine {
+                                    value
+                                }
+                                votes {
+                                    edges {
+                                        node {
                                             value
-                                        }
-                                        votes {
-                                            edges {
-                                                node {
-                                                    value
-                                                    revisionCreated {
-                                                        author {
-                                                            username
-                                                        }
-                                                    }
+                                            revisionCreated {
+                                                author {
+                                                    username
                                                 }
                                             }
                                         }
@@ -142,26 +137,23 @@ class VotesTest(TestCase):
         self.assertEqual(response.json(), {
             'data': {
                 'voteSet': {
-                    'parent': {
-                        'id': post['id'],
-                        'voting': {
-                            'count': 1,
-                            'mine': {
-                                'value': -1,
-                            },
-                            'votes': {
-                                'edges': [
-                                    {'node': {
-                                        'value': -1,
-                                        'revisionCreated': {
-                                            'author': {
-                                                'username': self.user.username,
-                                            }
-                                        },
-                                    }}
-                                ]
-                            }
+                    'voting': {
+                        'count': 1,
+                        'mine': {
+                            'value': -1,
                         },
+                        'votes': {
+                            'edges': [
+                                {'node': {
+                                    'value': -1,
+                                    'revisionCreated': {
+                                        'author': {
+                                            'username': self.user.username,
+                                        }
+                                    },
+                                }}
+                            ]
+                        }
                     },
                     'vote': {
                         'value': -1,
