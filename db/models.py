@@ -24,7 +24,8 @@ class DocumentID(models.Model):
     deleted_at = models.DateTimeField(null=True)
 
     def get_object(self):
-        return self.content_type.model_class().objects.get(document_id=self.pk)
+        return self.content_type.model_class().objects_revisions.get(
+            pk=self.revision_tip_id)
 
     @property
     def revision_tip(self):
@@ -34,8 +35,19 @@ class DocumentID(models.Model):
     def revision_created(self):
         return Revision.objects.get(pk=self.revision_created_id)
 
+REVISION_TYPES_CREATE = 'create'
+REVISION_TYPES_CHANGE = 'change'
+REVISION_TYPES_DELETE = 'delete'
+
+REVISION_TYPES = (
+    (REVISION_TYPES_CREATE, "Create"),
+    (REVISION_TYPES_CHANGE, "Change"),
+    (REVISION_TYPES_DELETE, "Delete"),
+)
+
 
 class Revision(models.Model):
+    type = models.CharField(max_length=6, choices=REVISION_TYPES)
     created_at = models.DateTimeField(auto_now_add=True)
     parent = models.ForeignKey('self', null=True, on_delete=models.PROTECT)
     document = models.ForeignKey(DocumentID, on_delete=models.PROTECT)
@@ -100,7 +112,16 @@ class DocumentBase(models.Model):
             ip = get_real_ip(request)
             useragent = request.META.get('HTTP_USER_AGENT')
 
+        revision_type = None
+        if not parent_id:
+            revision_type = REVISION_TYPES_CREATE
+        elif self.is_deleted:
+            revision_type = REVISION_TYPES_DELETE
+        else:
+            revision_type = REVISION_TYPES_CHANGE
+
         revision = Revision.objects.create(
+            type=revision_type,
             document=self.document,
             parent_id=parent_id,
             author=author.document if author else None,

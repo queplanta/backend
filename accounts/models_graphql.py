@@ -2,7 +2,7 @@ from django.utils.translation import ugettext_lazy as _
 
 import graphene
 from graphene.utils import with_context
-from graphene.contrib.django import DjangoNode
+from graphene.contrib.django import DjangoNode, DjangoConnectionField
 
 from sorl.thumbnail import get_thumbnail
 
@@ -33,6 +33,8 @@ class User(DocumentBase, DjangoNode):
     is_authenticated = graphene.Boolean()
     avatar = graphene.Field(Image)
 
+    actions = DjangoConnectionField('Revision')
+
     @with_context
     def resolve_is_authenticated(self, args, request, info):
         return request.user.is_authenticated()
@@ -54,3 +56,9 @@ class User(DocumentBase, DjangoNode):
         if self.avatar:
             return Image(self.avatar)
         return None
+
+    @with_context
+    def resolve_actions(self, args, request, info):
+        from db.models_graphql import Revision
+        return Revision._meta.model.objects.filter(
+            author_id=self.document.pk).order_by('-created_at')

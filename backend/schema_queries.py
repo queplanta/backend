@@ -9,6 +9,7 @@ from posts.models_graphql import Post
 from tags.models_graphql import Tag
 from voting.models_graphql import Vote
 from commenting.models_graphql import Comment
+from db.models_graphql import Revision, Document
 
 from .fields import GetBy, GetByRevisionID
 
@@ -40,6 +41,9 @@ class Query(graphene.ObjectType):
     me = graphene.Field(User)
     user = relay.NodeField(User)
     user_by_username = GetBy(User, username=graphene.String().NonNull)
+
+    revision = relay.NodeField(Revision)
+    document = relay.NodeField(Document)
 
     all_posts = DjangoFilterConnectionField(Post, on='objects')
     post = relay.NodeField(Post)

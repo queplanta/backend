@@ -1,5 +1,6 @@
 import graphene
 from graphene.contrib.django import DjangoNode, DjangoConnectionField
+from graphene.relay.types import Node
 
 from accounts.models_graphql import User
 
@@ -13,6 +14,9 @@ class Revision(DjangoNode):
     author = graphene.Field(User)
     after = DjangoConnectionField('self')
     before = graphene.Field('self')
+    document = graphene.Field('Document')
+    object = graphene.Field(Node)
+    type = graphene.String()
 
     class Meta:
         model = RevisionModel
@@ -28,6 +32,24 @@ class Revision(DjangoNode):
 
     def resolve_before(self, args, info):
         return self.parent
+
+    def resolve_object(self, args, info):
+        obj = self.document.content_type.model_class().objects_revisions.get(
+            pk=self.pk)
+
+        object_type = None
+        schema = info.schema.graphene_schema
+        for obj_type_str, obj_type in schema._types_names.items():
+            if hasattr(obj_type._meta, 'model'):
+                if obj_type._meta.model and \
+                   isinstance(obj, obj_type._meta.model):
+                    object_type = obj_type
+
+        graphql_parent = None
+        if object_type:
+            graphql_parent = object_type(obj)
+
+        return graphql_parent
 
 
 class Document(DjangoNode):
