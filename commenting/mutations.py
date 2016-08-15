@@ -66,12 +66,17 @@ class CommentDelete(Mutation):
         id = graphene.ID().NonNull
 
     commentDeletedID = graphene.ID().NonNull
+    commenting = graphene.Field(Commenting)
 
     @classmethod
     @login_required
     def mutate_and_get_payload(cls, input, request, info):
         gid_type, gid = from_global_id(input.get('id'))
         comment = Comment._meta.model.objects.get(document_id=gid)
+        parent_id = comment.parent_id
         comment.delete(request=request)
 
-        return CommentDelete(commentDeletedID=input.get('id'))
+        return CommentDelete(
+            commentDeletedID=input.get('id'),
+            commenting=Commenting.get_node(parent_id, info)
+        )
