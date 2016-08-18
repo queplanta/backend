@@ -40,14 +40,3 @@ class GetBy(Field):
     @with_context
     def resolver(self, instance, args, context, info):
         return self.type._meta.model.objects.get(**args)
-
-
-class GetByRevisionID(GetBy):
-    @with_context
-    def resolver(self, instance, args, context, info):
-        gid_type, gid = from_global_id(args.get('id'))
-
-        obj = self.type._meta.model.objects_revisions.get(revision_id=gid)
-        obj._id_with_revision = True
-
-        return obj
