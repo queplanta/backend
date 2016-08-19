@@ -17,6 +17,7 @@ class Revision(DjangoNode):
     document = graphene.Field('Document')
     object = graphene.Field(Node)
     type = graphene.String()
+    is_tip = graphene.Boolean()
 
     class Meta:
         model = RevisionModel
@@ -50,6 +51,9 @@ class Revision(DjangoNode):
             graphql_parent = object_type(obj)
 
         return graphql_parent
+
+    def resolve_is_tip(self, args, info):
+        return self.id == self.document.revision_tip_id
 
 
 class Document(DjangoNode):
