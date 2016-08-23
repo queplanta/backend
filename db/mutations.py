@@ -35,7 +35,7 @@ class RevisionRevert(Mutation):
         document.revision_tip_id = revision.pk
         document.save(update_fields=['revision_tip_id'])
 
-        current_obj.is_tip = False
+        current_obj.is_tip = None
         current_obj.save(update_fields=['is_tip'], request=request)
 
         obj = revision.get_object()
