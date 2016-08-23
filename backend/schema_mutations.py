@@ -5,6 +5,7 @@ from posts.mutations import PostCreate, PostEdit, PostDelete
 from tags.mutations import TagCreate, TagEdit, TagDelete
 from commenting.mutations import CommentCreate, CommentEdit, CommentDelete
 from voting import mutations as voting_mutations
+from db import mutations as db_mutations
 
 
 class Mutation(graphene.ObjectType):
@@ -37,3 +38,5 @@ class Mutation(graphene.ObjectType):
 
     voteSet = graphene.Field(voting_mutations.VoteSet)
     voteDelete = graphene.Field(voting_mutations.VoteDelete)
+
+    revisionRevert = graphene.Field(db_mutations.RevisionRevert)

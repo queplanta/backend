@@ -60,6 +60,10 @@ class Revision(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
 
+    def get_object(self):
+        return self.document.content_type.model_class().objects_revisions.get(
+            pk=self.pk)
+
 
 class TipManager(models.Manager):
     def get_queryset(self):
