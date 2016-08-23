@@ -1,15 +1,13 @@
-import datetime
 import graphene
-from graphene.utils import with_context
-from graphene.core.classtypes import Scalar
 from graphene.core.types.custom_scalars import DateTime
-from graphql.language import ast
 from graphene.relay.fields import GlobalIDField
 from graphql_relay.node.node import to_global_id
 
 
 class DocumentBase(graphene.ObjectType):
     id = GlobalIDField()
+
+    my_perms = graphene.String().List
 
     @classmethod
     def global_id(cls, id):
@@ -18,7 +16,8 @@ class DocumentBase(graphene.ObjectType):
 
     def to_global_id(self):
         if hasattr(self, '_id_with_revision'):
-            return self.global_id("%d:%d" % (self.document_id, self.revision_id))
+            return self.global_id("%d:%d" % (self.document_id,
+                                             self.revision_id))
         return self.global_id(self.document_id)
 
     @classmethod
