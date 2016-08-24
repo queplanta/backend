@@ -1,76 +1,38 @@
 import json
 
-from django.test import TestCase
-
-from accounts.models import User
+from backend.tests import UserTestCase
 
 
-class CommentsTest(TestCase):
-    def setUp(self):
-        self.maxDiff = None
-        self.user = User(
-            username='alisson',
-            email='eu@alisson.net'
-        )
-        self.user.set_password('patricio')
-        self.user.save()
-
-    def _do_login(self):
-        response = self.client.post(
-            '/graphql', content_type='application/json', data=json.dumps({
-                'query': '''
-                        mutation M($auth: AuthenticateInput!) {
-                            authenticate(input: $auth) {
-                                clientMutationId,
-                                viewer {
-                                    me {
-                                        firstName
-                                        isAuthenticated
-                                    }
-                                }
-                            }
-                        }
-                        ''',
-                'variables': {
-                    'auth': {
-                        'clientMutationId': 'mutation2',
-                        'username': 'alisson',
-                        'password': 'patricio',
-                    }
-                }
-            }))
-        self.assertTrue(response.json()['data']['authenticate']['viewer']['me']['isAuthenticated'])
-
+class CommentsTest(UserTestCase):
     def _do_create_page(self, client, post):
-        return client.post(
-            '/graphql', content_type='application/json', data=json.dumps({
-                'query': '''
-                        mutation M($input_0: PostCreateInput!) {
-                            postCreate(input: $input_0) {
-                                clientMutationId,
-                                post {
-                                    id
-                                    document {
-                                        id
-                                    }
-                                },
-                                errors {
-                                    code,
-                                },
+        return self.graphql({
+            'query': '''
+                mutation M($input_0: PostCreateInput!) {
+                    postCreate(input: $input_0) {
+                        clientMutationId,
+                        post {
+                            id
+                            document {
+                                id
                             }
-                        }
-                        ''',
-                'variables': {
-                    'input_0': {
-                        'clientMutationId': '1',
-                        'url': post['url'],
-                        'title': post['title'],
-                        'body': post['body'],
-                        'tags': post['tags'],
-                        'publishedAt': post['publishedAt'],
+                        },
+                        errors {
+                            code,
+                        },
                     }
                 }
-            }))
+                ''',
+            'variables': {
+                'input_0': {
+                    'clientMutationId': '1',
+                    'url': post['url'],
+                    'title': post['title'],
+                    'body': post['body'],
+                    'tags': post['tags'],
+                    'publishedAt': post['publishedAt'],
+                }
+            }
+        }, client=client)
 
     def test_comment(self):
         post = {
@@ -87,44 +49,43 @@ class CommentsTest(TestCase):
 
         self._do_login()
         response = self._do_create_page(self.client, post)
-        postId = response.json()['data']['postCreate']['post']['document']['id']
-        postId2 = response.json()['data']['postCreate']['post']['id']
+        postDocumentId = response.json()['data']['postCreate']['post']['document']['id']
+        postId = response.json()['data']['postCreate']['post']['id']
 
-        response = self.client.post(
-            '/graphql', content_type='application/json', data=json.dumps({
-                'query': '''
-                        mutation M($input_0: CommentCreateInput!) {
-                            commentCreate(input: $input_0) {
-                                clientMutationId,
-                                commenting {
-                                    count
-                                    comments {
-                                        edges {
-                                            node {
-                                                body
-                                                revisionCreated {
-                                                    author {
-                                                        username
-                                                    }
-                                                }
+        response = self.graphql({
+            'query': '''
+                mutation M($input_0: CommentCreateInput!) {
+                    commentCreate(input: $input_0) {
+                        clientMutationId,
+                        commenting {
+                            count
+                            comments {
+                                edges {
+                                    node {
+                                        body
+                                        revisionCreated {
+                                            author {
+                                                username
                                             }
                                         }
                                     }
                                 }
-                                errors {
-                                    code,
-                                },
                             }
                         }
-                        ''',
-                'variables': {
-                    'input_0': {
-                        'clientMutationId': '1',
-                        'body': comment['body'],
-                        'parent': postId2,
+                        errors {
+                            code,
+                        },
                     }
                 }
-            }))
+                ''',
+            'variables': {
+                'input_0': {
+                    'clientMutationId': '1',
+                    'body': comment['body'],
+                    'parent': postId,
+                }
+            }
+        })
 
         expected = {
             'data': {
@@ -151,45 +112,44 @@ class CommentsTest(TestCase):
         }
         self.assertEqual(response.json(), expected)
 
-        response = self.client.post(
-            '/graphql', content_type='application/json', data=json.dumps({
-                'query': '''
-                        query($id: ID!) {
-                            post(id: $id) {
-                                document {
-                                    id
-                                },
-                                commenting {
-                                    count,
-                                    comments {
-                                        edges {
-                                            node {
-                                                body,
-                                                revisionCreated {
-                                                    author {
-                                                        username
-                                                    }
-                                                }
-                                                parent {
-                                                    id
-                                                }
+        response = self.graphql({
+            'query': '''
+                query($id: ID!) {
+                    post(id: $id) {
+                        document {
+                            id
+                        },
+                        commenting {
+                            count,
+                            comments {
+                                edges {
+                                    node {
+                                        body,
+                                        revisionCreated {
+                                            author {
+                                                username
                                             }
+                                        }
+                                        parent {
+                                            id
                                         }
                                     }
                                 }
                             }
                         }
-                        ''',
-                'variables': {
-                    'id': postId2
+                    }
                 }
-            }))
+                ''',
+            'variables': {
+                'id': postId
+            }
+        })
 
         expected = {
             'data': {
                 'post': {
                     'document': {
-                        'id': postId,
+                        'id': postDocumentId,
                     },
                     'commenting': {
                         'count': 1,
@@ -203,7 +163,7 @@ class CommentsTest(TestCase):
                                         }
                                     },
                                     'parent': {
-                                        'id': postId
+                                        'id': postDocumentId
                                     },
                                 }}
                             ]
