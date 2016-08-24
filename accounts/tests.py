@@ -1,108 +1,32 @@
 import json
+import re
+from django.core import mail
 
-from django.test import TestCase
+from backend.urls import URL_PASSWORD_RESET
+from backend.tests import UserTestCase
 
 
-class AccountsTest(TestCase):
-    def setUp(self):
-        response = self.client.post(
-            '/graphql', content_type='application/json', data=json.dumps({
-                'query': '''
-                        mutation M($auth: RegisterInput!) {
-                            register(input: $auth) {
-                                clientMutationId,
-                                user {
-                                    firstName
-                                }
-                            }
-                        }
-                        ''',
-                'variables': {
-                    'auth': {
-                        'clientMutationId': 'mutation1',
-                        'firstName': 'Alisson',
-                        'username': 'alisson',
-                        'password1': 'patricio',
-                        'password2': 'patricio',
-                        'email': 'eu@alisson.net'
-                    }
-                }
-            }))
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json(), {
-            'data': {
-                'register': {
-                    'user': {
-                        'firstName': 'Alisson'
-                    },
-                    'clientMutationId': 'mutation1'
-                },
-            }
-        })
-        self.assertFalse('sessionid' in response.cookies)
-
-    def _do_login(self, password='patricio'):
-        response = self.client.post(
-            '/graphql', content_type='application/json', data=json.dumps({
-                'query': '''
-                        mutation M($auth: AuthenticateInput!) {
-                            authenticate(input: $auth) {
-                                clientMutationId,
-                                viewer {
-                                    me {
-                                        firstName
-                                        isAuthenticated
-                                    }
-                                }
-                            }
-                        }
-                        ''',
-                'variables': {
-                    'auth': {
-                        'clientMutationId': 'mutation2',
-                        'username': 'alisson',
-                        'password': password,
-                    }
-                }
-            }))
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json(), {
-            'data': {
-                'authenticate': {
-                    'viewer': {
-                        'me': {
-                            'firstName': 'Alisson',
-                            'isAuthenticated': True
-                        },
-                    },
-                    'clientMutationId': 'mutation2'
-                },
-            }
-        })
-        self.assertTrue('sessionid' in response.cookies)
-        return response
-
+class AccountsTest(UserTestCase):
     def test_login_success(self):
         self._do_login()
 
-        response = self.client.post(
-            '/graphql', content_type='application/json', data=json.dumps({
-                'query': '''
-                        {
-                            viewer {
-                                me {
-                                    firstName
-                                    isAuthenticated
-                                }
-                            }
+        response = self.graphql({
+            'query': '''
+                {
+                    viewer {
+                        me {
+                            username
+                            isAuthenticated
                         }
-                        ''',
-            }))
+                    }
+                }
+                ''',
+        })
         self.assertEqual(response.json(), {
             'data': {
                 'viewer': {
                     'me': {
-                        'firstName': 'Alisson',
+                        'username': 'alisson',
                         'isAuthenticated': True
                     },
                 },
@@ -110,34 +34,33 @@ class AccountsTest(TestCase):
         })
 
     def test_login_fail(self):
-        response = self.client.post(
-            '/graphql', content_type='application/json', data=json.dumps({
-                'query': '''
-                        mutation M($auth: AuthenticateInput!) {
-                            authenticate(input: $auth) {
-                                clientMutationId,
-                                viewer {
-                                    me {
-                                        isAuthenticated
-                                    }
-                                }
-                                errors {
-                                    code
-                                }
+        response = self.graphql({
+            'query': '''
+                mutation M($auth: AuthenticateInput!) {
+                    authenticate(input: $auth) {
+                        clientMutationId,
+                        viewer {
+                            me {
+                                isAuthenticated
                             }
                         }
-                        ''',
-                'variables': {
-                    'auth': {
-                        'clientMutationId': 'mutation2',
-                        'username': 'alisson',
-                        'password': '123456',
+                        errors {
+                            code
+                        }
                     }
                 }
-            }))
+                ''',
+            'variables': {
+                'auth': {
+                    'clientMutationId': 'mutation2',
+                    'username': 'alisson',
+                    'password': '123456',
+                }
+            }
+        })
 
         self.assertEqual(response.status_code, 200)
-        expected = {
+        self.assertEqual(response.json(), {
             'data': {
                 'authenticate': {
                     'viewer': {
@@ -149,34 +72,31 @@ class AccountsTest(TestCase):
                     }]
                 },
             }
-        }
-        self.assertEqual(response.json(), expected)
+        })
         self.assertFalse('sessionid' in response.cookies)
 
     def test_logout(self):
         self._do_login()
 
-        response = self.client.post(
-            '/graphql', content_type='application/json', data=json.dumps({
-                'query': '''
-                        mutation M($auth: DeauthenticateInput!) {
-                            deauthenticate(input: $auth) {
-                                clientMutationId,
-                                viewer {
-                                    me {
-                                        firstName
-                                        isAuthenticated
-                                    }
-                                }
+        response = self.graphql({
+            'query': '''
+                mutation M($auth: DeauthenticateInput!) {
+                    deauthenticate(input: $auth) {
+                        clientMutationId,
+                        viewer {
+                            me {
+                                isAuthenticated
                             }
                         }
-                        ''',
-                'variables': {
-                    'auth': {
-                        'clientMutationId': 'mutation3',
                     }
                 }
-            }))
+                ''',
+            'variables': {
+                'auth': {
+                    'clientMutationId': 'mutation3',
+                }
+            }
+        })
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), {
@@ -195,27 +115,26 @@ class AccountsTest(TestCase):
         self._do_login()
 
         def change_password(old, new1, new2):
-            return self.client.post(
-                '/graphql', content_type='application/json', data=json.dumps({
-                    'query': '''
-                            mutation M($auth: PasswordChangeInput!) {
-                                mePasswordChange(input: $auth) {
-                                    clientMutationId,
-                                    errors {
-                                        code
-                                    }
-                                }
+            return self.graphql({
+                'query': '''
+                    mutation M($auth: PasswordChangeInput!) {
+                        mePasswordChange(input: $auth) {
+                            clientMutationId,
+                            errors {
+                                code
                             }
-                            ''',
-                    'variables': {
-                        'auth': {
-                            'clientMutationId': 'passwordchange',
-                            'oldPassword': old,
-                            'newPassword1': new1,
-                            'newPassword2': new2,
                         }
                     }
-                }))
+                    ''',
+                'variables': {
+                    'auth': {
+                        'clientMutationId': 'passwordchange',
+                        'oldPassword': old,
+                        'newPassword1': new1,
+                        'newPassword2': new2,
+                    }
+                }
+            })
 
         # wrong password test
         response = change_password('wrongpassword',
@@ -230,8 +149,9 @@ class AccountsTest(TestCase):
             }
         })
 
-        # new passwords doenst match
-        response = change_password('patricio', 'n3wp4ssw0rd', 'newp4ssw0rd')
+        # new passwords doesn't match
+        response = change_password('patricio',
+                                   'n3wp4ssw0rd', 'newp4ssw0rd')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), {
             'data': {
@@ -243,7 +163,8 @@ class AccountsTest(TestCase):
         })
 
         # success
-        response = change_password('patricio', 'n3wp4ssw0rd', 'n3wp4ssw0rd')
+        response = change_password('patricio',
+                                   'n3wp4ssw0rd', 'n3wp4ssw0rd')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), {
             'data': {
@@ -254,25 +175,25 @@ class AccountsTest(TestCase):
             }
         })
 
+        # do login with new password
         self._do_login(password='n3wp4ssw0rd')
-        response = self.client.post(
-            '/graphql', content_type='application/json', data=json.dumps({
-                'query': '''
-                        {
-                            viewer {
-                                me {
-                                    firstName
-                                    isAuthenticated
-                                }
-                            }
+        response = self.graphql({
+            'query': '''
+                {
+                    viewer {
+                        me {
+                            username
+                            isAuthenticated
                         }
-                        ''',
-            }))
+                    }
+                }
+                ''',
+        })
         self.assertEqual(response.json(), {
             'data': {
                 'viewer': {
                     'me': {
-                        'firstName': 'Alisson',
+                        'username': 'alisson',
                         'isAuthenticated': True
                     },
                 },
@@ -281,53 +202,50 @@ class AccountsTest(TestCase):
 
     def test_password_reset(self):
         def password_reset_email(email):
-            return self.client.post(
-                '/graphql', content_type='application/json', data=json.dumps({
-                    'query': '''
-                            mutation M($auth: PasswordResetEmailInput!) {
-                                mePasswordResetEmail(input: $auth) {
-                                    clientMutationId,
-                                    errors {
-                                        code
-                                    }
-                                }
+            return self.graphql({
+                'query': '''
+                    mutation M($auth: PasswordResetEmailInput!) {
+                        mePasswordResetEmail(input: $auth) {
+                            clientMutationId,
+                            errors {
+                                code
                             }
-                            ''',
-                    'variables': {
-                        'auth': {
-                            'clientMutationId': 'passwordresetemail',
-                            'email': email,
                         }
                     }
-                }))
+                    ''',
+                'variables': {
+                    'auth': {
+                        'clientMutationId': 'passwordresetemail',
+                        'email': email,
+                    }
+                }
+            })
 
         def password_reset_complete(uidb64, token,
                                     new_password1, new_password2):
-            return self.client.post(
-                '/graphql', content_type='application/json', data=json.dumps({
-                    'query': '''
-                            mutation M($auth: PasswordResetCompleteInput!) {
-                                mePasswordResetComplete(input: $auth) {
-                                    clientMutationId,
-                                    errors {
-                                        code
-                                    }
-                                }
+            return self.graphql({
+                'query': '''
+                    mutation M($auth: PasswordResetCompleteInput!) {
+                        mePasswordResetComplete(input: $auth) {
+                            clientMutationId,
+                            errors {
+                                code
                             }
-                            ''',
-                    'variables': {
-                        'auth': {
-                            'clientMutationId': 'passwordresetcomplete',
-                            'uidb64': uidb64,
-                            'token': token,
-                            'newPassword1': new_password1,
-                            'newPassword2': new_password2
                         }
                     }
-                }))
+                    ''',
+                'variables': {
+                    'auth': {
+                        'clientMutationId': 'passwordresetcomplete',
+                        'uidb64': uidb64,
+                        'token': token,
+                        'newPassword1': new_password1,
+                        'newPassword2': new_password2
+                    }
+                }
+            })
 
         # get token
-
         response = password_reset_email('eu@alisson.net')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), {
@@ -339,22 +257,17 @@ class AccountsTest(TestCase):
             }
         })
 
-        from django.core import mail
+        # get token from email sent
         self.assertEqual(len(mail.outbox), 1)
 
-        import re
-        from backend.urls import URL_PASSWORD_RESET
         r = re.compile(URL_PASSWORD_RESET)
-
         reset_url = r.search(mail.outbox[0].body)
-
         self.assertTrue(reset_url is not None)
 
         uidb64 = reset_url.group('uidb64')
         token = reset_url.group('token')
 
         # complete, change password
-
         response = password_reset_complete(uidb64, token,
                                            'n3wp4ssw0rd2', 'n3wp4ssw0rd2')
         self.assertEqual(response.status_code, 200)
@@ -370,31 +283,30 @@ class AccountsTest(TestCase):
         self._do_login(password='n3wp4ssw0rd2')
 
     def test_register_and_authenticate(self):
-        response = self.client.post(
-            '/graphql', content_type='application/json', data=json.dumps({
-                'query': '''
-                        mutation M($auth: RegisterInput!) {
-                            registerAndAuthenticate(input: $auth) {
-                                clientMutationId,
-                                viewer {
-                                    me {
-                                        firstName
-                                    }
-                                }
+        response = self.graphql({
+            'query': '''
+                mutation M($auth: RegisterInput!) {
+                    registerAndAuthenticate(input: $auth) {
+                        clientMutationId,
+                        viewer {
+                            me {
+                                firstName
                             }
                         }
-                        ''',
-                'variables': {
-                    'auth': {
-                        'clientMutationId': 'mutation1',
-                        'firstName': 'Alisson',
-                        'username': 'nossila',
-                        'password1': 'patricio',
-                        'password2': 'patricio',
-                        'email': 'nossila@alisson.net'
                     }
                 }
-            }))
+                ''',
+            'variables': {
+                'auth': {
+                    'clientMutationId': 'mutation1',
+                    'firstName': 'Alisson',
+                    'username': 'nossila',
+                    'password1': 'patricio',
+                    'password2': 'patricio',
+                    'email': 'nossila@alisson.net'
+                }
+            }
+        })
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), {
             'data': {
@@ -414,34 +326,33 @@ class AccountsTest(TestCase):
         self._do_login()
 
         def profile_edit(name, email, username):
-            return self.client.post(
-                '/graphql', content_type='application/json', data=json.dumps({
-                    'query': '''
-                            mutation M($auth: ProfileEditInput!) {
-                                meProfileEdit(input: $auth) {
-                                    clientMutationId,
-                                    errors {
-                                        code
-                                    }
-                                    viewer {
-                                        me {
-                                            firstName
-                                            email
-                                            username
-                                        }
-                                    }
+            return self.graphql({
+                'query': '''
+                    mutation M($auth: ProfileEditInput!) {
+                        meProfileEdit(input: $auth) {
+                            clientMutationId,
+                            errors {
+                                code
+                            }
+                            viewer {
+                                me {
+                                    firstName
+                                    email
+                                    username
                                 }
                             }
-                            ''',
-                    'variables': {
-                        'auth': {
-                            'clientMutationId': 'profileEdit',
-                            'firstName': name,
-                            'email': email,
-                            'username': username,
                         }
                     }
-                }))
+                    ''',
+                'variables': {
+                    'auth': {
+                        'clientMutationId': 'profileEdit',
+                        'firstName': name,
+                        'email': email,
+                        'username': username,
+                    }
+                }
+            })
 
         response = profile_edit('Patricio', 'nos@sila.net', 'nossila')
         self.assertEqual(response.status_code, 200)

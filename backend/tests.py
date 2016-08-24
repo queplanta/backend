@@ -5,7 +5,16 @@ from django.test import TestCase
 from accounts.models import User
 
 
-class UserTestCase(TestCase):
+class GraphQLTest(TestCase):
+    def graphql(self, data, client=None):
+        if not client:
+            client = self.client
+        return client.post('/graphql',
+                           content_type='application/json',
+                           data=json.dumps(data))
+
+
+class UserTestCase(GraphQLTest):
     def setUp(self):
         self.maxDiff = None
         self.user = User(
@@ -15,30 +24,42 @@ class UserTestCase(TestCase):
         self.user.set_password('patricio')
         self.user.save()
 
-    def _do_login(self):
-        response = self.client.post(
-            '/graphql', content_type='application/json', data=json.dumps({
-                'query': '''
-                        mutation M($auth: AuthenticateInput!) {
-                            authenticate(input: $auth) {
-                                clientMutationId,
-                                viewer {
-                                    me {
-                                        firstName
-                                        isAuthenticated
-                                    }
+    def _do_login(self, username='alisson', password='patricio'):
+        response = self.graphql({
+            'query': '''
+                    mutation M($auth: AuthenticateInput!) {
+                        authenticate(input: $auth) {
+                            clientMutationId,
+                            viewer {
+                                me {
+                                    username
+                                    isAuthenticated
                                 }
                             }
                         }
-                        ''',
-                'variables': {
-                    'auth': {
-                        'clientMutationId': 'mutation2',
-                        'username': 'alisson',
-                        'password': 'patricio',
                     }
+                    ''',
+            'variables': {
+                'auth': {
+                    'clientMutationId': 'mutation2',
+                    'username': username,
+                    'password': password,
                 }
-            }))
-        self.assertTrue(
-            response.json()['data']['authenticate']
-            ['viewer']['me']['isAuthenticated'])
+            }
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), {
+            'data': {
+                'authenticate': {
+                    'viewer': {
+                        'me': {
+                            'username': username,
+                            'isAuthenticated': True
+                        },
+                    },
+                    'clientMutationId': 'mutation2'
+                },
+            }
+        })
+        self.assertTrue('sessionid' in response.cookies)
+        return response
