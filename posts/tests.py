@@ -1,89 +1,50 @@
-import json
-
-from django.test import TestCase
-
-from accounts.models import User
+from backend.tests import UserTestCase
+from backend.fields import LoginRequiredError
 
 
-class PostsTest(TestCase):
-    def setUp(self):
-        self.maxDiff = None
-        self.user = User(
-            username='alisson',
-            email='eu@alisson.net'
-        )
-        self.user.set_password('patricio')
-        self.user.save()
-
-    def _do_login(self):
-        response = self.client.post('/graphql', content_type='application/json',
-            data=json.dumps({
-                'query': '''
-                        mutation M($auth: AuthenticateInput!) {
-                            authenticate(input: $auth) {
-                                clientMutationId,
-                                viewer {
-                                    me {
-                                        firstName
-                                        isAuthenticated
+class PostsTest(UserTestCase):
+    def _do_create_page(self, client, post):
+        return self.graphql({
+            'query': '''
+                mutation M($input_0: PostCreateInput!) {
+                    postCreate(input: $input_0) {
+                        clientMutationId,
+                        post {
+                            url,
+                            title,
+                            body,
+                            publishedAt,
+                            revisionCreated {
+                                author {
+                                    username
+                                }
+                            },
+                            tags {
+                                edges {
+                                    node {
+                                        title,
+                                        slug
                                     }
                                 }
                             }
-                        }
-                        ''',
-                'variables': {
-                    'auth': {
-                        'clientMutationId': 'mutation2',
-                        'username': 'alisson',
-                        'password': 'patricio',
+                        },
+                        errors {
+                            code,
+                        },
                     }
                 }
-            }))
-        self.assertTrue(response.json()['data']['authenticate']['viewer']['me']['isAuthenticated'])
-
-    def _do_create_page(self, client, post):
-        return client.post('/graphql', content_type='application/json',
-            data=json.dumps({
-                'query': '''
-                        mutation M($input_0: PostCreateInput!) {
-                            postCreate(input: $input_0) {
-                                clientMutationId,
-                                post {
-                                    url,
-                                    title,
-                                    body,
-                                    publishedAt,
-                                    revisionCreated {
-                                        author {
-                                            username
-                                        }
-                                    },
-                                    tags {
-                                        edges {
-                                            node {
-                                                title,
-                                                slug
-                                            }
-                                        }
-                                    }
-                                },
-                                errors {
-                                    code,
-                                },
-                            }
-                        }
-                        ''',
-                'variables': {
-                    'input_0': {
-                        'clientMutationId': '1',
-                        'url': post['url'],
-                        'title': post['title'],
-                        'body': post['body'],
-                        'tags': post['tags'],
-                        'publishedAt': post['publishedAt'],
-                    }
+                ''',
+            'variables': {
+                'input_0': {
+                    'clientMutationId': '1',
+                    'url': post['url'],
+                    'title': post['title'],
+                    'body': post['body'],
+                    'tags': post['tags'],
+                    'publishedAt': post['publishedAt'],
                 }
-            }))
+            }
+        }, client=client)
 
     def test_create_page(self):
         post = {
@@ -96,10 +57,7 @@ class PostsTest(TestCase):
 
         # without login should fail
         response = self._do_create_page(self.client, post)
-
-        from backend.fields import LoginRequiredError
         login_required_error = LoginRequiredError()
-
         expected = {
             'data': {
                 'postCreate': {
