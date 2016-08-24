@@ -1,80 +1,39 @@
-import json
-
-from django.test import TestCase
-
-from accounts.models import User
+from backend.tests import UserTestCase
 
 
-class VotesTest(TestCase):
-    def setUp(self):
-        self.maxDiff = None
-        self.user = User(
-            username='alisson',
-            email='eu@alisson.net'
-        )
-        self.user.set_password('patricio')
-        self.user.save()
-
-    def _do_login(self):
-        response = self.client.post(
-            '/graphql', content_type='application/json', data=json.dumps({
-                'query': '''
-                    mutation M($auth: AuthenticateInput!) {
-                        authenticate(input: $auth) {
-                            clientMutationId,
-                            viewer {
-                                me {
-                                    firstName
-                                    isAuthenticated
+class VotesTest(UserTestCase):
+    def _do_create_page(self, client, post):
+        return self.graphql({
+            'query': '''
+                mutation M($input_0: PostCreateInput!) {
+                    postCreate(input: $input_0) {
+                        clientMutationId,
+                        post {
+                            id
+                            voting {
+                                count
+                                mine {
+                                    value
                                 }
                             }
-                        }
-                    }
-                    ''',
-                'variables': {
-                    'auth': {
-                        'clientMutationId': 'mutation2',
-                        'username': 'alisson',
-                        'password': 'patricio',
+                        },
+                        errors {
+                            code
+                        },
                     }
                 }
-            }))
-        self.assertTrue(response.json()['data']['authenticate']
-                                       ['viewer']['me']['isAuthenticated'])
-
-    def _do_create_page(self, client, post):
-        return client.post(
-            '/graphql', content_type='application/json', data=json.dumps({
-                'query': '''
-                    mutation M($input_0: PostCreateInput!) {
-                        postCreate(input: $input_0) {
-                            clientMutationId,
-                            post {
-                                id
-                                voting {
-                                    count
-                                    mine {
-                                        value
-                                    }
-                                }
-                            },
-                            errors {
-                                code
-                            },
-                        }
-                    }
-                    ''',
-                'variables': {
-                    'input_0': {
-                        'clientMutationId': '1',
-                        'url': post['url'],
-                        'title': post['title'],
-                        'body': post['body'],
-                        'tags': post['tags'],
-                        'publishedAt': post['publishedAt'],
-                    }
+                ''',
+            'variables': {
+                'input_0': {
+                    'clientMutationId': '1',
+                    'url': post['url'],
+                    'title': post['title'],
+                    'body': post['body'],
+                    'tags': post['tags'],
+                    'publishedAt': post['publishedAt'],
                 }
-            }))
+            }
+        }, client=client)
 
     def test_vote(self):
         post = {
@@ -89,50 +48,49 @@ class VotesTest(TestCase):
         response = self._do_create_page(self.client, post)
         post.update(response.json()['data']['postCreate']['post'])
 
-        response = self.client.post(
-            '/graphql', content_type='application/json', data=json.dumps({
-                'query': '''
-                    mutation M($input_0: VoteSetInput!) {
-                        voteSet(input: $input_0) {
-                            clientMutationId,
-                            voting {
-                                count
-                                mine {
-                                    value
-                                }
-                                votes {
-                                    edges {
-                                        node {
-                                            value
-                                            revisionCreated {
-                                                author {
-                                                    username
-                                                }
+        response = self.graphql({
+            'query': '''
+                mutation M($input_0: VoteSetInput!) {
+                    voteSet(input: $input_0) {
+                        clientMutationId,
+                        voting {
+                            count
+                            mine {
+                                value
+                            }
+                            votes {
+                                edges {
+                                    node {
+                                        value
+                                        revisionCreated {
+                                            author {
+                                                username
                                             }
                                         }
                                     }
                                 }
                             }
-                            vote {
-                                value
-                                author {
-                                    username
-                                }
-                            }
-                            errors {
-                                code
-                            },
                         }
-                    }
-                    ''',
-                'variables': {
-                    'input_0': {
-                        'clientMutationId': '1',
-                        'parent': post['id'],
-                        'value': -1,
+                        vote {
+                            value
+                            author {
+                                username
+                            }
+                        }
+                        errors {
+                            code
+                        },
                     }
                 }
-            }))
+                ''',
+            'variables': {
+                'input_0': {
+                    'clientMutationId': '1',
+                    'parent': post['id'],
+                    'value': -1,
+                }
+            }
+        })
 
         self.assertEqual(response.json(), {
             'data': {
@@ -168,63 +126,60 @@ class VotesTest(TestCase):
         })
 
         # delete a vote
-        response = self.client.post(
-            '/graphql', content_type='application/json', data=json.dumps({
-                'query': '''
-                    query ($id_0: ID!) {
-                        post(id: $id_0) {
-                          voting {
-                            mine {
-                                id
-                            }
-                          }
+        response = self.graphql({
+            'query': '''
+                query ($id_0: ID!) {
+                    post(id: $id_0) {
+                      voting {
+                        mine {
+                            id
                         }
+                      }
                     }
-                    ''',
-                'variables': {
-                    'id_0': post['id']
                 }
-            }))
+                ''',
+            'variables': {
+                'id_0': post['id']
+            }
+        })
         vote = response.json()['data']['post']['voting']['mine']
 
-        response = self.client.post(
-            '/graphql', content_type='application/json', data=json.dumps({
-                'query': '''
-                    mutation M($input_0: VoteDeleteInput!) {
-                        voteDelete(input: $input_0) {
-                            clientMutationId,
-                            voteDeletedID
-                            errors {
-                                code
-                            },
-                        }
-                    }
-                    ''',
-                'variables': {
-                    'input_0': {
-                        'clientMutationId': '1',
-                        'id': vote['id'],
+        response = self.graphql({
+            'query': '''
+                mutation M($input_0: VoteDeleteInput!) {
+                    voteDelete(input: $input_0) {
+                        clientMutationId,
+                        voteDeletedID
+                        errors {
+                            code
+                        },
                     }
                 }
-            }))
+                ''',
+            'variables': {
+                'input_0': {
+                    'clientMutationId': '1',
+                    'id': vote['id'],
+                }
+            }
+        })
 
-        response = self.client.post(
-            '/graphql', content_type='application/json', data=json.dumps({
-                'query': '''
-                    query ($id_0: ID!) {
-                        post(id: $id_0) {
-                          voting {
-                            count
-                            mine {
-                                id
-                            }
-                          }
+        response = self.graphql({
+            'query': '''
+                query ($id_0: ID!) {
+                    post(id: $id_0) {
+                      voting {
+                        count
+                        mine {
+                            id
                         }
+                      }
                     }
-                    ''',
-                'variables': {
-                    'id_0': post['id']
                 }
-            }))
+                ''',
+            'variables': {
+                'id_0': post['id']
+            }
+        })
         self.assertEqual(response.json(), {
             'data': {'post': {'voting': {'count': 0, 'mine': None}}}})

@@ -47,25 +47,24 @@ class RevisionsTest(UserTestCase):
 
         # revert to previous version
         self._do_login()
-        response = self.client.post(
-            '/graphql', content_type='application/json', data=json.dumps({
-                'query': '''
-                    mutation M($input_0: RevisionRevertInput!) {
-                        revisionRevert(input: $input_0) {
-                            clientMutationId
-                            errors {
-                                code
-                            }
+        response = self.graphql({
+            'query': '''
+                mutation M($input_0: RevisionRevertInput!) {
+                    revisionRevert(input: $input_0) {
+                        clientMutationId
+                        errors {
+                            code
                         }
                     }
-                    ''',
-                'variables': {
-                    'input_0': {
-                        'clientMutationId': '11',
-                        'id': created_page.revision_id,
-                    }
                 }
-            }))
+                ''',
+            'variables': {
+                'input_0': {
+                    'clientMutationId': '11',
+                    'id': created_page.revision_id,
+                }
+            }
+        })
         self.assertEqual(response.json(), {
             'data': {
                 'revisionRevert': {
