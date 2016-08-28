@@ -3,6 +3,7 @@ from graphene import relay
 from graphql_relay.node.node import from_global_id
 
 from accounts.decorators import login_required
+from accounts.permissions import has_permission
 from db.models_graphql import Document
 from backend.mutations import Mutation
 from .models_graphql import Comment, Commenting
@@ -57,6 +58,11 @@ class CommentEdit(Mutation):
     def mutate_and_get_payload(cls, input, request, info):
         gid_type, gid = from_global_id(input.get('id'))
         comment = Comment._meta.model.objects.get(document_id=gid)
+
+        error = has_permission(cls, request, comment, 'edit')
+        if error:
+            return error
+
         comment = comment_save(comment, input, request)
         return CommentEdit(comment=comment)
 
@@ -73,6 +79,11 @@ class CommentDelete(Mutation):
     def mutate_and_get_payload(cls, input, request, info):
         gid_type, gid = from_global_id(input.get('id'))
         comment = Comment._meta.model.objects.get(document_id=gid)
+
+        error = has_permission(cls, request, comment, 'delete')
+        if error:
+            return error
+
         parent_id = comment.parent_id
         comment.delete(request=request)
 

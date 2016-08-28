@@ -1,8 +1,7 @@
 import graphene
 from graphene.utils import with_context
 from graphene.core.fields import Field
-from graphene.contrib.django import DjangoConnection, DjangoConnectionField
-from graphql_relay.node.node import from_global_id
+from graphene.contrib.django import DjangoConnection
 
 from django.utils.translation import ugettext_lazy as _
 

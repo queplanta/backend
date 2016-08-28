@@ -4,6 +4,7 @@ from graphql_relay.node.node import from_global_id
 from django.utils.text import slugify
 
 from accounts.decorators import login_required
+from accounts.permissions import has_permission
 from db.types import DateTimeField
 from backend.mutations import Mutation
 from .models_graphql import Post
@@ -74,6 +75,11 @@ class PostEdit(Mutation):
     def mutate_and_get_payload(cls, input, request, info):
         gid_type, gid = from_global_id(input.get('id'))
         post = Post._meta.model.objects.get(document_id=gid)
+
+        error = has_permission(cls, request, post, 'edit')
+        if error:
+            return error
+
         post = post_save(post, input, request)
         return PostEdit(post=post)
 
@@ -89,6 +95,11 @@ class PostDelete(Mutation):
     def mutate_and_get_payload(cls, input, request, info):
         gid_type, gid = from_global_id(input.get('id'))
         post = Post._meta.model.objects.get(document_id=gid)
+        
+        error = has_permission(cls, request, post, 'delete')
+        if error:
+            return error
+
         post.delete(request=request)
 
         return PostDelete(postDeletedID=input.get('id'))

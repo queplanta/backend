@@ -2,6 +2,7 @@ import graphene
 from graphene.core.types.custom_scalars import DateTime
 from graphene.relay.fields import GlobalIDField
 from graphql_relay.node.node import to_global_id
+from graphene.utils import with_context
 
 
 class DocumentBase(graphene.ObjectType):
@@ -23,6 +24,10 @@ class DocumentBase(graphene.ObjectType):
     @classmethod
     def get_node(cls, id, info):
         return cls._meta.model.objects.get(document_id=id)
+
+    @with_context
+    def resolve_my_perms(self, args, request, info):
+        return self.get_my_perms(request.user)
 
 
 class DateTimeField(DateTime):

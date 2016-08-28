@@ -2,6 +2,7 @@ import graphene
 from graphql_relay.node.node import from_global_id
 
 from accounts.decorators import login_required
+from accounts.permissions import has_permission
 from backend.mutations import Mutation
 from .models_graphql import Tag
 
@@ -44,6 +45,11 @@ class TagEdit(Mutation):
     def mutate_and_get_payload(cls, input, request, info):
         gid_type, gid = from_global_id(input.get('id'))
         tag = Tag._meta.model.objects.get(document_id=gid)
+
+        error = has_permission(cls, request, tag, 'edit')
+        if error:
+            return error
+
         tag = tag_save(tag, input, request)
         return TagEdit(tag=tag)
 
@@ -59,6 +65,11 @@ class TagDelete(Mutation):
     def mutate_and_get_payload(cls, input, request, info):
         gid_type, gid = from_global_id(input.get('id'))
         tag = Tag._meta.model.objects.get(document_id=gid)
+
+        error = has_permission(cls, request, tag, 'delete')
+        if error:
+            return error
+
         tag.delete(request=request)
 
         return TagDelete(tagDeletedID=input.get('id'))

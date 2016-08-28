@@ -24,6 +24,13 @@ class UserTestCase(GraphQLTest):
         self.user.set_password('patricio')
         self.user.save(request=None)
 
+        self.user_2 = User(
+            username='lanna',
+            email='lanna@naturebismo.com'
+        )
+        self.user_2.set_password('patricia')
+        self.user_2.save(request=None)
+
     def _do_login(self, username='alisson', password='patricio'):
         response = self.graphql({
             'query': '''
@@ -63,3 +70,6 @@ class UserTestCase(GraphQLTest):
         })
         self.assertTrue('sessionid' in response.cookies)
         return response
+
+    def _do_login_2(self, username='lanna', password='patricia'):
+        return self._do_login(username, password)

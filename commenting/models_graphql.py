@@ -54,11 +54,3 @@ class CommentsNode(DjangoNode):
 class Comment(DocumentRevisionBase, VotesNode, CommentsNode):
     class Meta:
         model = CommentModel
-
-    @with_context
-    def resolve_my_perms(self, args, request, info):
-        if request.user.is_authenticated():
-            if request.user.is_superuser or \
-               request.user.document == self.document.revision_created.author:
-                return ['edit', 'delete']
-        return []

@@ -2,6 +2,7 @@ import graphene
 from graphql_relay.node.node import from_global_id
 
 from accounts.decorators import login_required
+from accounts.permissions import has_permission
 from db.models_graphql import Document
 from backend.mutations import Mutation
 from .models import Vote as VoteModel
@@ -56,6 +57,11 @@ class VoteDelete(Mutation):
         gid_type, gid = from_global_id(input.get('id'))
         vote = VoteModel.objects.get(document_id=gid,
                                      author=request.user.document)
+
+        error = has_permission(cls, request, vote, 'delete')
+        if error:
+            return error
+
         parent_id = vote.parent_id
         vote.delete(request=request)
 

@@ -79,5 +79,8 @@ class User(AbstractBaseUser, PermissionsMixin, DocumentBase):
 
     def save(self, *args, **kwargs):
         if 'request' not in kwargs:
+            # django.auth calls save when performing some tasks
+            # they also should be passing request but for the sake
+            # of simplicy for now we use this workaround
             kwargs['request'] = None
         super(User, self).save(*args, **kwargs)

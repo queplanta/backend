@@ -157,3 +157,9 @@ class DocumentBase(models.Model):
 
         self.is_deleted = True
         self.save(request=request, **kwargs)
+
+    def get_my_perms(self, user):
+        if user.is_superuser or \
+                user.document == self.document.revision_created.author:
+            return ['edit', 'delete']
+        return []

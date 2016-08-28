@@ -70,6 +70,11 @@ class CommentsTest(UserTestCase):
                                 }
                             }
                         }
+                        comment {
+                            node {
+                                id
+                            }
+                        }
                         errors {
                             code,
                         },
@@ -84,6 +89,8 @@ class CommentsTest(UserTestCase):
                 }
             }
         })
+
+        commentID = response.json()['data']['commentCreate']['comment']['node']['id']
 
         expected = {
             'data': {
@@ -101,6 +108,11 @@ class CommentsTest(UserTestCase):
                                     },
                                 }}
                             ]
+                        }
+                    },
+                    'comment': {
+                        'node': {
+                            'id': commentID
                         }
                     },
                     'clientMutationId': '1',
@@ -171,3 +183,35 @@ class CommentsTest(UserTestCase):
             }
         }
         self.assertEqual(response.json(), expected)
+
+        # test if another user can edit it
+        self._do_login_2()
+        response = self.graphql({
+            'query': '''
+                mutation M($input_0: CommentEditInput!) {
+                    commentEdit(input: $input_0) {
+                        clientMutationId,
+                        errors {
+                            code,
+                        },
+                    }
+                }
+                ''',
+            'variables': {
+                'input_0': {
+                    'clientMutationId': '123',
+                    'body': 'edited body',
+                    'id': commentID,
+                }
+            }
+        })
+        self.assertEqual(response.json(), {
+            'data': {
+                'commentEdit': {
+                    'errors': [{
+                        'code': 'permission_required'
+                    }],
+                    'clientMutationId': '123'
+                }
+            }
+        })
