@@ -45,6 +45,13 @@ class CommentCreate(Mutation):
         )
 
 
+def has_permission(request, obj, perm):
+    if perm not in obj.get_my_perms(request.user):
+        print("has no permission")
+    else:
+        print("has perm")
+
+
 class CommentEdit(Mutation):
     class Input:
         id = graphene.ID().NonNull
@@ -57,6 +64,9 @@ class CommentEdit(Mutation):
     def mutate_and_get_payload(cls, input, request, info):
         gid_type, gid = from_global_id(input.get('id'))
         comment = Comment._meta.model.objects.get(document_id=gid)
+
+        has_permission(request, comment, 'edit')
+
         comment = comment_save(comment, input, request)
         return CommentEdit(comment=comment)
 
