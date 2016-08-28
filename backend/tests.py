@@ -22,7 +22,7 @@ class UserTestCase(GraphQLTest):
             email='eu@alisson.net'
         )
         self.user.set_password('patricio')
-        self.user.save()
+        self.user.save(request=None)
 
     def _do_login(self, username='alisson', password='patricio'):
         response = self.graphql({

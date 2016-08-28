@@ -76,3 +76,8 @@ class User(AbstractBaseUser, PermissionsMixin, DocumentBase):
         Sends an email to this User.
         """
         send_mail(subject, message, from_email, [self.email], **kwargs)
+
+    def save(self, *args, **kwargs):
+        if 'request' not in kwargs:
+            kwargs['request'] = None
+        super(User, self).save(*args, **kwargs)

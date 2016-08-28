@@ -91,7 +91,7 @@ class DocumentBase(models.Model):
     def revisions(self):
         return self.__class__.objects_revisions.filter(document=self.document)
 
-    def save(self, parent=None, request=None, message=None, **kwargs):
+    def save(self, request, parent=None, message=None, **kwargs):
         if 'update_fields' in kwargs:
             # does not create a new revion if update_fields present
             return super(DocumentBase, self).save(**kwargs)
@@ -151,9 +151,9 @@ class DocumentBase(models.Model):
 
         super(DocumentBase, self).save(**kwargs)
 
-    def delete(self, **kwargs):
+    def delete(self, request, **kwargs):
         self.document.deleted_at = timezone.now()
         self.document.save(update_fields=['deleted_at'])
 
         self.is_deleted = True
-        self.save(**kwargs)
+        self.save(request=request, **kwargs)

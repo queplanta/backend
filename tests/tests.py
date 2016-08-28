@@ -1,20 +1,20 @@
-import json
-
 from tests.models import Page, Tag, PageTag
 from backend.tests import UserTestCase
 
 
 class RevisionsTest(UserTestCase):
     def test_create_page(self):
-        tag_1 = Tag.objects.create(title='Tag 1', slug="tag-1")
+        tag_1 = Tag(title='Tag 1', slug="tag-1")
+        tag_1.save(request=None)
         created_page = Page(title="Example", slug="example")
-        created_page.save()
+        created_page.save(request=None)
         PageTag.objects.create(page=created_page, tag=tag_1)
 
-        tag_2 = Tag.objects.create(title='Tag 2', slug="tag-2")
+        tag_2 = Tag(title='Tag 2', slug="tag-2")
+        tag_2.save(request=None)
         updated_page = Page.objects.get(slug=created_page.slug)
         updated_page.title = "Title updated"
-        updated_page.save()
+        updated_page.save(request=None)
         PageTag.objects.create(page=updated_page, tag=tag_1)
         PageTag.objects.create(page=updated_page, tag=tag_2)
 
@@ -77,6 +77,6 @@ class RevisionsTest(UserTestCase):
         self.assertEqual(reverted_page, created_page)
 
         # delete page
-        reverted_page.delete()
+        reverted_page.delete(request=None)
         self.assertEqual(0, Page.objects.all().count())
         self.assertEqual(0, tag_1.pages.count())
