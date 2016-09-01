@@ -38,4 +38,7 @@ class Connection(DjangoConnection):
 class GetBy(Field):
     @with_context
     def resolver(self, instance, args, context, info):
-        return self.type._meta.model.objects.get(**args)
+        try:
+            return self.type._meta.model.objects.get(**args)
+        except self.type._meta.model.DoesNotExist:
+            return None
