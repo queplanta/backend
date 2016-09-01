@@ -15,6 +15,9 @@ class BigIntegerPK(models.Model):
 class DocumentID(models.Model):
     content_type = models.ForeignKey(ContentType, on_delete=models.PROTECT)
 
+    owner = models.ForeignKey('self', on_delete=models.PROTECT,
+                              related_name="owns", null=True)
+
     revisions_count = models.IntegerField(default=0)
     revision_tip_id = models.BigIntegerField(null=True, blank=True)
     revision_created_id = models.BigIntegerField(null=True, blank=True)
@@ -141,6 +144,8 @@ class DocumentBase(models.Model):
         self.__class__.objects_revisions.filter(
             document=self.document).update(is_tip=None)
 
+        if revision_type == REVISION_TYPES_CREATE and author:
+            self.document.owner = author.document
         if not self.document.revision_created_id:
             self.document.revision_created_id = revision.pk
         self.document.revision_tip_id = revision.pk
