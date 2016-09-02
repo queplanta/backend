@@ -13,7 +13,7 @@ ENV LANGUAGE=pt_BR.UTF-8
 ENV LC_CTYPE=pt_BR.UTF-8
 ENV LC_COLLATE=pt_BR.UTF-8
 
-VOLUME ["/usr/src/app/static", "/usr/src/app/media"]
+VOLUME ["/usr/src/app/public"]
 EXPOSE 8000
 RUN chmod +x /usr/src/app/docker-entrypoint.sh
 CMD ["/usr/src/app/docker-entrypoint.sh"]
