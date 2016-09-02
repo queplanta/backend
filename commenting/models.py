@@ -6,6 +6,8 @@ class Comment(DocumentBase):
     parent = models.ForeignKey(DocumentID, related_name="comments")
     body = models.TextField()
 
+    REPUTATION_VALUE = 1
+
     def save(self, *args, **kwargs):
         super(Comment, self).save(*args, **kwargs)
         update_count(self)

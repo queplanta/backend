@@ -15,11 +15,24 @@ class Vote(DocumentBase):
 
     def save(self, *args, **kwargs):
         super(Vote, self).save(*args, **kwargs)
-        update_num_votes(self)
+
+        if not hasattr(self, '_have_already_ran'):
+            update_num_votes(self)
+            if self.parent.owner:
+                if self.revision.parent:
+                    old_vote_version = self.revision.parent.get_object()
+                    remove_reputation(old_vote_version)
+                add_reputation(self)
+            self._have_already_ran = True
 
     def delete(self, *args, **kwargs):
         super(Vote, self).delete(*args, **kwargs)
-        update_num_votes(self)
+
+        if not hasattr(self, '_have_already_ran'):
+            update_num_votes(self)
+            if self.parent.owner:
+                remove_reputation(self)
+            self._have_already_ran = True
 
 
 def update_num_votes(vote):
@@ -48,6 +61,20 @@ def update_num_votes(vote):
         date=stats.document.revision_created.created_at
     )
     stats.save()
+
+
+def add_reputation(vote):
+    receiver = vote.parent.owner.get_object()
+    receiver.reputation = receiver.reputation + \
+        vote.parent.get_object().REPUTATION_VALUE
+    receiver.save(request=None, update_fields=['reputation'])
+
+
+def remove_reputation(vote):
+    receiver = vote.parent.owner.get_object()
+    receiver.reputation = receiver.reputation + (
+        vote.parent.get_object().REPUTATION_VALUE * -1)
+    receiver.save(request=None, update_fields=['reputation'])
 
 
 class VoteStats(models.Model):

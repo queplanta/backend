@@ -28,6 +28,8 @@ class Post(DocumentBase):
         limit_choices_to=limit_by_tag_contenttype,
         related_name='post_tagged')
 
+    REPUTATION_VALUE = 2
+
     class Meta:
         unique_together = ("is_tip", "url")
         ordering = ('-published_at',)

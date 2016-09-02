@@ -59,6 +59,7 @@ class Revision(DjangoNode):
 class Document(DjangoNode):
     revision_tip = graphene.Field(Revision)
     revision_created = graphene.Field(Revision)
+    owner = graphene.Field(User)
 
     class Meta:
         model = DocumentIDModel
@@ -72,3 +73,8 @@ class Document(DjangoNode):
             return Revision._meta.model.objects.get(
                 pk=self.revision_created_id
             )
+
+    def resolve_owner(self, args, info):
+        # import pdb; pdb.set_trace()
+        if self.owner_id:
+            return User._meta.model.objects.get(document_id=self.owner_id)

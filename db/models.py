@@ -150,7 +150,8 @@ class DocumentBase(models.Model):
             self.document.revision_created_id = revision.pk
         self.document.revision_tip_id = revision.pk
         self.document.revisions_count = models.F('revisions_count') + 1
-        self.document.save(update_fields=['revision_tip_id',
+        self.document.save(update_fields=['owner',
+                                          'revision_tip_id',
                                           'revision_created_id',
                                           'revisions_count'])
 

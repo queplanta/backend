@@ -76,6 +76,12 @@ class VotesTest(UserTestCase):
                             author {
                                 username
                             }
+                            parent {
+                                owner {
+                                    username
+                                    reputation
+                                }
+                            }
                         }
                         errors {
                             code
@@ -98,7 +104,7 @@ class VotesTest(UserTestCase):
                     'voting': {
                         'count': 1,
                         'mine': {
-                            'value': -1,
+                            'value': -1
                         },
                         'votes': {
                             'edges': [
@@ -117,6 +123,12 @@ class VotesTest(UserTestCase):
                         'value': -1,
                         'author': {
                             'username': self.user.username,
+                        },
+                        'parent': {
+                            'owner': {
+                                'reputation': 3,
+                                'username': self.user.username,
+                            }
                         }
                     },
                     'clientMutationId': '1',
