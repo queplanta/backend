@@ -9,8 +9,8 @@ tail -n 0 -f /var/log/gunicorn.log /var/log/access.log &
 
 # Start Gunicorn processes
 echo Starting Gunicorn.
-exec gunicorn origem.wsgi:application \
-    --name origem \
+exec gunicorn backend.wsgi:application \
+    --name backend \
     --bind 0.0.0.0:9090 \
     --workers 2 \
     --log-level=info \
