@@ -24,4 +24,6 @@ urlpatterns = [
 
     url(r'^public/(?P<path>.*)$', static_serve,
         {'document_root': settings.MEDIA_ROOT, 'show_indexes': True}),
+    url(r'^static/(?P<path>.*)$', static_serve,
+        {'document_root': settings.STATIC_ROOT, 'show_indexes': True}),
 ]
