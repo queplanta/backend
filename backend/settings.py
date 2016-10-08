@@ -147,6 +147,8 @@ EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'public')
 MEDIA_URL = '/public/'
 
+DEFAULT_USER_AVATAR = 'default_user_avatar.jpg'
+
 
 ##################
 # LOCAL SETTINGS #

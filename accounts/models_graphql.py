@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
 import graphene
@@ -53,9 +54,9 @@ class User(DocumentBase, DjangoNode):
 
     @with_context
     def resolve_avatar(self, args, request, info):
-        if self.avatar:
-            return Image(self.avatar)
-        return None
+        if not self.avatar:
+            self.avatar.name = settings.DEFAULT_USER_AVATAR
+        return Image(self.avatar)
 
     @with_context
     def resolve_actions(self, args, request, info):

@@ -9,6 +9,7 @@ from django.contrib.auth.models import (
 )
 
 from db.models import DocumentBase, TipManager
+from utils.upload import set_upload_to_random_filename
 
 
 class UserManager(TipManager, DjangoUserManager):
@@ -48,7 +49,9 @@ class User(AbstractBaseUser, PermissionsMixin, DocumentBase):
         ),
     )
     date_joined = models.DateTimeField(_('date joined'), default=timezone.now)
-    avatar = models.ImageField(max_length=512, blank=True, null=True)
+    avatar = models.ImageField(
+        max_length=512, blank=True, null=True,
+        upload_to=set_upload_to_random_filename('accounts/avatar'))
     reputation = models.IntegerField(default=1)
 
     objects = UserManager()
