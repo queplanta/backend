@@ -41,7 +41,8 @@ INSTALLED_APPS = [
     'tags',
     'posts',
     'commenting',
-    'voting'
+    'voting',
+    'life',
 ]
 
 MIDDLEWARE_CLASSES = [

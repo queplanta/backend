@@ -9,6 +9,7 @@ from posts.models_graphql import Post
 from tags.models_graphql import Tag
 from voting.models_graphql import Vote
 from commenting.models_graphql import Comment
+from life.models_graphql import LifeNode
 from db.models_graphql import Revision, Document
 
 from .fields import GetBy
@@ -58,6 +59,8 @@ class Query(graphene.ObjectType):
     comment_by_parent_id = GetBy(Comment, id=graphene.ID().NonNull)
 
     vote = relay.NodeField(Vote)
+
+    lifeNode = relay.NodeField(LifeNode)
 
     node = NodeField()
 
