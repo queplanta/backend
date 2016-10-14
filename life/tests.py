@@ -52,7 +52,6 @@ class LifeNodeTest(UserTestCase):
         response = self._do_create(self.client, node)
         parent = response.json()['data']['lifeNodeCreate']['lifeNode']
 
-
         node = {
             'title': 'Mangifera indica',
             'description': 'The fruit tastes like heaven',

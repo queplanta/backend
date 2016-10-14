@@ -17,7 +17,8 @@ class PostsTest(UserTestCase):
                             revisionCreated {
                                 author {
                                     username
-                                }
+                                },
+                                message
                             },
                             tags {
                                 edges {
@@ -42,6 +43,7 @@ class PostsTest(UserTestCase):
                     'body': post['body'],
                     'tags': post['tags'],
                     'publishedAt': post['publishedAt'],
+                    'revisionMessage': post['revisionMessage']
                 }
             }
         }, client=client)
@@ -53,6 +55,7 @@ class PostsTest(UserTestCase):
             'body': 'new post content',
             'publishedAt': '2011-01-05T20:26:37+00:00',
             'tags': 'tést tãg, Outra Tag',
+            'revisionMessage': 'initial revision message'
         }
 
         # without login should fail
@@ -85,7 +88,8 @@ class PostsTest(UserTestCase):
                         'revisionCreated': {
                             'author': {
                                 'username': self.user.username,
-                            }
+                            },
+                            'message': post['revisionMessage']
                         },
                         'tags': {
                             'edges': [

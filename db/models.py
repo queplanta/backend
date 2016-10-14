@@ -118,6 +118,8 @@ class DocumentBase(models.Model):
                 author = request.user
             ip = get_real_ip(request)
             useragent = request.META.get('HTTP_USER_AGENT')
+            if hasattr(request, 'revisionMessage') and not message:
+                message = request.revisionMessage
 
         revision_type = None
         if not parent_id:
