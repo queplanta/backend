@@ -1,10 +1,10 @@
 from django.conf import settings
-from django.conf.urls import url, include
+from django.conf.urls import url
 from django.contrib import admin
 from django.views.decorators.csrf import csrf_exempt
 from django.views.static import serve as static_serve
 
-from graphene.contrib.django.views import GraphQLView
+from graphene_django.views import GraphQLView
 from .schema import schema
 
 
@@ -16,8 +16,8 @@ URL_PASSWORD_RESET = r'me/reset/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'^graphql', csrf_exempt(GraphQLView.as_view(schema=schema))),
-    url(r'^graphiql', include('django_graphiql.urls')),
+    url(r'^graphql', csrf_exempt(GraphQLView.as_view(schema=schema,
+                                                     graphiql=True))),
 
     url(r'^%s$' % URL_PASSWORD_RESET,
         dumb_view, name='password_reset_confirm'),

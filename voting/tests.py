@@ -40,7 +40,7 @@ class VotesTest(UserTestCase):
             'url': 'new-post-title',
             'title': 'new post title',
             'body': 'new post content',
-            'publishedAt': '2011-01-05T20:26:37+00:00',
+            'publishedAt': '2011-01-05T20:26:37',
             'tags': 'tést tãg, Outra Tag',
         }
 

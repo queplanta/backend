@@ -1,6 +1,6 @@
 import graphene
-from graphene.contrib.django import DjangoNode, DjangoConnectionField
-from graphene.relay.types import Node
+from graphene_django import DjangoObjectType, DjangoConnectionField
+from graphene.relay import Node
 
 from accounts.models_graphql import User
 
@@ -10,71 +10,64 @@ from .models import (
 )
 
 
-class Revision(DjangoNode):
+def get_document_type():
+    from db.models_graphql import Document
+    return Document
+
+
+class Revision(DjangoObjectType):
     author = graphene.Field(User)
-    after = DjangoConnectionField('self')
-    before = graphene.Field('self')
-    document = graphene.Field('Document')
+    after = DjangoConnectionField(lambda: Revision)
+    before = graphene.Field(lambda: Revision)
+    document = graphene.Field(get_document_type)
     object = graphene.Field(Node)
     type = graphene.String()
     is_tip = graphene.Boolean()
 
     class Meta:
         model = RevisionModel
+        interfaces = (Node, )
 
-    def resolve_author(self, args, info):
+    def resolve_author(self, args, context, info):
         if self.author_id:
             return User._meta.model.objects.get(document_id=self.author_id)
 
-    def resolve_after(self, args, info):
+    def resolve_after(self, args, context, info):
         return Revision._meta.model.objects.filter(
             parent_id=self.id
         ).order_by('-created_at')
 
-    def resolve_before(self, args, info):
+    def resolve_before(self, args, context, info):
         return self.parent
 
-    def resolve_object(self, args, info):
-        obj = self.document.content_type.model_class().objects_revisions.get(
-            pk=self.pk)
+    def resolve_object(self, args, context, info):
+        Model = self.document.content_type.model_class()
+        return Model.objects_revisions.get(pk=self.pk)
 
-        object_type = None
-        schema = info.schema.graphene_schema
-        for obj_type_str, obj_type in schema._types_names.items():
-            if hasattr(obj_type._meta, 'model'):
-                if obj_type._meta.model and \
-                   isinstance(obj, obj_type._meta.model):
-                    object_type = obj_type
-
-        graphql_parent = None
-        if object_type:
-            graphql_parent = object_type(obj)
-
-        return graphql_parent
-
-    def resolve_is_tip(self, args, info):
+    def resolve_is_tip(self, args, context, info):
         return self.id == self.document.revision_tip_id
 
 
-class Document(DjangoNode):
+class Document(DjangoObjectType):
     revision_tip = graphene.Field(Revision)
     revision_created = graphene.Field(Revision)
     owner = graphene.Field(User)
 
     class Meta:
         model = DocumentIDModel
+        interfaces = (Node, )
 
-    def resolve_revision_tip(self, args, info):
+    def resolve_revision_tip(self, args, context, info):
         if self.revision_tip_id:
             return Revision._meta.model.objects.get(pk=self.revision_tip_id)
 
-    def resolve_revision_created(self, args, info):
+    def resolve_revision_created(self, args, context, info):
         if self.revision_created_id:
             return Revision._meta.model.objects.get(
                 pk=self.revision_created_id
             )
 
-    def resolve_owner(self, args, info):
+    def resolve_owner(self, args, context, info):
         # import pdb; pdb.set_trace()
         if self.owner_id:
             return User._meta.model.objects.get(document_id=self.owner_id)

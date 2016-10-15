@@ -2,8 +2,8 @@ from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
 import graphene
-from graphene.utils import with_context
-from graphene.contrib.django import DjangoNode, DjangoConnectionField
+from graphene.relay import Node
+from graphene_django import DjangoObjectType, DjangoConnectionField
 
 from sorl.thumbnail import get_thumbnail
 
@@ -20,31 +20,33 @@ class Image(graphene.ObjectType):
         self._file = f
         return super(Image, self).__init__(*args, **kwargs)
 
-    @with_context
     def resolve_original(self, args, request, info):
         return self._file.url
 
-    @with_context
     def resolve_x140x140(self, args, request, info):
         return get_thumbnail(self._file, '140x140', crop='center',
                              quality=90).url
 
 
-class User(DocumentBase, DjangoNode):
+def get_revision_type():
+    from db.models_graphql import Revision
+    return Revision
+
+
+class User(DocumentBase, DjangoObjectType):
     is_authenticated = graphene.Boolean()
     avatar = graphene.Field(Image)
 
-    actions = DjangoConnectionField('Revision')
+    actions = DjangoConnectionField(get_revision_type)
 
-    @with_context
     def resolve_is_authenticated(self, args, request, info):
         return request.user.is_authenticated()
 
     class Meta:
         model = UserModel
         exclude_fields = ('is_superuser', 'password', 'is_staff')
+        interfaces = (Node, )
 
-    @with_context
     def resolve_email(self, args, request, info):
         if request.user.is_authenticated() and\
             (self.document == request.user.document or
@@ -52,14 +54,12 @@ class User(DocumentBase, DjangoNode):
             return self.email
         return _("Você não tem permissão")
 
-    @with_context
     def resolve_avatar(self, args, request, info):
         if not self.avatar:
             self.avatar.name = settings.DEFAULT_USER_AVATAR
         return Image(self.avatar)
 
-    @with_context
     def resolve_actions(self, args, request, info):
-        from db.models_graphql import Revision
+        Revision = get_revision_type()
         return Revision._meta.model.objects.filter(
             author_id=self.document.pk).order_by('-created_at')

@@ -22,7 +22,7 @@ def _set_vote(input, request, info):
     vote.value = input.get('value')
     vote.save(request=request)
 
-    voting = Voting.get_node(gid, info)
+    voting = Voting.get_node(gid, request, info)
 
     return {
         'vote': vote,
@@ -32,8 +32,8 @@ def _set_vote(input, request, info):
 
 class VoteSet(Mutation):
     class Input:
-        parent = graphene.ID().NonNull
-        value = graphene.Int().NonNull
+        parent = graphene.ID(required=True)
+        value = graphene.Int(required=True)
 
     vote = graphene.Field(Vote)
     voting = graphene.Field(Voting)
@@ -46,9 +46,9 @@ class VoteSet(Mutation):
 
 class VoteDelete(Mutation):
     class Input:
-        id = graphene.ID().NonNull
+        id = graphene.ID(required=True)
 
-    voteDeletedID = graphene.ID().NonNull
+    voteDeletedID = graphene.ID(required=True)
     voting = graphene.Field(Voting)
 
     @classmethod
@@ -65,6 +65,6 @@ class VoteDelete(Mutation):
         parent_id = vote.parent_id
         vote.delete(request=request)
 
-        voting = Voting.get_node(parent_id, info)
+        voting = Voting.get_node(parent_id, request, info)
 
         return VoteDelete(voteDeletedID=input.get('id'), voting=voting)

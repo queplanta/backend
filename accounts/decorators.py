@@ -1,7 +1,5 @@
 from functools import wraps
 
-from graphene.utils import with_context
-
 from backend.fields import LoginRequiredError
 
 
@@ -23,8 +21,6 @@ def user_passes_test(test_func):
 
 
 def login_required(function):
-    function = with_context(function)
-
     actual_decorator = user_passes_test(
         lambda u: u.is_authenticated(),
     )

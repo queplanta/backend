@@ -1,7 +1,8 @@
 django==1.9.9
 psycopg2==2.6
 gunicorn==19.3.0
-graphene[django]==0.10.2
+graphene==1.0.2
+graphene-django==1.0
 django-graphiql==0.4.4
 django-filter==0.13.0
 django-ipware==1.1.5

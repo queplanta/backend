@@ -1,7 +1,6 @@
 import graphene
-from graphene import relay
-from graphene.contrib.django import DjangoNode, DjangoConnectionField
-from graphene.utils import with_context
+from graphene.relay import Node
+from graphene_django import DjangoObjectType, DjangoConnectionField
 
 from db.models import DocumentID
 from db.types_revision import DocumentRevisionBase
@@ -10,28 +9,29 @@ from accounts.models_graphql import User
 from .models import Vote as VoteModel, VoteStats
 
 
-class Voting(relay.Node):
+class Voting(graphene.ObjectType):
     count = graphene.Int()
     count_ups = graphene.Int()
     count_downs = graphene.Int()
     sum_values = graphene.Int()
-    mine = graphene.Field('Vote')
-    votes = DjangoConnectionField('Vote')
+    mine = graphene.Field(lambda: Vote)
+    votes = DjangoConnectionField(lambda: Vote)
+
+    class Meta:
+        interfaces = (Node, )
 
     @classmethod
-    def get_node(cls, id, info):
+    def get_node(cls, id, context, info):
         doc = DocumentID.objects.get(pk=id)
         c = Voting(id=doc.pk)
         c._document = doc
         return c
 
-    @with_context
     def resolve_votes(self, args, request, info):
         return Vote._meta.model.objects.filter(
             parent_id=self._document.pk
         ).order_by('-document__created_at')
 
-    @with_context
     def resolve_mine(self, args, request, info):
         if not request.user.is_authenticated():
             return None
@@ -52,38 +52,35 @@ class Voting(relay.Node):
             )
         return self._stats
 
-    def resolve_count(self, args, info):
+    def resolve_count(self, args, context, info):
         return self.stats().count
 
-    def resolve_count_ups(self, args, info):
+    def resolve_count_ups(self, args, context, info):
         return self.stats().count_ups
 
-    def resolve_count_downs(self, args, info):
+    def resolve_count_downs(self, args, context, info):
         return self.stats().count_downs
 
-    def resolve_sum_values(self, args, info):
+    def resolve_sum_values(self, args, context, info):
         return self.stats().sum_values
 
 
-class VotesNode(DjangoNode):
+class VotesNode(graphene.AbstractType):
     voting = graphene.Field(Voting)
 
-    class Meta:
-        abstract = True
-
-    @with_context
     def resolve_voting(self, args, request, info):
         c = Voting(id=self.document.pk)
         c._document = self.document
         return c
 
 
-class Vote(DocumentRevisionBase, DjangoNode):
+class Vote(DocumentRevisionBase, DjangoObjectType):
     author = graphene.Field(User)
 
     class Meta:
         model = VoteModel
+        interfaces = (Node, )
 
-    def resolve_author(self, args, info):
+    def resolve_author(self, args, context, info):
         if self.author_id:
             return User._meta.model.objects.get(pk=self.author_id)

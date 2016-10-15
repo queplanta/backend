@@ -1,7 +1,4 @@
 import graphene
-from graphene.utils import with_context
-from graphene.core.fields import Field
-from graphene.contrib.django import DjangoConnection
 
 from django.utils.translation import ugettext_lazy as _
 
@@ -14,7 +11,7 @@ def Viewer():
 class Error(graphene.ObjectType):
     code = graphene.String()
     location = graphene.String()
-    message = graphene.String().NonNull
+    message = graphene.String(required=True)
 
 
 def Errors():
@@ -28,17 +25,12 @@ def LoginRequiredError():
     )
 
 
-class Connection(DjangoConnection):
-    total_count = graphene.Int()
-
-    def resolve_total_count(self, args, info):
-        return len(self.get_connection_data())
-
-
-class GetBy(Field):
-    @with_context
-    def resolver(self, instance, args, context, info):
+class GetBy(graphene.Field):
+    def model_resolver(self, instance, args, context, info):
         try:
             return self.type._meta.model.objects.get(**args)
         except self.type._meta.model.DoesNotExist:
             return None
+
+    def get_resolver(self, parent_resolver):
+        return self.model_resolver

@@ -34,7 +34,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'sorl.thumbnail',
     'django_nose',
-    'graphene.contrib.django',
+    'graphene_django',
     'django_graphiql',
     'db',
     'accounts',
@@ -139,7 +139,12 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 AUTH_USER_MODEL = 'accounts.User'
 
-GRAPHENE_SCHEMA = 'backend.schema'
+GRAPHENE = {
+    'SCHEMA': 'backend.schema.schema',
+    'MIDDLEWARE': [
+        'graphene_django.debug.DjangoDebugMiddleware',
+    ]
+}
 
 # Testing
 EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'

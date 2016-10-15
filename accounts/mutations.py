@@ -1,5 +1,4 @@
 import graphene
-from graphene.utils import with_context
 
 from django import forms
 from django.conf import settings
@@ -65,18 +64,18 @@ class UserCreationForm(DjangoUserCreationForm):
         return email
 
 
-class Register(Mutation):
-    class Input:
-        first_name = graphene.String()
-        username = graphene.String().NonNull
-        email = graphene.String().NonNull
-        password1 = graphene.String().NonNull
-        password2 = graphene.String().NonNull
+class RegisterInput(graphene.AbstractType):
+    first_name = graphene.String()
+    username = graphene.String(required=True)
+    email = graphene.String(required=True)
+    password1 = graphene.String(required=True)
+    password2 = graphene.String(required=True)
 
+
+class RegisterAbstract(graphene.AbstractType):
     user = graphene.Field(User)
 
     @classmethod
-    @with_context
     def mutate_and_get_payload(cls, input, request, info):
         errors = []
         user = None
@@ -90,9 +89,16 @@ class Register(Mutation):
         return Register(user=user, errors=errors)
 
 
-class RegisterAndAuthenticate(Register):
+class Register(RegisterAbstract, Mutation):
+    class Input(RegisterInput):
+        pass
+
+
+class RegisterAndAuthenticate(RegisterAbstract, Mutation):
+    class Input(RegisterInput):
+        pass
+
     @classmethod
-    @with_context
     def mutate_and_get_payload(cls, input, request, info):
         register = super(
             RegisterAndAuthenticate,
@@ -108,11 +114,10 @@ class RegisterAndAuthenticate(Register):
 
 class Authenticate(Mutation):
     class Input:
-        username = graphene.String().NonNull
-        password = graphene.String().NonNull
+        username = graphene.String(required=True)
+        password = graphene.String(required=True)
 
     @classmethod
-    @with_context
     def mutate_and_get_payload(cls, input, request, info):
         errors = []
         user = None
@@ -142,9 +147,9 @@ class Deauthenticate(Mutation):
 
 class PasswordChange(Mutation):
     class Input:
-        new_password1 = graphene.String().NonNull
-        new_password2 = graphene.String().NonNull
-        old_password = graphene.String().NonNull
+        new_password1 = graphene.String(required=True)
+        new_password2 = graphene.String(required=True)
+        old_password = graphene.String(required=True)
 
     @classmethod
     @login_required
@@ -166,10 +171,9 @@ class PasswordChange(Mutation):
 
 class PasswordResetEmail(Mutation):
     class Input:
-        email = graphene.String().NonNull
+        email = graphene.String(required=True)
 
     @classmethod
-    @with_context
     def mutate_and_get_payload(cls, input, request, info):
         errors = []
         form = PasswordResetForm(data=input)
@@ -192,13 +196,12 @@ class PasswordResetEmail(Mutation):
 
 class PasswordResetComplete(Mutation):
     class Input:
-        uidb64 = graphene.String().NonNull
-        token = graphene.String().NonNull
-        new_password1 = graphene.String().NonNull
-        new_password2 = graphene.String().NonNull
+        uidb64 = graphene.String(required=True)
+        token = graphene.String(required=True)
+        new_password1 = graphene.String(required=True)
+        new_password2 = graphene.String(required=True)
 
     @classmethod
-    @with_context
     def mutate_and_get_payload(cls, input, request, info):
         errors = []
         UserModel = User._meta.model
@@ -266,8 +269,8 @@ class UserEditForm(forms.ModelForm):
 class ProfileEdit(Mutation):
     class Input:
         first_name = graphene.String()
-        username = graphene.String().NonNull
-        email = graphene.String().NonNull
+        username = graphene.String(required=True)
+        email = graphene.String(required=True)
 
     user = graphene.Field(User)
 

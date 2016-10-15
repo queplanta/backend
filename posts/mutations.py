@@ -43,10 +43,10 @@ def post_save(post, args, request):
 
 class PostCreate(Mutation):
     class Input:
-        url = graphene.String().NonNull
-        title = graphene.String().NonNull
-        body = graphene.String().NonNull
-        published_at = graphene.NonNull(DateTimeField())
+        url = graphene.String(required=True)
+        title = graphene.String(required=True)
+        body = graphene.String(required=True)
+        published_at = DateTimeField(required=True)
         tags = graphene.String()
 
     post = graphene.Field(Post)
@@ -61,11 +61,11 @@ class PostCreate(Mutation):
 
 class PostEdit(Mutation):
     class Input:
-        id = graphene.ID().NonNull
-        url = graphene.String().NonNull
-        title = graphene.String().NonNull
-        body = graphene.String().NonNull
-        published_at = graphene.NonNull(DateTimeField())
+        id = graphene.ID(required=True)
+        url = graphene.String(required=True)
+        title = graphene.String(required=True)
+        body = graphene.String(required=True)
+        published_at = DateTimeField(required=True)
         tags = graphene.String()
 
     post = graphene.Field(Post)
@@ -86,16 +86,16 @@ class PostEdit(Mutation):
 
 class PostDelete(Mutation):
     class Input:
-        id = graphene.ID().NonNull
+        id = graphene.ID(required=True)
 
-    postDeletedID = graphene.ID().NonNull
+    postDeletedID = graphene.ID(required=True)
 
     @classmethod
     @login_required
     def mutate_and_get_payload(cls, input, request, info):
         gid_type, gid = from_global_id(input.get('id'))
         post = Post._meta.model.objects.get(document_id=gid)
-        
+
         error = has_permission(cls, request, post, 'delete')
         if error:
             return error

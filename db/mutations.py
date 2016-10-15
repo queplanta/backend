@@ -1,6 +1,5 @@
 import graphene
-# from graphene import relay
-from graphene.relay.types import Node
+from graphene.relay import Node
 from graphql_relay.node.node import from_global_id
 
 from binascii import Error
@@ -12,10 +11,8 @@ from .models_graphql import Revision
 
 class RevisionRevert(Mutation):
     class Input:
-        id = graphene.ID().NonNull
+        id = graphene.ID(required=True)
 
-    # commentDeletedID = graphene.ID().NonNull
-    # commenting = graphene.Field(Commenting)
     node = graphene.Field(Node)
 
     @classmethod
@@ -43,20 +40,6 @@ class RevisionRevert(Mutation):
         obj.is_deleted = None
         obj.save(update_fields=['is_tip', 'is_deleted'], request=request)
 
-        object_type = None
-        schema = info.schema.graphene_schema
-        for obj_type_str, obj_type in schema._types_names.items():
-            if hasattr(obj_type._meta, 'model'):
-                if obj_type._meta.model and \
-                   isinstance(obj, obj_type._meta.model):
-                    object_type = obj_type
-
-        graphql_parent = None
-        if object_type:
-            graphql_parent = object_type(obj)
-
         return RevisionRevert(
-            node=graphql_parent,
-            # commentDeletedID=input.get('id'),
-            # commenting=Commenting.get_node(parent_id, info)
+            node=obj,
         )

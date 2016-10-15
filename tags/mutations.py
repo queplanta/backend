@@ -17,8 +17,8 @@ def tag_save(tag, args, request):
 
 class TagCreate(Mutation):
     class Input:
-        slug = graphene.String().NonNull
-        title = graphene.String().NonNull
+        slug = graphene.String(required=True)
+        title = graphene.String(required=True)
         description = graphene.String()
 
     tag = graphene.Field(Tag)
@@ -33,9 +33,9 @@ class TagCreate(Mutation):
 
 class TagEdit(Mutation):
     class Input:
-        id = graphene.ID().NonNull
-        slug = graphene.String().NonNull
-        title = graphene.String().NonNull
+        id = graphene.ID(required=True)
+        slug = graphene.String(required=True)
+        title = graphene.String(required=True)
         description = graphene.String()
 
     tag = graphene.Field(Tag)
@@ -56,9 +56,9 @@ class TagEdit(Mutation):
 
 class TagDelete(Mutation):
     class Input:
-        id = graphene.ID().NonNull
+        id = graphene.ID(required=True)
 
-    tagDeletedID = graphene.ID().NonNull
+    tagDeletedID = graphene.ID(required=True)
 
     @classmethod
     @login_required

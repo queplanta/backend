@@ -284,7 +284,7 @@ class AccountsTest(UserTestCase):
     def test_register_and_authenticate(self):
         response = self.graphql({
             'query': '''
-                mutation M($auth: RegisterInput!) {
+                mutation M($auth: RegisterAndAuthenticateInput!) {
                     registerAndAuthenticate(input: $auth) {
                         clientMutationId,
                         viewer {

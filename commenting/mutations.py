@@ -1,5 +1,4 @@
 import graphene
-from graphene import relay
 from graphql_relay.node.node import from_global_id
 
 from accounts.decorators import login_required
@@ -15,13 +14,15 @@ def comment_save(comment, args, request):
     return comment
 
 
-CommentEdge = relay.Edge.for_node(Comment)
+class CommentEdge(graphene.ObjectType):
+    node = graphene.Field(Comment)
+    cursor = graphene.String(required=True)
 
 
 class CommentCreate(Mutation):
     class Input:
-        parent = graphene.ID().NonNull
-        body = graphene.String().NonNull
+        parent = graphene.ID(required=True)
+        body = graphene.String(required=True)
 
     comment = graphene.Field(CommentEdge)
     commenting = graphene.Field(Commenting)
@@ -42,14 +43,14 @@ class CommentCreate(Mutation):
 
         return CommentCreate(
             comment=CommentEdge(node=comment, cursor='.'),
-            commenting=Commenting.get_node(gid, info)
+            commenting=Commenting.get_node(gid, request, info)
         )
 
 
 class CommentEdit(Mutation):
     class Input:
-        id = graphene.ID().NonNull
-        body = graphene.String().NonNull
+        id = graphene.ID(required=True)
+        body = graphene.String(required=True)
 
     comment = graphene.Field(Comment)
 
@@ -69,9 +70,9 @@ class CommentEdit(Mutation):
 
 class CommentDelete(Mutation):
     class Input:
-        id = graphene.ID().NonNull
+        id = graphene.ID(required=True)
 
-    commentDeletedID = graphene.ID().NonNull
+    commentDeletedID = graphene.ID(required=True)
     commenting = graphene.Field(Commenting)
 
     @classmethod
@@ -89,5 +90,5 @@ class CommentDelete(Mutation):
 
         return CommentDelete(
             commentDeletedID=input.get('id'),
-            commenting=Commenting.get_node(parent_id, info)
+            commenting=Commenting.get_node(parent_id, request, info)
         )

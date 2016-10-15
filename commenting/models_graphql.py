@@ -1,7 +1,6 @@
 import graphene
-from graphene import relay
-from graphene.contrib.django import DjangoNode, DjangoConnectionField
-from graphene.utils import with_context
+from graphene.relay import Node
+from graphene_django import DjangoConnectionField, DjangoObjectType
 
 from db.models import DocumentID
 from db.types_revision import DocumentRevisionBase
@@ -10,11 +9,13 @@ from voting.models_graphql import VotesNode
 from .models import Comment as CommentModel, CommentStats
 
 
-class Commenting(relay.Node):
+class Commenting(graphene.ObjectType):
     count = graphene.Int()
-    comments = DjangoConnectionField('Comment')
+    comments = DjangoConnectionField(lambda: Comment)
 
-    @with_context
+    class Meta:
+        interfaces = (Node, )
+
     def resolve_comments(self, args, request, info):
         return Comment._meta.model.objects.filter(
             parent=self._document.pk
@@ -27,30 +28,27 @@ class Commenting(relay.Node):
             )
         return self._stats
 
-    def resolve_count(self, args, info):
+    def resolve_count(self, args, context, info):
         return self.stats().count
 
     @classmethod
-    def get_node(cls, id, info):
+    def get_node(cls, id, context, info):
         doc = DocumentID.objects.get(pk=id)
         c = Commenting(id=doc.pk)
         c._document = doc
         return c
 
 
-class CommentsNode(DjangoNode):
+class CommentsNode(graphene.AbstractType):
     commenting = graphene.Field(Commenting)
 
-    class Meta:
-        abstract = True
-
-    @with_context
     def resolve_commenting(self, args, request, info):
         c = Commenting(id=self.document.pk)
         c._document = self.document
         return c
 
 
-class Comment(DocumentRevisionBase, VotesNode, CommentsNode):
+class Comment(DocumentRevisionBase, VotesNode, CommentsNode, DjangoObjectType):
     class Meta:
         model = CommentModel
+        interfaces = (Node, )

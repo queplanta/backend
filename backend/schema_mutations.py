@@ -9,39 +9,43 @@ from db import mutations as db_mutations
 from life import mutations as life_mutations
 
 
+def m_field(m):
+    return m.Field()
+
+
 class Mutation(graphene.ObjectType):
-    register = graphene.Field(accounts_mutations.Register)
-    registerAndAuthenticate = graphene.Field(
+    register = m_field(accounts_mutations.Register)
+    registerAndAuthenticate = m_field(
         accounts_mutations.RegisterAndAuthenticate)
-    authenticate = graphene.Field(accounts_mutations.Authenticate)
-    deauthenticate = graphene.Field(accounts_mutations.Deauthenticate)
-    mePasswordChange = graphene.Field(accounts_mutations.PasswordChange)
-    mePasswordResetEmail = graphene.Field(
+    authenticate = m_field(accounts_mutations.Authenticate)
+    deauthenticate = m_field(accounts_mutations.Deauthenticate)
+    mePasswordChange = m_field(accounts_mutations.PasswordChange)
+    mePasswordResetEmail = m_field(
         accounts_mutations.PasswordResetEmail)
-    mePasswordResetComplete = graphene.Field(
+    mePasswordResetComplete = m_field(
         accounts_mutations.PasswordResetComplete)
-    meProfileEdit = graphene.Field(
+    meProfileEdit = m_field(
         accounts_mutations.ProfileEdit)
-    meProfileChangeAvatar = graphene.Field(
+    meProfileChangeAvatar = m_field(
         accounts_mutations.ProfileChangeAvatar)
 
-    postCreate = graphene.Field(PostCreate)
-    postEdit = graphene.Field(PostEdit)
-    postDelete = graphene.Field(PostDelete)
+    postCreate = m_field(PostCreate)
+    postEdit = m_field(PostEdit)
+    postDelete = m_field(PostDelete)
 
-    tagCreate = graphene.Field(TagCreate)
-    tagEdit = graphene.Field(TagEdit)
-    tagDelete = graphene.Field(TagDelete)
+    tagCreate = m_field(TagCreate)
+    tagEdit = m_field(TagEdit)
+    tagDelete = m_field(TagDelete)
 
-    commentCreate = graphene.Field(CommentCreate)
-    commentEdit = graphene.Field(CommentEdit)
-    commentDelete = graphene.Field(CommentDelete)
+    commentCreate = m_field(CommentCreate)
+    commentEdit = m_field(CommentEdit)
+    commentDelete = m_field(CommentDelete)
 
-    voteSet = graphene.Field(voting_mutations.VoteSet)
-    voteDelete = graphene.Field(voting_mutations.VoteDelete)
+    voteSet = m_field(voting_mutations.VoteSet)
+    voteDelete = m_field(voting_mutations.VoteDelete)
 
-    lifeNodeCreate = graphene.Field(life_mutations.LifeNodeCreate)
-    lifeNodeEdit = graphene.Field(life_mutations.LifeNodeEdit)
-    lifeNodeDelete = graphene.Field(life_mutations.LifeNodeDelete)
+    lifeNodeCreate = m_field(life_mutations.LifeNodeCreate)
+    lifeNodeEdit = m_field(life_mutations.LifeNodeEdit)
+    lifeNodeDelete = m_field(life_mutations.LifeNodeDelete)
 
-    revisionRevert = graphene.Field(db_mutations.RevisionRevert)
+    revisionRevert = m_field(db_mutations.RevisionRevert)

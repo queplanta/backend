@@ -1,8 +1,6 @@
 import graphene
 from graphql_relay.node.node import from_global_id
 
-from django.utils.text import slugify
-
 from accounts.decorators import login_required
 from accounts.permissions import has_permission
 from db.models_graphql import Document
@@ -27,9 +25,9 @@ def node_save(node, args, request):
 
 class LifeNodeCreate(Mutation):
     class Input:
-        title = graphene.String().NonNull
+        title = graphene.String(required=True)
         description = graphene.String()
-        rank = graphene.String().NonNull
+        rank = graphene.String(required=True)
         parent = graphene.ID()
 
     lifeNode = graphene.Field(LifeNode)
@@ -44,11 +42,11 @@ class LifeNodeCreate(Mutation):
 
 class LifeNodeEdit(Mutation):
     class Input:
-        id = graphene.ID().NonNull
-        title = graphene.String().NonNull
-        description = graphene.String().NonNull
-        rank = graphene.String().NonNull
-        parent = graphene.ID().NonNull
+        id = graphene.ID(required=True)
+        title = graphene.String(required=True)
+        description = graphene.String()
+        rank = graphene.String(required=True)
+        parent = graphene.ID()
 
     lifeNode = graphene.Field(LifeNode)
 
@@ -68,16 +66,16 @@ class LifeNodeEdit(Mutation):
 
 class LifeNodeDelete(Mutation):
     class Input:
-        id = graphene.ID().NonNull
+        id = graphene.ID(required=True)
 
-    lifeNodeDeletedID = graphene.ID().NonNull
+    lifeNodeDeletedID = graphene.ID(required=True)
 
     @classmethod
     @login_required
     def mutate_and_get_payload(cls, input, request, info):
         gid_type, gid = from_global_id(input.get('id'))
         node = LifeNode._meta.model.objects.get(document_id=gid)
-        
+
         error = has_permission(cls, request, node, 'delete')
         if error:
             return error
