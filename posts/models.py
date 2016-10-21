@@ -24,9 +24,11 @@ class Post(DocumentBase):
 
     published_at = models.DateTimeField(null=True)
 
-    tags = ManyToManyField(DocumentID,
+    tags = ManyToManyField(
+        DocumentID,
         limit_choices_to=limit_by_tag_contenttype,
-        related_name='post_tagged')
+        related_name='post_tagged'
+    )
 
     REPUTATION_VALUE = 2
 

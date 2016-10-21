@@ -1,5 +1,6 @@
 import graphene
 from graphql_relay.node.node import from_global_id
+from graphql_relay.connection.arrayconnection import offset_to_cursor
 
 from accounts.decorators import login_required
 from accounts.permissions import has_permission
@@ -14,17 +15,12 @@ def comment_save(comment, args, request):
     return comment
 
 
-class CommentEdge(graphene.ObjectType):
-    node = graphene.Field(Comment)
-    cursor = graphene.String(required=True)
-
-
 class CommentCreate(Mutation):
     class Input:
         parent = graphene.ID(required=True)
         body = graphene.String(required=True)
 
-    comment = graphene.Field(CommentEdge)
+    comment = graphene.Field(Comment.Connection.Edge)
     commenting = graphene.Field(Commenting)
 
     @classmethod
@@ -42,7 +38,8 @@ class CommentCreate(Mutation):
         # parent = object_type(object_type.get_node(gid, request, info))
 
         return CommentCreate(
-            comment=CommentEdge(node=comment, cursor='.'),
+            comment=Comment.Connection.Edge(node=comment,
+                                            cursor=offset_to_cursor(0)),
             commenting=Commenting.get_node(gid, request, info)
         )
 

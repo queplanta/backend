@@ -61,5 +61,7 @@ class User(DocumentBase, DjangoObjectType):
 
     def resolve_actions(self, args, request, info):
         Revision = get_revision_type()
+        import time
+        time.sleep(3)
         return Revision._meta.model.objects.filter(
             author_id=self.document.pk).order_by('-created_at')

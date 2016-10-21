@@ -43,6 +43,8 @@ INSTALLED_APPS = [
     'commenting',
     'voting',
     'life',
+    'images',
+    'what'
 ]
 
 MIDDLEWARE_CLASSES = [
