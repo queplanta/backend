@@ -35,7 +35,6 @@ INSTALLED_APPS = [
     'sorl.thumbnail',
     'django_nose',
     'graphene_django',
-    'django_graphiql',
     'db',
     'accounts',
     'tags',
