@@ -30,7 +30,7 @@ class WhatIsThisTest(UserTestCase):
                 mutation M($input_0: WhatIsThisCreateInput!) {
                     whatIsThisCreate(input: $input_0) {
                         clientMutationId,
-                        whatisthis {
+                        whatIsThis {
                             node {
                                 id
                                 when,
@@ -62,15 +62,90 @@ class WhatIsThisTest(UserTestCase):
             }
         })
 
+        whatisthis = response.json()['data']['whatIsThisCreate']['whatIsThis']['node']
+
         expected = {
             'data': {
                 'whatIsThisCreate': {
-                    'whatisthis': {
+                    'whatIsThis': {
                         'node': {
-                            'id': response.json()['data']['whatIsThisCreate']['whatisthis']['node']['id'],
+                            'id': whatisthis['id'],
                             'when': 'ontem',
                             'where': 'mariana, mg',
                             'notes': 'na baira da estrada, florindo',
+                            'author': {
+                                'username': self.user.username,
+                            },
+                            'revisionCreated': {
+                                'author': {
+                                    'username': self.user.username,
+                                }
+                            }
+                        }
+                    },
+                    'clientMutationId': '1',
+                    'errors': None
+                },
+            }
+        }
+        self.assertEqual(response.json(), expected)
+
+        response = self.graphql({
+            'query': '''
+                mutation M($input_0: SuggestionIDCreateInput!) {
+                    suggestionIDCreate(input: $input_0) {
+                        clientMutationId,
+                        suggestionID {
+                            node {
+                                id
+                                identification {
+                                    id
+                                },
+                                whatIsThis {
+                                    id
+                                },
+                                notes,
+                                author {
+                                    username
+                                }
+                                revisionCreated {
+                                    author {
+                                        username
+                                    }
+                                },
+                            }
+                        },
+                        errors {
+                            code,
+                        },
+                    }
+                }
+                ''',
+            'variables': {
+                'input_0': {
+                    'clientMutationId': '1',
+                    'whatIsThis': whatisthis['id'],
+                    'identification': self.genus['id'],
+                    'notes': 'tenho uma no meu quintal',
+                }
+            }
+        })
+
+        suggestionID = response.json()['data']['suggestionIDCreate']['suggestionID']['node']
+
+        expected = {
+            'data': {
+                'suggestionIDCreate': {
+                    'suggestionID': {
+                        'node': {
+                            'id': suggestionID['id'],
+                            'whatIsThis': {
+                                'id': whatisthis['id'],
+                            },
+                            'identification': {
+                                'id': self.genus['id'],
+                            },
+                            'notes': 'tenho uma no meu quintal',
                             'author': {
                                 'username': self.user.username,
                             },

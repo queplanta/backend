@@ -14,7 +14,7 @@ class WhatIsThisCreate(Mutation):
         where = graphene.String(required=False)
         notes = graphene.String(required=False)
 
-    whatisthis = graphene.Field(WhatIsThis.Connection.Edge)
+    whatIsThis = graphene.Field(WhatIsThis.Connection.Edge)
 
     @classmethod
     @login_required
@@ -26,18 +26,18 @@ class WhatIsThisCreate(Mutation):
         what.notes = input.get('notes')
         what.save(request=request)
         return WhatIsThisCreate(
-            whatisthis=WhatIsThis.Connection.Edge(node=what,
+            whatIsThis=WhatIsThis.Connection.Edge(node=what,
                                                   cursor=offset_to_cursor(0)),
         )
 
 
 class SuggestionIDCreate(Mutation):
     class Input:
-        whatisthis = graphene.ID(required=True)
+        whatIsThis = graphene.ID(required=True)
         identification = graphene.ID(required=True)
         notes = graphene.String(required=False)
 
-    suggestionid = graphene.Field(SuggestionID.Connection.Edge)
+    suggestionID = graphene.Field(SuggestionID.Connection.Edge)
 
     @classmethod
     @login_required
@@ -45,7 +45,7 @@ class SuggestionIDCreate(Mutation):
         suggestion = SuggestionID._meta.model()
         suggestion.author = request.user.document
 
-        gid_type, gid = from_global_id(input.get('whatisthis'))
+        gid_type, gid = from_global_id(input.get('whatIsThis'))
         suggestion.whatisthis = Document._meta.model.objects.get(pk=gid)
 
         gid_type, gid = from_global_id(input.get('identification'))
@@ -55,7 +55,7 @@ class SuggestionIDCreate(Mutation):
         suggestion.save(request=request)
 
         return SuggestionIDCreate(
-            suggestionid=SuggestionID.Connection.Edge(
+            suggestionID=SuggestionID.Connection.Edge(
                 node=suggestion, cursor=offset_to_cursor(0)
             ),
         )
