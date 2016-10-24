@@ -10,6 +10,7 @@ from tags.models_graphql import Tag
 from voting.models_graphql import Vote
 from commenting.models_graphql import Comment
 from life.models_graphql import LifeNode
+from what.models_graphql import WhatIsThis, SuggestionID
 from db.models_graphql import Revision, Document
 
 from .fields import GetBy
@@ -60,6 +61,9 @@ class Query(graphene.ObjectType):
     vote = relay.Node.Field(Vote)
 
     lifeNode = relay.Node.Field(LifeNode)
+
+    whatisthis = relay.Node.Field(WhatIsThis)
+    suggestionID = relay.Node.Field(SuggestionID)
 
     node = NodeField(relay.Node)
 

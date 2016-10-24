@@ -7,6 +7,7 @@ from commenting.mutations import CommentCreate, CommentEdit, CommentDelete
 from voting import mutations as voting_mutations
 from db import mutations as db_mutations
 from life import mutations as life_mutations
+from what import mutations as what_mutations
 
 
 def m_field(m):
@@ -47,5 +48,8 @@ class Mutation(graphene.ObjectType):
     lifeNodeCreate = m_field(life_mutations.LifeNodeCreate)
     lifeNodeEdit = m_field(life_mutations.LifeNodeEdit)
     lifeNodeDelete = m_field(life_mutations.LifeNodeDelete)
+
+    whatIsThisCreate = m_field(what_mutations.WhatIsThisCreate)
+    suggestionIDCreate = m_field(what_mutations.SuggestionIDCreate)
 
     revisionRevert = m_field(db_mutations.RevisionRevert)
