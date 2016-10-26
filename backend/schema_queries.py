@@ -62,7 +62,7 @@ class Query(graphene.ObjectType):
 
     lifeNode = relay.Node.Field(LifeNode)
 
-    whatisthis = relay.Node.Field(WhatIsThis)
+    whatIsThis = relay.Node.Field(WhatIsThis)
     suggestionID = relay.Node.Field(SuggestionID)
 
     node = NodeField(relay.Node)

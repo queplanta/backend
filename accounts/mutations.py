@@ -17,21 +17,10 @@ from django.utils.translation import ugettext_lazy as _
 
 from backend.fields import Error
 from backend.mutations import Mutation
+from utils.forms import form_erros
 from .models_graphql import User
 from .models import User as UserModel
 from .decorators import login_required
-
-
-def form_erros(form, errors=[]):
-    for error_location, error_messages in form.errors.as_data().items():
-        for error_instance in error_messages:
-            for error_message in error_instance.messages:
-                errors.append(Error(
-                    code=error_instance.code,
-                    location=error_location,
-                    message=error_message,
-                ))
-    return errors
 
 
 class UserCreationForm(DjangoUserCreationForm):
@@ -313,7 +302,7 @@ class ProfileChangeAvatar(Mutation):
         errors = []
         user = request.user
 
-        form = UserAvatarForm(request.POST, request.FILES, instance=user)
+        form = UserAvatarForm(input, request.FILES, instance=user)
         if form.is_valid():
             user = form.save(commit=False)
             user.save(request=request)

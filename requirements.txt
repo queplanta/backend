@@ -7,6 +7,7 @@ django-filter==0.13.0
 django-ipware==1.1.5
 Pillow==3.3.0
 sorl-thumbnail
+django-multiupload
 
 # Tests
 django-nose==1.4.4
