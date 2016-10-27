@@ -5,27 +5,10 @@ import graphene
 from graphene.relay import Node
 from graphene_django import DjangoObjectType, DjangoConnectionField
 
-from sorl.thumbnail import get_thumbnail
-
 from db.types import DocumentBase
+from images.fields import Thumbnail
 
 from .models import User as UserModel
-
-
-class Image(graphene.ObjectType):
-    x140x140 = graphene.String()
-    original = graphene.String()
-
-    def __init__(self, f, *args, **kwargs):
-        self._file = f
-        return super(Image, self).__init__(*args, **kwargs)
-
-    def resolve_original(self, args, request, info):
-        return self._file.url
-
-    def resolve_x140x140(self, args, request, info):
-        return get_thumbnail(self._file, '140x140', crop='center',
-                             quality=90).url
 
 
 def get_revision_type():
@@ -35,7 +18,7 @@ def get_revision_type():
 
 class User(DocumentBase, DjangoObjectType):
     is_authenticated = graphene.Boolean()
-    avatar = graphene.Field(Image)
+    avatar = Thumbnail()
 
     actions = DjangoConnectionField(get_revision_type)
 
@@ -57,7 +40,7 @@ class User(DocumentBase, DjangoObjectType):
     def resolve_avatar(self, args, request, info):
         if not self.avatar:
             self.avatar.name = settings.DEFAULT_USER_AVATAR
-        return Image(self.avatar)
+        return self.avatar
 
     def resolve_actions(self, args, request, info):
         Revision = get_revision_type()

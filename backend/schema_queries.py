@@ -63,6 +63,7 @@ class Query(graphene.ObjectType):
     lifeNode = relay.Node.Field(LifeNode)
 
     whatIsThis = relay.Node.Field(WhatIsThis)
+    allWhatIsThis = DjangoFilterConnectionField(WhatIsThis)
     suggestionID = relay.Node.Field(SuggestionID)
 
     node = NodeField(relay.Node)
