@@ -21,23 +21,20 @@ def get_default_viewer(*args, **kwargs):
 
 
 class NodeField(RelayNodeField):
-    def resolver(self, instance, args, context, info):
-        obj = super(NodeField, self).resolver(instance, args, context, info)
+    def get_resolver(self, parent_resolver):
+        resolver = self.resolver or parent_resolver
 
-        global_id = args.get('id')
-        from graphql_relay.node.node import from_global_id
-        schema = info.schema.graphene_schema
-        try:
-            _type, _id = from_global_id(global_id)
-        except:
-            return None
-        object_type = schema.get_type(_type)
+        def get_node(instance, args, context, info):
+            global_id = args.get('id')
+            if global_id == 'viewer':
+                return get_default_viewer(instance, args, context, info)
+            return resolver(instance, args, context, info)
 
-        return object_type(obj)
+        return get_node
 
 
 class Query(graphene.ObjectType):
-    id = graphene.ID()
+    id = graphene.ID(required=True)
     viewer = graphene.Field(lambda: Query)
     me = graphene.Field(User)
     user = relay.Node.Field(User)
@@ -61,6 +58,9 @@ class Query(graphene.ObjectType):
     vote = relay.Node.Field(Vote)
 
     lifeNode = relay.Node.Field(LifeNode)
+    allLifeNode = DjangoFilterConnectionField(LifeNode, args={
+        'search': graphene.Argument(graphene.String, required=False)
+    })
 
     whatIsThis = relay.Node.Field(WhatIsThis)
     allWhatIsThis = DjangoFilterConnectionField(WhatIsThis)
@@ -70,6 +70,9 @@ class Query(graphene.ObjectType):
 
     debug = graphene.Field(DjangoDebug, name='__debug')
 
+    class Meta:
+        interfaces = (relay.Node,)
+
     def resolve_viewer(self, *args, **kwargs):
         return get_default_viewer(*args, **kwargs)
 
@@ -77,3 +80,9 @@ class Query(graphene.ObjectType):
         if request.user.is_authenticated():
             return User._meta.model.objects.get(pk=request.user.pk)
         return None
+
+    def resolve_allLifeNode(self, args, request, info):
+        qs = LifeNode._meta.model.objects.all()
+        if 'search' in args and len(args['search']) > 2:
+            qs = qs.filter(title__icontains=args['search'])
+        return qs
