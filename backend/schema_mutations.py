@@ -45,6 +45,7 @@ class Mutation(graphene.ObjectType):
     voteSet = m_field(voting_mutations.VoteSet)
     voteDelete = m_field(voting_mutations.VoteDelete)
 
+    speciesCreate = m_field(life_mutations.SpeciesCreate)
     lifeNodeCreate = m_field(life_mutations.LifeNodeCreate)
     lifeNodeEdit = m_field(life_mutations.LifeNodeEdit)
     lifeNodeDelete = m_field(life_mutations.LifeNodeDelete)

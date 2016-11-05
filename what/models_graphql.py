@@ -26,11 +26,16 @@ class WhatIsThis(DocumentRevisionBase, VotesNode,
         interfaces = (Node, )
 
     def resolve_author(self, args, context, info):
-        return User._meta.model.objects.get(pk=self.author_id)
+        return User._meta.model.objects.get(document_id=self.author_id)
 
     def resolve_images(self, args, context, info):
         return Image._meta.model.objects.filter(
             document__whatisthis_image=self)
+
+    def resolve_suggestions(self, args, request, info):
+        return SuggestionID._meta.model.objects.filter(
+            whatisthis=self.document
+        ).order_by('revision')
 
 
 class SuggestionID(DocumentRevisionBase, VotesNode,
@@ -44,10 +49,12 @@ class SuggestionID(DocumentRevisionBase, VotesNode,
         interfaces = (Node, )
 
     def resolve_author(self, args, context, info):
-        return User._meta.model.objects.get(pk=self.author_id)
+        return User._meta.model.objects.get(document_id=self.author_id)
 
     def resolve_whatIsThis(self, args, context, info):
-        return WhatIsThis._meta.model.objects.get(pk=self.whatisthis_id)
+        return WhatIsThis._meta.model.objects.get(
+            document_id=self.whatisthis_id)
 
     def resolve_identification(self, args, context, info):
-        return LifeNode._meta.model.objects.get(pk=self.identification_id)
+        return LifeNode._meta.model.objects.get(
+            document_id=self.identification_id)

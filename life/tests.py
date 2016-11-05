@@ -84,3 +84,61 @@ class LifeNodeTest(UserTestCase):
             }
         }
         self.assertEqual(response.json(), expected)
+
+    def test_create_species(self):
+        self._do_login()
+
+        response = self.graphql({
+            'query': '''
+                mutation M($input_0: SpeciesCreateInput!) {
+                    speciesCreate(input: $input_0) {
+                        clientMutationId,
+                        species {
+                            id
+                            title,
+                            rank,
+                            commonNames,
+                            revisionCreated {
+                                author {
+                                    username
+                                }
+                            },
+                        },
+                        errors {
+                            code,
+                        },
+                    }
+                }
+                ''',
+            'variables': {
+                'input_0': {
+                    'clientMutationId': '1',
+                    'species': 'Mimosa pudica',
+                    'genus': 'Mimosa',
+                    'family': 'Fabaceae',
+                    'commonNames': 'dormideira, malícia, sensitiva, dorme-dorme'
+                }
+            }
+        })
+
+        expected = {
+            'data': {
+                'speciesCreate': {
+                    'species': {
+                        'id': response.json()['data']['speciesCreate']['species']['id'],
+                        'title': 'Mimosa pudica',
+                        'rank': 'species',
+                        'commonNames': ['dorme-dorme', 'dormideira',
+                                        'malícia', 'sensitiva'],
+                        'revisionCreated': {
+                            'author': {
+                                'username': self.user.username,
+                            }
+                        },
+                    },
+                    'clientMutationId': '1',
+                    'errors': None
+                },
+            }
+        }
+        self.assertEqual(response.json(), expected)

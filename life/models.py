@@ -1,6 +1,10 @@
 from django.db import models
+from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _
+
 from db.models import DocumentBase, DocumentID
+from db.fields import ManyToManyField
+
 
 RANK_KINGDOM = 10
 RANK_PHYLUM = 20
@@ -35,7 +39,18 @@ RANK_BY_STRING = {
     'infraspecies': RANK_INFRASPECIES,
     'variety': RANK_VARIETY,
 }
-RANK_STRING_BY_INT = {v:k for k,v in RANK_BY_STRING.items()}
+RANK_STRING_BY_INT = {v: k for k, v in RANK_BY_STRING.items()}
+
+
+def limit_by_commonName_contenttype():
+    try:
+        ct = ContentType.objects.get_for_model(CommonName)
+        return {
+            'content_type': ct
+        }
+    except ContentType.DoesNotExist:
+        return {}
+
 
 class LifeNode(DocumentBase):
     rank = models.IntegerField(choices=RANK_CHOICES)
@@ -43,3 +58,13 @@ class LifeNode(DocumentBase):
 
     title = models.CharField(max_length=512)
     description = models.TextField(null=True, blank=True)
+
+    commonNames = ManyToManyField(
+        DocumentID,
+        limit_choices_to=limit_by_commonName_contenttype,
+        related_name='lifeNode'
+    )
+
+
+class CommonName(DocumentBase):
+    name = models.CharField(max_length=255)

@@ -6,7 +6,10 @@ from accounts.permissions import has_permission
 from db.models_graphql import Document
 from backend.mutations import Mutation
 from .models_graphql import LifeNode
-from .models import RANK_BY_STRING
+from .models import (
+    RANK_BY_STRING, CommonName,
+    LifeNode as LifeNodeModel
+)
 
 
 def node_save(node, args, request):
@@ -83,3 +86,70 @@ class LifeNodeDelete(Mutation):
         node.delete(request=request)
 
         return LifeNodeDelete(lifeNodeDeletedID=input.get('id'))
+
+
+class SpeciesCreate(Mutation):
+    class Input:
+        commonNames = graphene.String(required=False)
+        species = graphene.String(required=True)
+        genus = graphene.String(required=True)
+        family = graphene.String(required=False)
+
+    species = graphene.Field(LifeNode)
+
+    @classmethod
+    @login_required
+    def mutate_and_get_payload(cls, input, request, info):
+        genus_qs = LifeNodeModel.objects.filter(
+            title__iexact=input.get('genus'),
+            rank=RANK_BY_STRING['genus'])
+
+        genus = None
+        family = None
+
+        if genus_qs.count() > 0:
+            genus = genus_qs[0]
+        elif len(input.get('genus')) > 0:
+            family_qs = LifeNodeModel.objects.filter(
+                title__iexact=input.get('family'),
+                rank=RANK_BY_STRING['family'])
+            if family_qs.count() > 0:
+                family = family_qs[0]
+            elif len(input.get('family')) > 0:
+                family = LifeNodeModel(
+                    rank=RANK_BY_STRING['family'],
+                    title=input.get('family')
+                )
+                family.save(request=request)
+            genus = LifeNodeModel(
+                rank=RANK_BY_STRING['genus'],
+                title=input.get('genus'),
+                parent=family.document if family else None
+            )
+            genus.save(request=request)
+
+        species = LifeNodeModel(
+            parent=genus.document if genus else None,
+            rank=RANK_BY_STRING['species'],
+            title=input.get('species'),
+        )
+        species.save(request=request)
+
+        commonNames_raw = input.get('commonNames', '')
+        for commonName_str in commonNames_raw.split(','):
+            commonName_str = commonName_str.strip(' \t\n\r')
+
+            if len(commonName_str) == 0:
+                # don't save empty
+                continue
+
+            try:
+                commonName = CommonName.objects.get(name=commonName_str)
+            except CommonName.DoesNotExist:
+                commonName = CommonName(
+                    name=commonName_str,
+                )
+                commonName.save(request=request)
+            species.commonNames.add(commonName.document)
+
+        return SpeciesCreate(species=species)

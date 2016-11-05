@@ -59,6 +59,7 @@ class SuggestionIDCreate(Mutation):
         identification = graphene.ID(required=True)
         notes = graphene.String(required=False)
 
+    whatIsThis = graphene.Field(WhatIsThis)
     suggestionID = graphene.Field(SuggestionID.Connection.Edge)
 
     @classmethod
@@ -77,6 +78,7 @@ class SuggestionIDCreate(Mutation):
         suggestion.save(request=request)
 
         return SuggestionIDCreate(
+            whatIsThis=suggestion.whatisthis.get_object(),
             suggestionID=SuggestionID.Connection.Edge(
                 node=suggestion, cursor=offset_to_cursor(0)
             ),
