@@ -1,6 +1,6 @@
 import graphene
 from graphene.relay import Node
-from graphene_django import DjangoObjectType
+from graphene_django import DjangoObjectType, DjangoConnectionField
 
 from db.types_revision import DocumentRevisionBase
 
@@ -20,6 +20,8 @@ class LifeNode(DocumentRevisionBase, CommentsNode, VotesNode,
     rank = graphene.String()
     rankDisplay = graphene.String()
     commonNames = graphene.List(graphene.String)
+
+    children = DjangoConnectionField(lambda: LifeNode)
 
     class Meta:
         model = LifeNodeModel
@@ -49,3 +51,8 @@ class LifeNode(DocumentRevisionBase, CommentsNode, VotesNode,
         return CommonNameModel._meta.model.objects.filter(
             document_id__in=self.commonNames.values_list('id', flat=True)
         ).order_by('name').values_list('name', flat=True)
+
+    def resolve_children(self, args, request, info):
+        return LifeNode._meta.model.objects.filter(
+            parent=self.document
+        ).order_by('title')
