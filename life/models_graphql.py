@@ -16,6 +16,7 @@ from voting.models_graphql import VotesNode
 class LifeNode(DocumentRevisionBase, CommentsNode, VotesNode,
                DjangoObjectType):
     parent = graphene.Field(lambda: LifeNode)
+    parents = graphene.List(lambda: LifeNode)
     rank = graphene.String()
     rankDisplay = graphene.String()
     commonNames = graphene.List(graphene.String)
@@ -27,6 +28,16 @@ class LifeNode(DocumentRevisionBase, CommentsNode, VotesNode,
     def resolve_parent(self, args, request, info):
         if self.parent:
             return self.parent.get_object()
+
+    def resolve_parents(self, args, request, info):
+        def get_parents(obj):
+            parents = []
+            if obj.parent:
+                parent = obj.parent.get_object()
+                parents.append(parent)
+                parents.extend(get_parents(parent))
+            return parents
+        return get_parents(self)
 
     def resolve_rank(self, args, request, info):
         return RANK_STRING_BY_INT[self.rank]

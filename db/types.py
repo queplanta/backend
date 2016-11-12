@@ -9,6 +9,7 @@ from graphql.language import ast
 
 class DocumentBase(graphene.AbstractType):
     id = GlobalID(Node, required=True)
+    id_int = graphene.Int()
 
     my_perms = graphene.List(graphene.String)
 
@@ -16,6 +17,9 @@ class DocumentBase(graphene.AbstractType):
         if hasattr(self, '_id_with_revision'):
             return "%d:%d" % (self.document_id,
                               self.revision_id)
+        return self.document_id
+
+    def resolve_id_int(self, args, request, info):
         return self.document_id
 
     @classmethod

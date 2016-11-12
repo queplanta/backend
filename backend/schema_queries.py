@@ -58,6 +58,7 @@ class Query(graphene.ObjectType):
     vote = relay.Node.Field(Vote)
 
     lifeNode = relay.Node.Field(LifeNode)
+    lifeNodeByIntID = GetBy(LifeNode, document_id=graphene.Int(required=True))
     allLifeNode = DjangoFilterConnectionField(LifeNode, args={
         'search': graphene.Argument(graphene.String, required=False)
     })

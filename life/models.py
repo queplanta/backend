@@ -57,6 +57,7 @@ class LifeNode(DocumentBase):
     parent = models.ForeignKey(DocumentID, related_name="children", null=True)
 
     title = models.CharField(max_length=512)
+    slug = models.SlugField(max_length=512, null=True)
     description = models.TextField(null=True, blank=True)
 
     commonNames = ManyToManyField(
@@ -64,6 +65,9 @@ class LifeNode(DocumentBase):
         limit_choices_to=limit_by_commonName_contenttype,
         related_name='lifeNode'
     )
+
+    # class Meta:
+    #     unique_together = ("is_tip", "slug")
 
 
 class CommonName(DocumentBase):
