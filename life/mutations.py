@@ -15,6 +15,7 @@ from .models import (
 def node_save(node, args, request):
     node.title = args.get('title')
     node.description = args.get('description')
+    node.gbif_id = args.get('gbif_id')
     node.rank = RANK_BY_STRING[args.get('rank')]
 
     parent_id = args.get('parent')
@@ -23,7 +24,31 @@ def node_save(node, args, request):
         node.parent = Document._meta.model.objects.get(pk=gid)
 
     node.save(request=request)
+
+    commonNames = args.get('commonNames', [])
+    for commonNameDict in commonNames:
+        commonName_str = commonNameDict['name'].strip(' \t\n\r')
+
+        if len(commonName_str) == 0:
+            # don't save empty
+            continue
+
+        try:
+            commonName = CommonName.objects.get(name=commonName_str)
+        except CommonName.DoesNotExist:
+            commonName = CommonName(
+                name=commonName_str,
+                language=commonNameDict['language']
+            )
+            commonName.save(request=request)
+        node.commonNames.add(commonName.document)
+
     return node
+
+
+class CommonNameInput(graphene.InputObjectType):
+    name = graphene.String(required=True)
+    language = graphene.String(required=False)
 
 
 class LifeNodeCreate(Mutation):
@@ -32,6 +57,8 @@ class LifeNodeCreate(Mutation):
         description = graphene.String()
         rank = graphene.String(required=True)
         parent = graphene.ID()
+        gbif_id = graphene.Int()
+        commonNames = graphene.List(CommonNameInput)
 
     lifeNode = graphene.Field(LifeNode)
 
@@ -50,6 +77,8 @@ class LifeNodeEdit(Mutation):
         description = graphene.String()
         rank = graphene.String(required=True)
         parent = graphene.ID()
+        gbif_id = graphene.Int()
+        commonNames = graphene.List(CommonNameInput)
 
     lifeNode = graphene.Field(LifeNode)
 

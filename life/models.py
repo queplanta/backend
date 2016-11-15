@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _
+from django.utils.text import slugify
 
 from db.models import DocumentBase, DocumentID
 from db.fields import ManyToManyField
@@ -88,6 +89,11 @@ class LifeNode(DocumentBase):
 
     # class Meta:
     #     unique_together = ("is_tip", "slug")
+
+    def save(self, *args, **kwargs):
+        if not self.slug or len(self.slug) == 0:
+            self.slug = slugify(self.title)
+        return super(LifeNode, self).save(*args, **kwargs)
 
 
 class CommonName(DocumentBase):

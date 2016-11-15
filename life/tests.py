@@ -18,6 +18,8 @@ class LifeNodeTest(UserTestCase):
                                     username
                                 }
                             },
+                            commonNames,
+                            gbifId,
                             parent {
                                 id,
                                 title,
@@ -37,6 +39,8 @@ class LifeNodeTest(UserTestCase):
                     'description': node['description'],
                     'rank': node['rank'],
                     'parent': node['parent'],
+                    'commonNames': node['commonNames'],
+                    'gbifId': node.get('gbifId'),
                 }
             }
         }, client=client)
@@ -48,6 +52,7 @@ class LifeNodeTest(UserTestCase):
             'description': '',
             'rank': 'genus',
             'parent': None,
+            'commonNames': [],
         }
         response = self._do_create(self.client, node)
         parent = response.json()['data']['lifeNodeCreate']['lifeNode']
@@ -57,6 +62,11 @@ class LifeNodeTest(UserTestCase):
             'description': 'The fruit tastes like heaven',
             'rank': 'species',
             'parent': parent['id'],
+            'gbifId': 3190638,
+            'commonNames': [{
+                'name': 'Mangueira',
+                'language': 'por'
+            }]
         }
         response = self._do_create(self.client, node)
         expected = {
@@ -67,6 +77,8 @@ class LifeNodeTest(UserTestCase):
                         'title': node['title'],
                         'description': node['description'],
                         'rank': node['rank'],
+                        'gbifId': node['gbifId'],
+                        'commonNames': ['Mangueira'],
                         'revisionCreated': {
                             'author': {
                                 'username': self.user.username,
