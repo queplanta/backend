@@ -7,8 +7,8 @@ from django.utils.text import slugify
 
 
 def forwards_func(apps, schema_editor):
-    from life.models import LifeNode
-    for node in LifeNode.objects.all():
+    LifeNode = apps.get_model("life", "LifeNode")
+    for node in LifeNode.objects_revisions.all():
         node.slug = slugify(node.title)
         node.save(update_fields=['slug'], request=None)
 
