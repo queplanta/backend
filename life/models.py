@@ -5,6 +5,8 @@ from django.utils.translation import ugettext_lazy as _
 from db.models import DocumentBase, DocumentID
 from db.fields import ManyToManyField
 
+from images.models import Image
+
 
 RANK_KINGDOM = 10
 RANK_PHYLUM = 20
@@ -52,6 +54,16 @@ def limit_by_commonName_contenttype():
         return {}
 
 
+def limit_by_image_contenttype():
+    try:
+        ct = ContentType.objects.get_for_model(Image)
+        return {
+            'content_type': ct
+        }
+    except ContentType.DoesNotExist:
+        return {}
+
+
 class LifeNode(DocumentBase):
     rank = models.IntegerField(choices=RANK_CHOICES)
     parent = models.ForeignKey(DocumentID, related_name="children", null=True)
@@ -60,9 +72,17 @@ class LifeNode(DocumentBase):
     slug = models.SlugField(max_length=512, null=True)
     description = models.TextField(null=True, blank=True)
 
+    gbif_id = models.IntegerField(null=True, blank=True)
+
     commonNames = ManyToManyField(
         DocumentID,
         limit_choices_to=limit_by_commonName_contenttype,
+        related_name='lifeNode'
+    )
+
+    images = ManyToManyField(
+        Image,
+        limit_choices_to=limit_by_image_contenttype,
         related_name='lifeNode'
     )
 
@@ -72,3 +92,4 @@ class LifeNode(DocumentBase):
 
 class CommonName(DocumentBase):
     name = models.CharField(max_length=255)
+    language = models.CharField(max_length=255, null=True, blank=True)
