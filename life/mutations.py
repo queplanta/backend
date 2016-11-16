@@ -43,7 +43,10 @@ def node_save(node, args, request):
             continue
 
         try:
-            commonName = CommonName.objects.get(name=commonName_str)
+            commonName = CommonName.objects.get(
+                name=commonName_str,
+                document__lifeNode_commonName=node
+            )
         except CommonName.DoesNotExist:
             commonName = CommonName(
                 name=commonName_str,
