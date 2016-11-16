@@ -1,4 +1,3 @@
-import graphene
 from graphene.relay import Node
 from graphene_django import DjangoObjectType
 

@@ -78,13 +78,13 @@ class LifeNode(DocumentBase):
     commonNames = ManyToManyField(
         DocumentID,
         limit_choices_to=limit_by_commonName_contenttype,
-        related_name='lifeNode'
+        related_name='lifeNode_commonName'
     )
 
     images = ManyToManyField(
-        Image,
+        DocumentID,
         limit_choices_to=limit_by_image_contenttype,
-        related_name='lifeNode'
+        related_name='lifeNode_image'
     )
 
     # class Meta:

@@ -11,6 +11,7 @@ from .models import (
 )
 from commenting.models_graphql import CommentsNode
 from voting.models_graphql import VotesNode
+from images.models_graphql import Image
 
 
 class LifeNode(DocumentRevisionBase, CommentsNode, VotesNode,
@@ -22,6 +23,7 @@ class LifeNode(DocumentRevisionBase, CommentsNode, VotesNode,
     commonNames = graphene.List(graphene.String)
 
     children = DjangoConnectionField(lambda: LifeNode)
+    images = DjangoConnectionField(lambda: Image)
 
     class Meta:
         model = LifeNodeModel
@@ -49,10 +51,14 @@ class LifeNode(DocumentRevisionBase, CommentsNode, VotesNode,
 
     def resolve_commonNames(self, args, request, info):
         return CommonNameModel._meta.model.objects.filter(
-            document_id__in=self.commonNames.values_list('id', flat=True)
+            document__lifeNode_commonName=self
         ).order_by('name').values_list('name', flat=True)
 
     def resolve_children(self, args, request, info):
         return LifeNode._meta.model.objects.filter(
             parent=self.document
         ).order_by('title')
+
+    def resolve_images(self, args, context, info):
+        return Image._meta.model.objects.filter(
+            document__lifeNode_image=self)

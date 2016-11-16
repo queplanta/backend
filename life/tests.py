@@ -1,9 +1,10 @@
 from backend.tests import UserTestCase
+from django.test.client import MULTIPART_CONTENT
 
 
 class LifeNodeTest(UserTestCase):
-    def _do_create(self, client, node):
-        return self.graphql({
+    def _do_create(self, client, node, extra={}):
+        query = {
             'query': '''
                 mutation M($input_0: LifeNodeCreateInput!) {
                     lifeNodeCreate(input: $input_0) {
@@ -20,6 +21,13 @@ class LifeNodeTest(UserTestCase):
                             },
                             commonNames,
                             gbifId,
+                            images {
+                                edges {
+                                    node {
+                                        id
+                                    }
+                                }
+                            }
                             parent {
                                 id,
                                 title,
@@ -41,9 +49,12 @@ class LifeNodeTest(UserTestCase):
                     'parent': node['parent'],
                     'commonNames': node['commonNames'],
                     'gbifId': node.get('gbifId'),
+                    'imagesToAdd': node.get('imagesToAdd', []),
                 }
             }
-        }, client=client)
+        }
+        query.update(extra)
+        return self.graphql(query, client=client, content_type=MULTIPART_CONTENT)
 
     def test_create(self):
         self._do_login()
@@ -57,18 +68,34 @@ class LifeNodeTest(UserTestCase):
         response = self._do_create(self.client, node)
         parent = response.json()['data']['lifeNodeCreate']['lifeNode']
 
-        node = {
-            'title': 'Mangifera indica',
-            'description': 'The fruit tastes like heaven',
-            'rank': 'species',
-            'parent': parent['id'],
-            'gbifId': 3190638,
-            'commonNames': [{
-                'name': 'Mangueira',
-                'language': 'por'
-            }]
-        }
-        response = self._do_create(self.client, node)
+        with open('public/default_user_avatar.jpg', 'rb') as image1, open('public/default_user_avatar.jpg', 'rb') as image2:
+            node = {
+                'title': 'Mangifera indica',
+                'description': 'The fruit tastes like heaven',
+                'rank': 'species',
+                'parent': parent['id'],
+                'gbifId': 3190638,
+                'commonNames': [{
+                    'name': 'Mangueira',
+                    'language': 'por'
+                }],
+                'imagesToAdd': [
+                    {
+                        'field': 'image_1',
+                        'description': 'description of a mango tree photography'
+                    },
+                    {
+                        'field': 'image_2',
+                        'description': 'description of a mango fruit photography'
+                    }
+                ]
+            }
+            response = self._do_create(self.client, node, {
+                'image_1': image1,
+                'image_2': image2
+            })
+
+        lifeNode = response.json()['data']['lifeNodeCreate']['lifeNode']
         expected = {
             'data': {
                 'lifeNodeCreate': {
@@ -83,6 +110,12 @@ class LifeNodeTest(UserTestCase):
                             'author': {
                                 'username': self.user.username,
                             }
+                        },
+                        'images': {
+                            'edges': [
+                                lifeNode['images']['edges'][0],
+                                lifeNode['images']['edges'][1],
+                            ],
                         },
                         'parent': {
                             'id': parent['id'],

@@ -1,6 +1,9 @@
 import graphene
 from graphql_relay.node.node import from_global_id
 
+from django import forms
+from django.utils.datastructures import MultiValueDict
+
 from accounts.decorators import login_required
 from accounts.permissions import has_permission
 from db.models_graphql import Document
@@ -10,6 +13,12 @@ from .models import (
     RANK_BY_STRING, CommonName,
     LifeNode as LifeNodeModel
 )
+from images.models import Image as ImageModel
+
+
+class ImageForm(forms.Form):
+    image = forms.ImageField(required=True)
+    description = forms.CharField(required=False)
 
 
 def node_save(node, args, request):
@@ -43,12 +52,31 @@ def node_save(node, args, request):
             commonName.save(request=request)
         node.commonNames.add(commonName.document)
 
+    imagesToAdd = args.get('imagesToAdd', [])
+    for imageToAdd in imagesToAdd:
+        form = ImageForm(imageToAdd, MultiValueDict({
+            'image': request.FILES.getlist(imageToAdd['field'])
+        }))
+        if form.is_valid():
+            data = form.cleaned_data
+            image = ImageModel(
+                image=data['image'],
+                description=data['description']
+            )
+            image.save(request=request)
+            node.images.add(image.document)
+
     return node
 
 
 class CommonNameInput(graphene.InputObjectType):
     name = graphene.String(required=True)
     language = graphene.String(required=False)
+
+
+class ImageInput(graphene.InputObjectType):
+    field = graphene.String(required=True)
+    description = graphene.String(required=False)
 
 
 class LifeNodeCreate(Mutation):
@@ -59,6 +87,7 @@ class LifeNodeCreate(Mutation):
         parent = graphene.ID()
         gbif_id = graphene.Int()
         commonNames = graphene.List(CommonNameInput)
+        imagesToAdd = graphene.List(ImageInput)
 
     lifeNode = graphene.Field(LifeNode)
 
@@ -79,6 +108,7 @@ class LifeNodeEdit(Mutation):
         parent = graphene.ID()
         gbif_id = graphene.Int()
         commonNames = graphene.List(CommonNameInput)
+        imagesToAdd = graphene.List(ImageInput)
 
     lifeNode = graphene.Field(LifeNode)
 
