@@ -13,8 +13,9 @@ echo Starting Gunicorn.
 exec gunicorn backend.wsgi:application \
     --name backend \
     --bind 0.0.0.0:9090 \
-    --workers 2 \
-    --log-level=info \
+    --workers $GUNICORN_WORKERS \
+    --log-level=$GUNICORN_LOG_LEVEL \
+    --timeout $GUNICORN_TIMEOUT \
     --log-file=/var/log/gunicorn.log \
     --access-logfile=/var/log/access.log \
     "$@"

@@ -13,6 +13,10 @@ ENV LANGUAGE=pt_BR.UTF-8
 ENV LC_CTYPE=pt_BR.UTF-8
 ENV LC_COLLATE=pt_BR.UTF-8
 
+ENV GUNICORN_TIMEOUT 300
+ENV GUNICORN_LOG_LEVEL info
+ENV GUNICORN_WORKERS 2
+
 VOLUME ["/usr/src/app/static", "/usr/src/app/public"]
 EXPOSE 9090
 RUN chmod +x /usr/src/app/docker-entrypoint.sh
