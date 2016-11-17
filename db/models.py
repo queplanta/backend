@@ -89,6 +89,7 @@ class DocumentBase(models.Model):
     class Meta:
         abstract = True
         unique_together = ('is_tip', 'document')
+        ordering = ('document_id',)
 
     @property
     def revisions(self):

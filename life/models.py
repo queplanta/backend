@@ -99,3 +99,15 @@ class LifeNode(DocumentBase):
 class CommonName(DocumentBase):
     name = models.CharField(max_length=255)
     language = models.CharField(max_length=255, null=True, blank=True)
+
+
+class Characteristic(DocumentBase):
+    tag = models.ForeignKey(DocumentID, related_name="characteristic_tag")
+    lifeNode = models.ForeignKey(DocumentID,
+                                 related_name="characteristic_lifeNode")
+    value = models.CharField(max_length=512, null=True)
+
+    def _get_tag(self):
+        if not hasattr(self, '_tag'):
+            self._tag = self.tag.get_object()
+        return self._tag

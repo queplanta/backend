@@ -187,3 +187,68 @@ class LifeNodeTest(UserTestCase):
             }
         }
         self.assertEqual(response.json(), expected)
+
+    def test_add_characteristic(self):
+        self._do_login()
+        node = {
+            'title': 'Mangifera indica',
+            'description': 'The fruit tastes like heaven',
+            'rank': 'species',
+            'parent': None,
+            'commonNames': [],
+        }
+        response = self._do_create(self.client, node)
+        parent = response.json()['data']['lifeNodeCreate']['lifeNode']
+
+        response = self.graphql({
+            'query': '''
+                mutation M($input_0: CharacteristicAddInput!) {
+                    lifeNodeCharacteristicAdd(input: $input_0) {
+                        clientMutationId,
+                        lifeNode {
+                            id
+                            characteristics(first: 10) {
+                                edges {
+                                    node {
+                                        title
+                                        value
+                                    }
+                                }
+                            }
+                        },
+                        errors {
+                            code,
+                        },
+                    }
+                }
+                ''',
+            'variables': {
+                'input_0': {
+                    'clientMutationId': '1',
+                    'lifeNode': parent['id'],
+                    'title': 'Edible',
+                    'value': 'Only its fruits',
+                }
+            }
+        })
+
+        expected = {
+            'data': {
+                'lifeNodeCharacteristicAdd': {
+                    'lifeNode': {
+                        'id': parent['id'],
+                        'characteristics': {
+                            'edges': [{
+                                'node': {
+                                    'title': 'Edible',
+                                    'value': 'Only its fruits'
+                                }
+                            }]
+                        }
+                    },
+                    'clientMutationId': '1',
+                    'errors': None
+                },
+            }
+        }
+        self.assertEqual(response.json(), expected)

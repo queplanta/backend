@@ -3,6 +3,7 @@ from graphql_relay.node.node import from_global_id
 
 from django import forms
 from django.utils.datastructures import MultiValueDict
+from django.utils.text import slugify
 
 from accounts.decorators import login_required
 from accounts.permissions import has_permission
@@ -11,8 +12,10 @@ from backend.mutations import Mutation
 from .models_graphql import LifeNode
 from .models import (
     RANK_BY_STRING, CommonName,
-    LifeNode as LifeNodeModel
+    LifeNode as LifeNodeModel,
+    Characteristic as CharacteristicModel
 )
+from tags.models import Tag as TagModel
 from images.models import Image as ImageModel
 
 
@@ -215,3 +218,43 @@ class SpeciesCreate(Mutation):
             species.commonNames.add(commonName.document)
 
         return SpeciesCreate(species=species)
+
+
+class CharacteristicAdd(Mutation):
+    class Input:
+        lifeNode = graphene.ID(required=True)
+        title = graphene.String(required=True)
+        value = graphene.String()
+
+    lifeNode = graphene.Field(LifeNode)
+
+    @classmethod
+    @login_required
+    def mutate_and_get_payload(cls, input, request, info):
+        gid_type, gid = from_global_id(input.get('lifeNode'))
+        node = LifeNode._meta.model.objects.get(document_id=gid)
+
+        error = has_permission(cls, request, node, 'edit')
+        if error:
+            return error
+
+        tag_title = input.get('title').strip(' \t\n\r')
+        tag_slug = slugify(tag_title)
+
+        try:
+            tag = TagModel.objects.get(slug=tag_slug)
+        except TagModel.DoesNotExist:
+            tag = TagModel(
+                title=tag_title,
+                slug=tag_slug,
+            )
+            tag.save(request=request)
+
+        c = CharacteristicModel(
+            tag=tag.document,
+            lifeNode=node.document,
+            value=input.get('value')
+        )
+        c.save(request=request)
+
+        return CharacteristicAdd(lifeNode=node)

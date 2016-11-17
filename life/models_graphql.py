@@ -7,11 +7,13 @@ from db.types_revision import DocumentRevisionBase
 from .models import (
     LifeNode as LifeNodeModel,
     CommonName as CommonNameModel,
+    Characteristic as CharacteristicModel,
     RANK_STRING_BY_INT
 )
 from commenting.models_graphql import CommentsNode
 from voting.models_graphql import VotesNode
 from images.models_graphql import Image
+from tags.models_graphql import Tag
 
 
 class LifeNode(DocumentRevisionBase, CommentsNode, VotesNode,
@@ -24,6 +26,7 @@ class LifeNode(DocumentRevisionBase, CommentsNode, VotesNode,
 
     children = DjangoConnectionField(lambda: LifeNode)
     images = DjangoConnectionField(lambda: Image)
+    characteristics = DjangoConnectionField(lambda: Characteristic)
 
     class Meta:
         model = LifeNodeModel
@@ -62,3 +65,24 @@ class LifeNode(DocumentRevisionBase, CommentsNode, VotesNode,
     def resolve_images(self, args, context, info):
         return Image._meta.model.objects.filter(
             document__lifeNode_image=self)
+
+    def resolve_characteristics(self, args, request, info):
+        return Characteristic._meta.model.objects.filter(
+            lifeNode=self.document
+        )
+
+
+class Characteristic(DocumentRevisionBase, CommentsNode, VotesNode,
+                     DjangoObjectType):
+    tag = graphene.Field(lambda: Tag)
+    title = graphene.String()
+
+    class Meta:
+        model = CharacteristicModel
+        interfaces = (Node,)
+
+    def resolve_tag(self, args, request, info):
+        return self._get_tag()
+
+    def resolve_title(self, args, request, info):
+        return self._get_tag().title
