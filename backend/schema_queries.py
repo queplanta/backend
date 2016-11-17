@@ -86,4 +86,4 @@ class Query(graphene.ObjectType):
         qs = LifeNode._meta.model.objects.all()
         if 'search' in args and len(args['search']) > 2:
             qs = qs.filter(title__icontains=args['search'])
-        return qs
+        return qs.order_by('document_id')
