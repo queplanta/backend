@@ -1,5 +1,6 @@
 import graphene
 from graphql_relay.node.node import from_global_id
+from graphql_relay.connection.arrayconnection import offset_to_cursor
 
 from django import forms
 from django.utils.datastructures import MultiValueDict
@@ -9,7 +10,7 @@ from accounts.decorators import login_required
 from accounts.permissions import has_permission
 from db.models_graphql import Document
 from backend.mutations import Mutation
-from .models_graphql import LifeNode
+from .models_graphql import LifeNode, Characteristic
 from .models import (
     RANK_BY_STRING, CommonName,
     LifeNode as LifeNodeModel,
@@ -227,6 +228,7 @@ class CharacteristicAdd(Mutation):
         value = graphene.String()
 
     lifeNode = graphene.Field(LifeNode)
+    characteristic = graphene.Field(Characteristic.Connection.Edge)
 
     @classmethod
     @login_required
@@ -257,4 +259,8 @@ class CharacteristicAdd(Mutation):
         )
         c.save(request=request)
 
-        return CharacteristicAdd(lifeNode=node)
+        return CharacteristicAdd(
+            lifeNode=node,
+            characteristic=Characteristic.Connection.Edge(
+                node=c, cursor=offset_to_cursor(0))
+        )
