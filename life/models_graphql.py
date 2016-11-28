@@ -67,7 +67,7 @@ class LifeNode(DocumentRevisionBase, CommentsNode, VotesNode,
 
     def resolve_commonNames(self, args, request, info):
         return CommonName._meta.model.objects.filter(
-            document__lifeNode_commonName=self.document
+            document_id__in=self.commonNames.values_list('id', flat=True)
         ).order_by('name')
 
     def resolve_children(self, args, request, info):
@@ -77,7 +77,8 @@ class LifeNode(DocumentRevisionBase, CommentsNode, VotesNode,
 
     def resolve_images(self, args, context, info):
         return Image._meta.model.objects.filter(
-            document__lifeNode_image=self.document)
+            document_id__in=self.images.values_list('id', flat=True)
+        )
 
     def resolve_characteristics(self, args, request, info):
         return Characteristic._meta.model.objects.filter(
