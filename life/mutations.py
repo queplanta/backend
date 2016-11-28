@@ -26,10 +26,13 @@ class ImageForm(forms.Form):
 
 
 def node_save(node, args, request):
-    node.title = args.get('title')
-    node.description = args.get('description')
-    node.gbif_id = args.get('gbif_id')
-    node.rank = RANK_BY_STRING[args.get('rank')]
+    node.title = args.get('title', node.title)
+    node.description = args.get('description', node.description)
+    node.gbif_id = args.get('gbif_id', node.gbif_id)
+    try:
+        node.rank = RANK_BY_STRING[args.get('rank').lower()]
+    except KeyError:
+        pass
 
     parent_id = args.get('parent')
     if parent_id:
@@ -109,9 +112,9 @@ class LifeNodeCreate(Mutation):
 class LifeNodeEdit(Mutation):
     class Input:
         id = graphene.ID(required=True)
-        title = graphene.String(required=True)
+        title = graphene.String()
         description = graphene.String()
-        rank = graphene.String(required=True)
+        rank = graphene.String()
         parent = graphene.ID()
         gbif_id = graphene.Int()
         commonNames = graphene.List(CommonNameInput)

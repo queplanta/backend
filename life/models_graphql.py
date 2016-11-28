@@ -7,8 +7,7 @@ from db.types_revision import DocumentRevisionBase
 from .models import (
     LifeNode as LifeNodeModel,
     CommonName as CommonNameModel,
-    Characteristic as CharacteristicModel,
-    RANK_STRING_BY_INT
+    Characteristic as CharacteristicModel
 )
 from commenting.models_graphql import CommentsNode
 from voting.models_graphql import VotesNode
@@ -16,16 +15,28 @@ from images.models_graphql import Image
 from tags.models_graphql import Tag
 
 
+class Rank(graphene.Enum):
+    KINGDOM = 10
+    PHYLUM = 20
+    CLASS = 30
+    ORDER = 40
+    FAMILY = 50
+    GENUS = 60
+    SPECIES = 70
+    INFRASPECIES = 80
+    VARIETY = 100
+
+
 class LifeNode(DocumentRevisionBase, CommentsNode, VotesNode,
                DjangoObjectType):
     parent = graphene.Field(lambda: LifeNode)
     parents = graphene.List(lambda: LifeNode)
-    rank = graphene.String()
+    rank = graphene.Field(Rank)
     rankDisplay = graphene.String()
-    commonNames = graphene.List(graphene.String)
 
+    commonNames = DjangoConnectionField(lambda: CommonName)
     children = DjangoConnectionField(lambda: LifeNode)
-    images = DjangoConnectionField(lambda: Image)
+    images = DjangoConnectionField(Image)
     characteristics = DjangoConnectionField(lambda: Characteristic)
 
     class Meta:
@@ -46,16 +57,13 @@ class LifeNode(DocumentRevisionBase, CommentsNode, VotesNode,
             return parents
         return get_parents(self)
 
-    def resolve_rank(self, args, request, info):
-        return RANK_STRING_BY_INT[self.rank]
-
     def resolve_rankDisplay(self, args, request, info):
         return self.get_rank_display()
 
     def resolve_commonNames(self, args, request, info):
-        return CommonNameModel._meta.model.objects.filter(
+        return CommonName._meta.model.objects.filter(
             document__lifeNode_commonName=self
-        ).order_by('name').values_list('name', flat=True)
+        ).order_by('name')
 
     def resolve_children(self, args, request, info):
         return LifeNode._meta.model.objects.filter(
@@ -70,6 +78,12 @@ class LifeNode(DocumentRevisionBase, CommentsNode, VotesNode,
         return Characteristic._meta.model.objects.filter(
             lifeNode=self.document
         )
+
+
+class CommonName(DjangoObjectType):
+    class Meta:
+        model = CommonNameModel
+        interfaces = (Node,)
 
 
 class Characteristic(DocumentRevisionBase, CommentsNode, VotesNode,

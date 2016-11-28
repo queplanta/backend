@@ -19,7 +19,13 @@ class LifeNodeTest(UserTestCase):
                                     username
                                 }
                             },
-                            commonNames,
+                            commonNames(first: 10) {
+                                edges {
+                                    node {
+                                        name
+                                    }
+                                }
+                            },
                             gbifId,
                             images {
                                 edges {
@@ -61,7 +67,7 @@ class LifeNodeTest(UserTestCase):
         node = {
             'title': 'Mangifera',
             'description': '',
-            'rank': 'genus',
+            'rank': 'GENUS',
             'parent': None,
             'commonNames': [],
         }
@@ -72,7 +78,7 @@ class LifeNodeTest(UserTestCase):
             node = {
                 'title': 'Mangifera indica',
                 'description': 'The fruit tastes like heaven',
-                'rank': 'species',
+                'rank': 'SPECIES',
                 'parent': parent['id'],
                 'gbifId': 3190638,
                 'commonNames': [{
@@ -105,7 +111,13 @@ class LifeNodeTest(UserTestCase):
                         'description': node['description'],
                         'rank': node['rank'],
                         'gbifId': node['gbifId'],
-                        'commonNames': ['Mangueira'],
+                        'commonNames': {
+                            'edges': [
+                                {'node': {
+                                    'name': 'Mangueira'
+                                }}
+                            ]
+                        },
                         'revisionCreated': {
                             'author': {
                                 'username': self.user.username,
@@ -142,7 +154,13 @@ class LifeNodeTest(UserTestCase):
                             id
                             title,
                             rank,
-                            commonNames,
+                            commonNames(first: 10) {
+                                edges {
+                                    node {
+                                        name
+                                    }
+                                }
+                            },
                             revisionCreated {
                                 author {
                                     username
@@ -172,9 +190,15 @@ class LifeNodeTest(UserTestCase):
                     'species': {
                         'id': response.json()['data']['speciesCreate']['species']['id'],
                         'title': 'Mimosa pudica',
-                        'rank': 'species',
-                        'commonNames': ['dorme-dorme', 'dormideira',
-                                        'malícia', 'sensitiva'],
+                        'rank': 'SPECIES',
+                        'commonNames': {
+                            'edges': [
+                                {'node': {'name': 'dorme-dorme'}},
+                                {'node': {'name': 'dormideira'}},
+                                {'node': {'name': 'malícia'}},
+                                {'node': {'name': 'sensitiva'}}
+                            ]
+                        },
                         'revisionCreated': {
                             'author': {
                                 'username': self.user.username,
@@ -193,7 +217,7 @@ class LifeNodeTest(UserTestCase):
         node = {
             'title': 'Mangifera indica',
             'description': 'The fruit tastes like heaven',
-            'rank': 'species',
+            'rank': 'SPECIES',
             'parent': None,
             'commonNames': [],
         }

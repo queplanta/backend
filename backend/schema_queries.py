@@ -82,6 +82,10 @@ class Query(graphene.ObjectType):
             return User._meta.model.objects.get(pk=request.user.pk)
         return None
 
+    def resolve_allWhatIsThis(self, args, request, info):
+        qs = WhatIsThis._meta.model.objects.all()
+        return qs.order_by('-document__created_at')
+
     def resolve_allLifeNode(self, args, request, info):
         qs = LifeNode._meta.model.objects.all()
         if 'search' in args and len(args['search']) > 2:
