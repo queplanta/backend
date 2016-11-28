@@ -86,7 +86,7 @@ class LifeNode(DocumentRevisionBase, CommentsNode, VotesNode,
         )
 
 
-class CommonName(DjangoObjectType):
+class CommonName(DocumentRevisionBase, VotesNode, DjangoObjectType):
     class Meta:
         model = CommonNameModel
         interfaces = (Node,)
