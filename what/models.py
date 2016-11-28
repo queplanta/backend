@@ -30,6 +30,9 @@ class WhatIsThis(DocumentBase):
     where = models.CharField(max_length=256, blank=True, null=True)
     notes = models.TextField(blank=True, null=True)
 
+    answer = models.ForeignKey(DocumentID, related_name="whatisthis_answer",
+                               null=True, blank=True)
+
     REPUTATION_VALUE = 1
 
 
@@ -40,5 +43,7 @@ class SuggestionID(DocumentBase):
     identification = models.ForeignKey(DocumentID,
                                        related_name="suggestion_life")
     notes = models.TextField(blank=True, null=True)
+
+    is_correct = models.NullBooleanField()
 
     REPUTATION_VALUE = 1

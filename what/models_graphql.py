@@ -19,6 +19,7 @@ class WhatIsThis(DocumentRevisionBase, VotesNode,
                  CommentsNode, DjangoObjectType):
     author = graphene.Field(User)
     suggestions = DjangoConnectionField(lambda: SuggestionID)
+    answer = graphene.Field(lambda: SuggestionID)
     images = DjangoConnectionField(lambda: Image)
 
     class Meta:
