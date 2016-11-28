@@ -10,7 +10,7 @@ from accounts.decorators import login_required
 from accounts.permissions import has_permission
 from db.models_graphql import Document
 from backend.mutations import Mutation
-from .models_graphql import LifeNode, Characteristic
+from .models_graphql import LifeNode, Characteristic, Rank
 from .models import (
     RANK_BY_STRING, CommonName,
     LifeNode as LifeNodeModel,
@@ -29,10 +29,7 @@ def node_save(node, args, request):
     node.title = args.get('title', node.title)
     node.description = args.get('description', node.description)
     node.gbif_id = args.get('gbif_id', node.gbif_id)
-    try:
-        node.rank = RANK_BY_STRING[args.get('rank').lower()]
-    except KeyError:
-        pass
+    node.rank = args.get('rank', node.rank)
 
     parent_id = args.get('parent')
     if parent_id:
@@ -93,7 +90,7 @@ class LifeNodeCreate(Mutation):
     class Input:
         title = graphene.String(required=True)
         description = graphene.String()
-        rank = graphene.String(required=True)
+        rank = graphene.Field(Rank, required=True)
         parent = graphene.ID()
         gbif_id = graphene.Int()
         commonNames = graphene.List(CommonNameInput)
@@ -114,7 +111,7 @@ class LifeNodeEdit(Mutation):
         id = graphene.ID(required=True)
         title = graphene.String()
         description = graphene.String()
-        rank = graphene.String()
+        rank = graphene.Field(Rank)
         parent = graphene.ID()
         gbif_id = graphene.Int()
         commonNames = graphene.List(CommonNameInput)

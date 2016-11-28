@@ -5,6 +5,7 @@ from graphene_django import DjangoObjectType, DjangoConnectionField
 from db.types_revision import DocumentRevisionBase
 
 from .models import (
+    RANK_CHOICES,
     LifeNode as LifeNodeModel,
     CommonName as CommonNameModel,
     Characteristic as CharacteristicModel
@@ -25,6 +26,10 @@ class Rank(graphene.Enum):
     SPECIES = 70
     INFRASPECIES = 80
     VARIETY = 100
+
+    @property
+    def description(self):
+        return dict(RANK_CHOICES)[self._value_]
 
 
 class LifeNode(DocumentRevisionBase, CommentsNode, VotesNode,
@@ -62,7 +67,7 @@ class LifeNode(DocumentRevisionBase, CommentsNode, VotesNode,
 
     def resolve_commonNames(self, args, request, info):
         return CommonName._meta.model.objects.filter(
-            document__lifeNode_commonName=self
+            document__lifeNode_commonName=self.document
         ).order_by('name')
 
     def resolve_children(self, args, request, info):
@@ -72,7 +77,7 @@ class LifeNode(DocumentRevisionBase, CommentsNode, VotesNode,
 
     def resolve_images(self, args, context, info):
         return Image._meta.model.objects.filter(
-            document__lifeNode_image=self)
+            document__lifeNode_image=self.document)
 
     def resolve_characteristics(self, args, request, info):
         return Characteristic._meta.model.objects.filter(
