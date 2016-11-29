@@ -11,7 +11,7 @@ class WhatIsThisTest(UserTestCase):
         node = {
             'title': 'Mangifera',
             'description': '',
-            'rank': 'genus',
+            'rank': 'GENUS',
             'parent': None,
         }
         response = self._do_create_life_node(self.client, node)
@@ -20,7 +20,7 @@ class WhatIsThisTest(UserTestCase):
         node = {
             'title': 'Mangifera indica',
             'description': 'The fruit tastes like heaven',
-            'rank': 'species',
+            'rank': 'SPECIES',
             'parent': self.genus['id'],
         }
         response = self._do_create_life_node(self.client, node)
