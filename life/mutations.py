@@ -5,12 +5,16 @@ from graphql_relay.connection.arrayconnection import offset_to_cursor
 from django import forms
 from django.utils.datastructures import MultiValueDict
 from django.utils.text import slugify
+from django.contrib.auth.hashers import check_password
 
 from accounts.decorators import login_required
 from accounts.permissions import has_permission
 from db.models_graphql import Document
 from backend.mutations import Mutation
-from .models_graphql import LifeNode, Characteristic, Rank
+from .models_graphql import (
+    LifeNode, Characteristic, Rank,
+    Quizz, generate_quiz
+)
 from .models import (
     RANK_BY_STRING, CommonName,
     LifeNode as LifeNodeModel,
@@ -263,4 +267,25 @@ class CharacteristicAdd(Mutation):
             lifeNode=node,
             characteristic=Characteristic.Connection.Edge(
                 node=c, cursor=offset_to_cursor(0))
+        )
+
+
+class CheckQuizz(Mutation):
+    class Input:
+        choice = graphene.Int(required=True)
+        correct = graphene.String(required=True)
+
+    quizz = graphene.Field(Quizz)
+    correct = graphene.Boolean()
+
+    @classmethod
+    def mutate_and_get_payload(cls, input, request, info):
+        correct = check_password(
+            str(input.get('choice')),
+            input.get('correct')
+        )
+
+        return CheckQuizz(
+            correct=correct,
+            quizz=generate_quiz(cls, input, request, info)
         )

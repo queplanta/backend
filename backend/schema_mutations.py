@@ -51,6 +51,8 @@ class Mutation(graphene.ObjectType):
     lifeNodeDelete = m_field(life_mutations.LifeNodeDelete)
     lifeNodeCharacteristicAdd = m_field(life_mutations.CharacteristicAdd)
 
+    lifeNodeCheckQuizz = m_field(life_mutations.CheckQuizz)
+
     whatIsThisCreate = m_field(what_mutations.WhatIsThisCreate)
     suggestionIDCreate = m_field(what_mutations.SuggestionIDCreate)
 

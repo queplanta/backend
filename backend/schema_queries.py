@@ -9,7 +9,7 @@ from posts.models_graphql import Post
 from tags.models_graphql import Tag
 from voting.models_graphql import Vote
 from commenting.models_graphql import Comment
-from life.models_graphql import LifeNode
+from life.models_graphql import LifeNode, Quizz, generate_quiz
 from what.models_graphql import WhatIsThis, SuggestionID
 from db.models_graphql import Revision, Document
 
@@ -66,6 +66,8 @@ class Query(graphene.ObjectType):
     whatIsThis = relay.Node.Field(WhatIsThis)
     allWhatIsThis = DjangoFilterConnectionField(WhatIsThis)
     suggestionID = relay.Node.Field(SuggestionID)
+
+    lifeNodeQuizz = graphene.Field(Quizz, resolver=generate_quiz)
 
     node = NodeField(relay.Node)
 

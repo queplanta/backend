@@ -1,11 +1,13 @@
 import graphene
 from graphene.relay import Node
 from graphene_django import DjangoObjectType, DjangoConnectionField
+from django.contrib.auth.hashers import make_password
+from random import shuffle, randint
 
 from db.types_revision import DocumentRevisionBase
 
 from .models import (
-    RANK_CHOICES,
+    RANK_CHOICES, RANK_GENUS,
     LifeNode as LifeNodeModel,
     CommonName as CommonNameModel,
     Characteristic as CharacteristicModel
@@ -106,3 +108,37 @@ class Characteristic(DocumentRevisionBase, CommentsNode, VotesNode,
 
     def resolve_title(self, args, request, info):
         return self._get_tag().title
+
+
+class Quizz(graphene.ObjectType):
+    image = graphene.Field(Image)
+    choices = graphene.List(LifeNode)
+    correct = graphene.String()
+
+    class Meta:
+        interfaces = (Node, )
+
+
+def generate_quiz(root, args, context, info):
+    image = Image._meta.model.objects.filter(
+        document__lifeNode_image__rank=RANK_GENUS
+    ).order_by('?').first()
+
+    correct = image.document.lifeNode_image.first()
+
+    other_choices = LifeNode._meta.model.objects.filter(
+        rank=RANK_GENUS
+    ).exclude(document=correct.document)[:4]
+
+    choices = [correct]
+    for c in other_choices:
+        choices.append(c)
+
+    shuffle(choices)
+
+    return Quizz(
+        id=randint(1, 10000000),
+        image=image,
+        choices=choices,
+        correct=make_password("%d" % correct.document_id, hasher='sha1')
+    )
