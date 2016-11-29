@@ -7,7 +7,7 @@ from random import shuffle, randint
 from db.types_revision import DocumentRevisionBase
 
 from .models import (
-    RANK_CHOICES, RANK_GENUS,
+    RANK_CHOICES, RANK_GENUS, RANK_SPECIES,
     LifeNode as LifeNodeModel,
     CommonName as CommonNameModel,
     Characteristic as CharacteristicModel
@@ -121,14 +121,18 @@ class Quizz(graphene.ObjectType):
 
 def generate_quiz(root, args, context, info):
     image = Image._meta.model.objects.filter(
-        document__lifeNode_image__rank=RANK_GENUS
+        document__lifeNode_image__rank__in=(RANK_GENUS, RANK_SPECIES)
     ).order_by('?').first()
 
-    correct = image.document.lifeNode_image.first()
+    lifeNode = image.document.lifeNode_image.first()
+    if lifeNode.rank == RANK_SPECIES:
+        correct = lifeNode.parent.get_object()
+    elif lifeNode.rank == RANK_GENUS:
+        correct = lifeNode
 
     other_choices = LifeNode._meta.model.objects.filter(
         rank=RANK_GENUS
-    ).exclude(document=correct.document)[:4]
+    ).exclude(document=correct.document).order_by('?')[:4]
 
     choices = [correct]
     for c in other_choices:
@@ -137,7 +141,7 @@ def generate_quiz(root, args, context, info):
     shuffle(choices)
 
     return Quizz(
-        id=randint(1, 10000000),
+        id=1,
         image=image,
         choices=choices,
         correct=make_password("%d" % correct.document_id, hasher='sha1')
