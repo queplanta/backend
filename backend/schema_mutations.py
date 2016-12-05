@@ -1,13 +1,14 @@
 import graphene
 
 from accounts import mutations as accounts_mutations
-from posts.mutations import PostCreate, PostEdit, PostDelete
+from posts import mutations as posts_mutations
 from tags.mutations import TagCreate, TagEdit, TagDelete
 from commenting.mutations import CommentCreate, CommentEdit, CommentDelete
 from voting import mutations as voting_mutations
 from db import mutations as db_mutations
 from life import mutations as life_mutations
 from what import mutations as what_mutations
+from pages import mutations as page_mutations
 
 
 def m_field(m):
@@ -30,9 +31,13 @@ class Mutation(graphene.ObjectType):
     meProfileChangeAvatar = m_field(
         accounts_mutations.ProfileChangeAvatar)
 
-    postCreate = m_field(PostCreate)
-    postEdit = m_field(PostEdit)
-    postDelete = m_field(PostDelete)
+    postCreate = m_field(posts_mutations.PostCreate)
+    postEdit = m_field(posts_mutations.PostEdit)
+    postDelete = m_field(posts_mutations.PostDelete)
+
+    pageCreate = m_field(page_mutations.PageCreate)
+    pageEdit = m_field(page_mutations.PageEdit)
+    pageDelete = m_field(page_mutations.PageDelete)
 
     tagCreate = m_field(TagCreate)
     tagEdit = m_field(TagEdit)

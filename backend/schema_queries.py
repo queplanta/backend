@@ -6,6 +6,7 @@ from graphene_django.debug import DjangoDebug
 
 from accounts.models_graphql import User
 from posts.models_graphql import Post
+from pages.models_graphql import Page
 from tags.models_graphql import Tag
 from voting.models_graphql import Vote
 from commenting.models_graphql import Comment
@@ -46,6 +47,10 @@ class Query(graphene.ObjectType):
     all_posts = DjangoFilterConnectionField(Post, on='objects')
     post = relay.Node.Field(Post)
     post_by_url = GetBy(Post, url=graphene.String(required=True))
+
+    all_pages = DjangoFilterConnectionField(Page, on='objects')
+    page = relay.Node.Field(Page)
+    page_by_url = GetBy(Page, url=graphene.String(required=True))
 
     all_tags = DjangoFilterConnectionField(Tag)
     tag = relay.Node.Field(Tag)
