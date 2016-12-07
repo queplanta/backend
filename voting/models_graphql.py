@@ -3,7 +3,7 @@ from graphene.relay import Node
 from graphene_django import DjangoObjectType, DjangoConnectionField
 
 from db.models import DocumentID
-from db.types_revision import DocumentRevisionBase
+from db.types_revision import DocumentNode, DocumentBase
 from accounts.models_graphql import User
 
 from .models import Vote as VoteModel, VoteStats
@@ -65,7 +65,7 @@ class Voting(graphene.ObjectType):
         return self.stats().sum_values
 
 
-class VotesNode(graphene.AbstractType):
+class VotesNode(graphene.Interface):
     voting = graphene.Field(Voting)
 
     def resolve_voting(self, args, request, info):
@@ -74,12 +74,12 @@ class VotesNode(graphene.AbstractType):
         return c
 
 
-class Vote(DocumentRevisionBase, DjangoObjectType):
+class Vote(DocumentBase, DjangoObjectType):
     author = graphene.Field(User)
 
     class Meta:
         model = VoteModel
-        interfaces = (Node, )
+        interfaces = (Node, DocumentNode)
 
     def resolve_author(self, args, context, info):
         if self.author_id:

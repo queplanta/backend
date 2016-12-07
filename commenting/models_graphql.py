@@ -3,7 +3,7 @@ from graphene.relay import Node
 from graphene_django import DjangoConnectionField, DjangoObjectType
 
 from db.models import DocumentID
-from db.types_revision import DocumentRevisionBase
+from db.types_revision import DocumentNode, DocumentBase
 from voting.models_graphql import VotesNode
 
 from .models import Comment as CommentModel, CommentStats
@@ -39,7 +39,7 @@ class Commenting(graphene.ObjectType):
         return c
 
 
-class CommentsNode(graphene.AbstractType):
+class CommentsNode(graphene.Interface):
     commenting = graphene.Field(Commenting)
 
     def resolve_commenting(self, args, request, info):
@@ -48,7 +48,7 @@ class CommentsNode(graphene.AbstractType):
         return c
 
 
-class Comment(DocumentRevisionBase, VotesNode, CommentsNode, DjangoObjectType):
+class Comment(DocumentBase, DjangoObjectType):
     class Meta:
         model = CommentModel
-        interfaces = (Node, )
+        interfaces = (Node, DocumentNode, CommentsNode, VotesNode)

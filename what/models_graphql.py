@@ -2,7 +2,7 @@ import graphene
 from graphene.relay import Node
 from graphene_django import DjangoConnectionField, DjangoObjectType
 
-from db.types_revision import DocumentRevisionBase
+from db.types_revision import DocumentNode, DocumentBase
 
 from .models import (
     WhatIsThis as WhatIsThisModel,
@@ -15,8 +15,7 @@ from voting.models_graphql import VotesNode
 from images.models_graphql import Image
 
 
-class WhatIsThis(DocumentRevisionBase, VotesNode,
-                 CommentsNode, DjangoObjectType):
+class WhatIsThis(DocumentBase, DjangoObjectType):
     author = graphene.Field(User)
     suggestions = DjangoConnectionField(lambda: SuggestionID)
     answer = graphene.Field(lambda: SuggestionID)
@@ -24,7 +23,7 @@ class WhatIsThis(DocumentRevisionBase, VotesNode,
 
     class Meta:
         model = WhatIsThisModel
-        interfaces = (Node, )
+        interfaces = (Node, DocumentNode, CommentsNode, VotesNode)
 
     def resolve_author(self, args, context, info):
         return User._meta.model.objects.get(document_id=self.author_id)
@@ -39,15 +38,14 @@ class WhatIsThis(DocumentRevisionBase, VotesNode,
         ).order_by('revision')
 
 
-class SuggestionID(DocumentRevisionBase, VotesNode,
-                   CommentsNode, DjangoObjectType):
+class SuggestionID(DocumentBase, DjangoObjectType):
     author = graphene.Field(User)
     whatIsThis = graphene.Field(WhatIsThis)
     identification = graphene.Field(LifeNode)
 
     class Meta:
         model = SuggestionIDModel
-        interfaces = (Node, )
+        interfaces = (Node, DocumentNode, CommentsNode, VotesNode)
 
     def resolve_author(self, args, context, info):
         return User._meta.model.objects.get(document_id=self.author_id)

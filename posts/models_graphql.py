@@ -1,7 +1,7 @@
 from graphene_django import DjangoConnectionField, DjangoObjectType
 from graphene.relay import Node
 
-from db.types_revision import DocumentRevisionBase
+from db.types_revision import DocumentNode, DocumentBase
 
 from .models import Post as PostModel
 from commenting.models_graphql import CommentsNode
@@ -13,12 +13,12 @@ def get_tag_type():
     return Tag
 
 
-class Post(DocumentRevisionBase, CommentsNode, VotesNode, DjangoObjectType):
+class Post(DocumentBase, DjangoObjectType):
     tags = DjangoConnectionField(get_tag_type)
 
     class Meta:
         model = PostModel
-        interfaces = (Node, )
+        interfaces = (Node, DocumentNode, CommentsNode, VotesNode)
 
     def resolve_tags(self, args, request, info):
         Tag = get_tag_type()

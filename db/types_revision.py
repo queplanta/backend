@@ -5,7 +5,7 @@ from .models_graphql import Revision, Document
 from .types import DocumentBase
 
 
-class DocumentRevisionBase(DocumentBase, graphene.AbstractType):
+class DocumentNode(DocumentBase, graphene.Interface):
     document = graphene.Field(Document)
     revision_current = graphene.Field(Revision)
     revision_created = graphene.Field(Revision)

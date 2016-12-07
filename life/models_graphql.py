@@ -2,9 +2,9 @@ import graphene
 from graphene.relay import Node
 from graphene_django import DjangoObjectType, DjangoConnectionField
 from django.contrib.auth.hashers import make_password
-from random import shuffle, randint
+from random import shuffle
 
-from db.types_revision import DocumentRevisionBase
+from db.types_revision import DocumentNode, DocumentBase
 
 from .models import (
     RANK_CHOICES, RANK_GENUS, RANK_SPECIES,
@@ -34,8 +34,7 @@ class Rank(graphene.Enum):
         return dict(RANK_CHOICES)[self._value_]
 
 
-class LifeNode(DocumentRevisionBase, CommentsNode, VotesNode,
-               DjangoObjectType):
+class LifeNode(DocumentBase, DjangoObjectType):
     parent = graphene.Field(lambda: LifeNode)
     parents = graphene.List(lambda: LifeNode)
     rank = graphene.Field(Rank)
@@ -48,7 +47,7 @@ class LifeNode(DocumentRevisionBase, CommentsNode, VotesNode,
 
     class Meta:
         model = LifeNodeModel
-        interfaces = (Node,)
+        interfaces = (Node, DocumentNode, CommentsNode, VotesNode)
 
     def resolve_parent(self, args, request, info):
         if self.parent:
@@ -88,20 +87,19 @@ class LifeNode(DocumentRevisionBase, CommentsNode, VotesNode,
         )
 
 
-class CommonName(DocumentRevisionBase, VotesNode, DjangoObjectType):
+class CommonName(DocumentBase, DjangoObjectType):
     class Meta:
         model = CommonNameModel
-        interfaces = (Node,)
+        interfaces = (Node, DocumentNode, VotesNode)
 
 
-class Characteristic(DocumentRevisionBase, CommentsNode, VotesNode,
-                     DjangoObjectType):
+class Characteristic(DocumentBase, DjangoObjectType):
     tag = graphene.Field(lambda: Tag)
     title = graphene.String()
 
     class Meta:
         model = CharacteristicModel
-        interfaces = (Node,)
+        interfaces = (Node, DocumentNode, CommentsNode, VotesNode)
 
     def resolve_tag(self, args, request, info):
         return self._get_tag()
