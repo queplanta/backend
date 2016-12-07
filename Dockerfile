@@ -17,6 +17,8 @@ ENV GUNICORN_TIMEOUT 300
 ENV GUNICORN_LOG_LEVEL info
 ENV GUNICORN_WORKERS 2
 
+ENV VERSION="$(git rev-parse HEAD)"
+
 VOLUME ["/usr/src/app/static", "/usr/src/app/public"]
 EXPOSE 9090
 RUN chmod +x /usr/src/app/docker-entrypoint.sh

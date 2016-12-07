@@ -1,3 +1,4 @@
+import os
 import graphene
 from graphene import relay
 from graphene.relay.node import NodeField as RelayNodeField
@@ -76,6 +77,8 @@ class Query(graphene.ObjectType):
 
     node = NodeField(relay.Node)
 
+    version = graphene.String()
+
     debug = graphene.Field(DjangoDebug, name='__debug')
 
     class Meta:
@@ -98,3 +101,6 @@ class Query(graphene.ObjectType):
         if 'search' in args and len(args['search']) > 2:
             qs = qs.filter(title__icontains=args['search'])
         return qs.order_by('document_id')
+
+    def resolve_version(self, args, request, info):
+        return os.getenv('VERSION', 'master')
