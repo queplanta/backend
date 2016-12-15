@@ -44,23 +44,30 @@ def node_save(node, args, request):
 
     commonNames = args.get('commonNames', [])
     for commonNameDict in commonNames:
+        commonName_id = commonNameDict['id'].strip(' \t\n\r')
         commonName_str = commonNameDict['name'].strip(' \t\n\r')
 
         if len(commonName_str) == 0:
             # don't save empty
             continue
 
+        if len(commonName_id) > 0:
+            cn_gid_type, cn_gid = from_global_id(commonName_id)
+            get = {'document_id': cn_gid}
+        else:
+            get = {
+                'name': commonName_str,
+                'document__lifeNode_commonName': node
+            }
+
         try:
-            commonName = CommonName.objects.get(
-                name=commonName_str,
-                document__lifeNode_commonName=node
-            )
+            commonName = CommonName.objects.get(**get)
         except CommonName.DoesNotExist:
-            commonName = CommonName(
-                name=commonName_str,
-                language=commonNameDict['language']
-            )
-            commonName.save(request=request)
+            commonName = CommonName()
+
+        commonName.name = commonName_str
+        commonName.language = commonNameDict['language']
+        commonName.save(request=request)
         node.commonNames.add(commonName.document)
 
     imagesToAdd = args.get('imagesToAdd', [])
@@ -81,6 +88,7 @@ def node_save(node, args, request):
 
 
 class CommonNameInput(graphene.InputObjectType):
+    id = graphene.ID(required=False)
     name = graphene.String(required=True)
     language = graphene.String(required=False)
 

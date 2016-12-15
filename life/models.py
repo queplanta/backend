@@ -73,6 +73,8 @@ class LifeNode(DocumentBase):
     slug = models.SlugField(max_length=512, null=True)
     description = models.TextField(null=True, blank=True)
 
+    edibility = models.IntegerField(null=True)
+
     gbif_id = models.IntegerField(null=True, blank=True)
 
     commonNames = ManyToManyField(
