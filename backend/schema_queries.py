@@ -106,10 +106,11 @@ class Query(graphene.ObjectType):
         if 'edibles' in args and bool(args['edibles']):
             qs = qs.filter(edibility__gte=1)
         if 'search' in args and len(args['search']) > 2:
-            q_objects = Q(title__icontains=args['search'])
+            s = args['search'].strip()
+            q_objects = Q(title__icontains=s)
 
             commonNames = CommonName._meta.model.objects.filter(
-                name__icontains=args['search']
+                name__icontains=s
             ).distinct().values_list('document_id', flat=True)
 
             if len(commonNames) > 0:
@@ -117,7 +118,7 @@ class Query(graphene.ObjectType):
 
             qs = qs.filter(q_objects)
 
-        return qs.order_by('document_id')
+        return qs.order_by('document_id').distinct()
 
     def resolve_version(self, args, request, info):
         return os.getenv('VERSION', 'master')
