@@ -34,11 +34,54 @@ class Rank(graphene.Enum):
         return dict(RANK_CHOICES)[self._value_]
 
 
+class Edibility(graphene.Enum):
+    # I will monitor any future ingestions of these,
+    # can be experienced minor discomfort at least once after eating them.
+    BAD = -1
+
+    # Should be regarded as inedible.
+    # NONE = 0
+
+    # very minor uses found, or edible without much information on it
+    SOME = 1
+
+    # reasonably useful plant; worth collecting;
+    # may be lacking in flavor or texture, but not both.
+    POOR = 2
+
+    # could be grown as standard crops, very good,
+    # with distinctive flavor and texture.
+    FAIR = 3
+
+    # very useful plants
+    GOOD = 4
+
+    # great value. A very subjective evaluation.
+    # Excellent in both flavor and texture;
+    EXCELLENT = 5
+
+    @property
+    def description(self):
+        d = {
+            self.BAD._value_: "Não; pode causar leve desconforto",
+            # self.NONE: "Nenhuma",
+            self.SOME._value_: "Comestivel; mas informação ou utilidade",
+            self.POOR._value_: "Ruim; util mas falta sabor ou textura",
+            self.FAIR._value_: "Rasoavel; da pra comer em pouca quantidade",
+            self.GOOD._value_: "Boa; util e saboroso",
+            self.EXCELLENT._value_: "Excelente em sabor e textura",
+        }
+        return d.get(self._value_, '')
+
+
 class LifeNode(DocumentBase, DjangoObjectType):
     parent = graphene.Field(lambda: LifeNode)
     parents = graphene.List(lambda: LifeNode)
     rank = graphene.Field(Rank)
     rankDisplay = graphene.String()
+
+    edibility = graphene.Field(Edibility)
+    edibilityDisplay = graphene.String()
 
     commonNames = DjangoConnectionField(lambda: CommonName)
     children = DjangoConnectionField(lambda: LifeNode)
@@ -65,6 +108,9 @@ class LifeNode(DocumentBase, DjangoObjectType):
 
     def resolve_rankDisplay(self, args, request, info):
         return self.get_rank_display()
+
+    def resolve_edibilityDisplay(self, args, request, info):
+        return self.edibility.description
 
     def resolve_commonNames(self, args, request, info):
         return CommonName._meta.model.objects.filter(

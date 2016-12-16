@@ -12,7 +12,7 @@ from accounts.permissions import has_permission
 from db.models_graphql import Document
 from backend.mutations import Mutation
 from .models_graphql import (
-    LifeNode, Characteristic, Rank,
+    LifeNode, Characteristic, Rank, Edibility,
     Quizz, generate_quiz
 )
 from .models import (
@@ -34,6 +34,7 @@ def node_save(node, args, request):
     node.description = args.get('description', node.description)
     node.gbif_id = args.get('gbif_id', node.gbif_id)
     node.rank = args.get('rank', node.rank)
+    node.edibility = args.get('edibility', node.edibility)
 
     parent_id = args.get('parent')
     if parent_id:
@@ -103,6 +104,7 @@ class LifeNodeCreate(Mutation):
         title = graphene.String(required=True)
         description = graphene.String()
         rank = graphene.Field(Rank, required=True)
+        edibility = graphene.Field(Edibility)
         parent = graphene.ID()
         gbif_id = graphene.Int()
         commonNames = graphene.List(CommonNameInput)
@@ -124,6 +126,7 @@ class LifeNodeEdit(Mutation):
         title = graphene.String()
         description = graphene.String()
         rank = graphene.Field(Rank)
+        edibility = graphene.Field(Edibility)
         parent = graphene.ID()
         gbif_id = graphene.Int()
         commonNames = graphene.List(CommonNameInput)
