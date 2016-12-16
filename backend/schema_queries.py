@@ -5,13 +5,17 @@ from graphene.relay.node import NodeField as RelayNodeField
 from graphene_django.filter import DjangoFilterConnectionField
 from graphene_django.debug import DjangoDebug
 
+from django.db.models import Q
+
 from accounts.models_graphql import User
 from posts.models_graphql import Post
 from pages.models_graphql import Page
 from tags.models_graphql import Tag
 from voting.models_graphql import Vote
 from commenting.models_graphql import Comment
-from life.models_graphql import LifeNode, Quizz, generate_quiz
+from life.models_graphql import (
+    LifeNode, Quizz, generate_quiz, CommonName
+)
 from what.models_graphql import WhatIsThis, SuggestionID
 from db.models_graphql import Revision, Document
 
@@ -102,7 +106,17 @@ class Query(graphene.ObjectType):
         if 'edibles' in args and bool(args['edibles']):
             qs = qs.filter(edibility__gte=1)
         if 'search' in args and len(args['search']) > 2:
-            qs = qs.filter(title__icontains=args['search'])
+            q_objects = Q(title__icontains=args['search'])
+
+            commonNames = CommonName._meta.model.objects.filter(
+                name__icontains=args['search']
+            ).distinct().values_list('document_id', flat=True)
+
+            if len(commonNames) > 0:
+                q_objects |= Q(commonNames__id__in=commonNames)
+
+            qs = qs.filter(q_objects)
+
         return qs.order_by('document_id')
 
     def resolve_version(self, args, request, info):
