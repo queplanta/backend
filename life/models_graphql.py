@@ -62,16 +62,27 @@ class Edibility(graphene.Enum):
 
     @property
     def description(self):
-        d = {
-            self.BAD._value_: "Não; pode causar leve desconforto",
-            # self.NONE: "Nenhuma",
-            self.SOME._value_: "Comestivel; mas informação ou utilidade",
-            self.POOR._value_: "Ruim; util mas falta sabor ou textura",
-            self.FAIR._value_: "Rasoavel; da pra comer em pouca quantidade",
-            self.GOOD._value_: "Boa; util e saboroso",
-            self.EXCELLENT._value_: "Excelente em sabor e textura",
-        }
-        return d.get(self._value_, '')
+        return EDIBILITY_CHOICES.get(self._value_, '')
+
+
+EDIBILITY_CHOICES = {
+    Edibility.BAD._value_: "Não",
+    Edibility.SOME._value_: "Sim (falta informação)",
+    Edibility.POOR._value_: "Ruim",
+    Edibility.FAIR._value_: "Rasoavel",
+    Edibility.GOOD._value_: "Boa",
+    Edibility.EXCELLENT._value_: "Excelente",
+}
+
+
+EDIBILITY_CHOICES_DESCRIPTION = {
+    Edibility.BAD._value_: "Pode causar leve desconforto, ou consumir cozido",
+    Edibility.SOME._value_: "Com pouca informação ou utilidade, ou consumir cozido",
+    Edibility.POOR._value_: "Uil mas falta sabor ou textura, ou consumir cozido",
+    Edibility.FAIR._value_: "Da pra comer em pouca quantidade",
+    Edibility.GOOD._value_: "Util e saboroso",
+    Edibility.EXCELLENT._value_: "Excelente sabor e textura",
+}
 
 
 class LifeNode(DocumentBase, DjangoObjectType):
@@ -110,7 +121,7 @@ class LifeNode(DocumentBase, DjangoObjectType):
         return self.get_rank_display()
 
     def resolve_edibilityDisplay(self, args, request, info):
-        return self.edibility.description
+        return EDIBILITY_CHOICES.get(self.edibility, '')
 
     def resolve_commonNames(self, args, request, info):
         return CommonName._meta.model.objects.filter(
