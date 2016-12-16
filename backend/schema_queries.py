@@ -66,7 +66,8 @@ class Query(graphene.ObjectType):
     lifeNode = relay.Node.Field(LifeNode)
     lifeNodeByIntID = GetBy(LifeNode, document_id=graphene.Int(required=True))
     allLifeNode = DjangoFilterConnectionField(LifeNode, args={
-        'search': graphene.Argument(graphene.String, required=False)
+        'search': graphene.Argument(graphene.String, required=False),
+        'edibles': graphene.Argument(graphene.Boolean, required=False)
     })
 
     whatIsThis = relay.Node.Field(WhatIsThis)
@@ -98,6 +99,8 @@ class Query(graphene.ObjectType):
 
     def resolve_allLifeNode(self, args, request, info):
         qs = LifeNode._meta.model.objects.all()
+        if 'edibles' in args and bool(args['edibles']):
+            qs = qs.filter(edibility__gte=1)
         if 'search' in args and len(args['search']) > 2:
             qs = qs.filter(title__icontains=args['search'])
         return qs.order_by('document_id')
