@@ -72,7 +72,7 @@ class Query(graphene.ObjectType):
     allLifeNode = DjangoFilterConnectionField(LifeNode, args={
         'search': graphene.Argument(graphene.String, required=False),
         'edibles': graphene.Argument(graphene.Boolean, required=False)
-    })
+    }, total_found2=graphene.Int(required=False, name='totalFound2'))
 
     whatIsThis = relay.Node.Field(WhatIsThis)
     allWhatIsThis = DjangoFilterConnectionField(WhatIsThis)

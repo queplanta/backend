@@ -41,11 +41,25 @@ def node_save(node, args, request):
         gid_type, gid = from_global_id(parent_id)
         node.parent = Document._meta.model.objects.get(pk=gid)
 
+    prev_images = []
+    if node.pk:
+        prev_images = node.images.values_list('id', flat=True)
+
+    prev_commonNames = []
+    if node.pk:
+        prev_commonNames = node.prev_commonNames.values_list('id', flat=True)
+
     node.save(request=request)
+
+    for prev_img_id in prev_images:
+        node.images.add(prev_img_id)
+
+    for prev_name_id in prev_commonNames:
+        node.prev_commonNames.add(prev_name_id)
 
     commonNames = args.get('commonNames', [])
     for commonNameDict in commonNames:
-        commonName_id = commonNameDict['id'].strip(' \t\n\r')
+        commonName_id = commonNameDict.get('id', '').strip(' \t\n\r')
         commonName_str = commonNameDict['name'].strip(' \t\n\r')
 
         if len(commonName_str) == 0:
@@ -69,7 +83,8 @@ def node_save(node, args, request):
         commonName.name = commonName_str
         commonName.language = commonNameDict['language']
         commonName.save(request=request)
-        node.commonNames.add(commonName.document)
+        if commonName.document_id not in prev_commonNames:
+            node.commonNames.add(commonName.document)
 
     imagesToAdd = args.get('imagesToAdd', [])
     for imageToAdd in imagesToAdd:
