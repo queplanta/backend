@@ -36,7 +36,7 @@ class UserTestCase(GraphQLTest):
 
         self.user_2 = User(
             username='lanna',
-            email='lanna@naturebismo.com'
+            email='lanna@queplanta.com'
         )
         self.user_2.set_password('patricia')
         self.user_2.save(request=None)
