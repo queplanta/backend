@@ -2,8 +2,14 @@ language: python
 python:
   - "3.5"
   - "nightly"
+before_install:
+  - export DJANGO_SETTINGS_MODULE=backend.settings_test
 install:
   - pip install -r requirements.txt
 services:
   - postgresql
-script: python manage.py test --settings=backend.settings_test
+addons:
+  postgresql: "9.6"
+before_script:
+  - python manage.py migrate --noinput
+script: python manage.py test --noinput
