@@ -4,4 +4,6 @@ python:
   - "nightly"
 install:
   - pip install -r requirements.txt
+services:
+  - postgresql
 script: python manage.py test --settings=backend.settings_test

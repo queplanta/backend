@@ -1,5 +1,6 @@
 from django.contrib.gis.db import models
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.postgres.fields import JSONField
 
 from db.models import DocumentBase, DocumentID
 from db.fields import ManyToManyField
@@ -29,7 +30,8 @@ class Occurrence(DocumentBase):
         related_name='occurrence_image'
     )
     when = models.CharField(max_length=256, blank=True, null=True)
-    location = models.PolygonField(geography=True, null=True)
+    location = models.PointField(geography=True, null=True)
+    location_extra = JSONField(null=True)
     where = models.CharField(max_length=256, blank=True, null=True)
     notes = models.TextField(blank=True, null=True)
     is_cultivated = models.BooleanField(default=False)
