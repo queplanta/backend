@@ -1,4 +1,4 @@
-from django.db import models
+from django.contrib.gis.db import models
 from django.contrib.contenttypes.models import ContentType
 
 from db.models import DocumentBase, DocumentID
@@ -17,31 +17,32 @@ def limit_by_image_contenttype():
         return {}
 
 
-class WhatIsThis(DocumentBase):
-    subject = models.ForeignKey(DocumentID, related_name="whatisthis_subject",
-                                blank=True, null=True)
-    author = models.ForeignKey(DocumentID, related_name="whatisthis_author")
+class Occurrence(DocumentBase):
+    identity = models.ForeignKey(
+        DocumentID, related_name="occurrence_identity",
+        blank=True, null=True)
+    identity_alt = models.CharField(max_length=256, blank=True, null=True)
+    author = models.ForeignKey(DocumentID, related_name="occurrence_author")
     images = ManyToManyField(
         DocumentID,
         limit_choices_to=limit_by_image_contenttype,
-        related_name='whatisthis_image'
+        related_name='occurrence_image'
     )
     when = models.CharField(max_length=256, blank=True, null=True)
+    location = models.PolygonField(geography=True, null=True)
     where = models.CharField(max_length=256, blank=True, null=True)
     notes = models.TextField(blank=True, null=True)
-
-    answer = models.ForeignKey(DocumentID, related_name="whatisthis_answer",
-                               null=True, blank=True)
+    is_cultivated = models.BooleanField(default=False)
 
     REPUTATION_VALUE = 1
 
 
-class SuggestionID(DocumentBase):
+class Suggestion(DocumentBase):
     whatisthis = models.ForeignKey(DocumentID,
-                                   related_name="suggestionid_whatisthis")
-    author = models.ForeignKey(DocumentID, related_name="suggestionid_author")
-    identification = models.ForeignKey(DocumentID,
-                                       related_name="suggestionid_life")
+                                   related_name="suggestion_occurrence")
+    author = models.ForeignKey(DocumentID, related_name="suggestion_author")
+    identity = models.ForeignKey(DocumentID,
+                                 related_name="suggestion_identity")
     notes = models.TextField(blank=True, null=True)
 
     is_correct = models.NullBooleanField()

@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.gis',
     'sorl.thumbnail',
     'django_nose',
     'graphene_django',
@@ -44,7 +45,8 @@ INSTALLED_APPS = [
     'voting',
     'life',
     'images',
-    'what'
+    'what',
+    'occurrences',
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -84,7 +86,7 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'ENGINE': 'django.contrib.gis.db.backends.postgis',
         'NAME': os.getenv('DB_NAME'),
         'USER': os.getenv('DB_USER'),
         'PASSWORD': os.getenv('DB_PASS'),
