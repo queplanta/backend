@@ -83,4 +83,4 @@ class Vote(DocumentBase, DjangoObjectType):
 
     def resolve_author(self, args, context, info):
         if self.author_id:
-            return User._meta.model.objects.get(pk=self.author_id)
+            return User._meta.model.objects.get(document_id=self.author_id)

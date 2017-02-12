@@ -1,4 +1,4 @@
-from tests.models import Page, Tag, PageTag
+from tests.models import Page, Tag
 from backend.tests import UserTestCase
 
 
@@ -8,18 +8,20 @@ class RevisionsTest(UserTestCase):
         tag_1.save(request=None)
         created_page = Page(title="Example", slug="example")
         created_page.save(request=None)
-        PageTag.objects.create(page=created_page, tag=tag_1)
+        created_page.tags.add(tag_1.document)
 
         tag_2 = Tag(title='Tag 2', slug="tag-2")
         tag_2.save(request=None)
         updated_page = Page.objects.get(slug=created_page.slug)
         updated_page.title = "Title updated"
         updated_page.save(request=None)
-        PageTag.objects.create(page=updated_page, tag=tag_1)
-        PageTag.objects.create(page=updated_page, tag=tag_2)
+        updated_page.tags.clear()
+        updated_page.tags.add(tag_1.document)
+        updated_page.tags.add(tag_2.document)
 
         # must have 2 page revisions:
-        page_revisions = created_page.revisions.all()
+        page_revisions = created_page.revisions.all().order_by(
+            'revision__created_at')
         self.assertEqual(2, page_revisions.count())
 
         # just 1 page on the database
@@ -31,10 +33,10 @@ class RevisionsTest(UserTestCase):
 
         # compare m2m relationships
         self.assertEqual(1, created_page.tags.count())
-        self.assertEqual(created_page.tags.first(), tag_1)
+        self.assertEqual(created_page.tags.first().get_object(), tag_1)
         self.assertEqual(2, updated_page.tags.count())
-        self.assertEqual(updated_page.tags.first(), tag_1)
-        self.assertEqual(updated_page.tags.last(), tag_2)
+        self.assertEqual(updated_page.tags.first().get_object(), tag_1)
+        self.assertEqual(updated_page.tags.last().get_object(), tag_2)
         self.assertEqual(1, tag_1.pages.count())
         self.assertEqual(tag_1.pages.first(), updated_page)
 

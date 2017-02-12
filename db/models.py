@@ -76,8 +76,9 @@ class TipManager(models.Manager):
 
 class DocumentBase(models.Model):
     revision = models.OneToOneField(Revision, primary_key=True,
-                                    on_delete=models.PROTECT)
-    document = models.ForeignKey(DocumentID, on_delete=models.PROTECT)
+                                    on_delete=models.PROTECT, related_name='+')
+    document = models.ForeignKey(DocumentID, on_delete=models.PROTECT,
+                                 related_name='+')
     is_tip = models.NullBooleanField(null=True)
 
     # is_deleted field just to store a delete revision
