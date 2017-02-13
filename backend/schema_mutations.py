@@ -7,7 +7,7 @@ from commenting.mutations import CommentCreate, CommentEdit, CommentDelete
 from voting import mutations as voting_mutations
 from db import mutations as db_mutations
 from life import mutations as life_mutations
-from what import mutations as what_mutations
+from occurrences import mutations as occurrences_mutations
 from pages import mutations as page_mutations
 
 
@@ -58,7 +58,7 @@ class Mutation(graphene.ObjectType):
 
     lifeNodeCheckQuizz = m_field(life_mutations.CheckQuizz)
 
-    whatIsThisCreate = m_field(what_mutations.WhatIsThisCreate)
-    suggestionIDCreate = m_field(what_mutations.SuggestionIDCreate)
+    occurrenceCreate = m_field(occurrences_mutations.OccurrenceCreate)
+    suggestionIDCreate = m_field(occurrences_mutations.SuggestionIDCreate)
 
     revisionRevert = m_field(db_mutations.RevisionRevert)

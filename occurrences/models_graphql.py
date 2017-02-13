@@ -5,8 +5,8 @@ from graphene_django import DjangoConnectionField, DjangoObjectType
 from db.types_revision import DocumentNode, DocumentBase
 
 from .models import (
-    WhatIsThis as WhatIsThisModel,
-    SuggestionID as SuggestionIDModel
+    Occurrence as OccurrenceModel,
+    Suggestion as SuggestionIDModel
 )
 from accounts.models_graphql import User
 from life.models_graphql import LifeNode
@@ -15,14 +15,21 @@ from voting.models_graphql import VotesNode
 from images.models_graphql import Image
 
 
-class WhatIsThis(DocumentBase, DjangoObjectType):
+class Location(graphene.ObjectType):
+    latitude = graphene.Float()
+    longitude = graphene.Float()
+
+
+class Occurrence(DocumentBase, DjangoObjectType):
     author = graphene.Field(User)
+    location = graphene.Field(Location)
+    location = graphene.String()
     suggestions = DjangoConnectionField(lambda: SuggestionID)
     answer = graphene.Field(lambda: SuggestionID)
     images = DjangoConnectionField(lambda: Image)
 
     class Meta:
-        model = WhatIsThisModel
+        model = OccurrenceModel
         interfaces = (Node, DocumentNode, CommentsNode, VotesNode)
 
     def resolve_author(self, args, context, info):
@@ -30,18 +37,18 @@ class WhatIsThis(DocumentBase, DjangoObjectType):
 
     def resolve_images(self, args, context, info):
         return Image._meta.model.objects.filter(
-            document__whatisthis_image=self)
+            document__occurrence_image=self)
 
     def resolve_suggestions(self, args, request, info):
         return SuggestionID._meta.model.objects.filter(
-            whatisthis=self.document
+            occurrence=self.document
         ).order_by('revision')
 
 
 class SuggestionID(DocumentBase, DjangoObjectType):
     author = graphene.Field(User)
-    whatIsThis = graphene.Field(WhatIsThis)
-    identification = graphene.Field(LifeNode)
+    occurrence = graphene.Field(Occurrence)
+    identity = graphene.Field(LifeNode)
 
     class Meta:
         model = SuggestionIDModel
@@ -50,10 +57,10 @@ class SuggestionID(DocumentBase, DjangoObjectType):
     def resolve_author(self, args, context, info):
         return User._meta.model.objects.get(document_id=self.author_id)
 
-    def resolve_whatIsThis(self, args, context, info):
-        return WhatIsThis._meta.model.objects.get(
-            document_id=self.whatisthis_id)
+    def resolve_occurrence(self, args, context, info):
+        return Occurrence._meta.model.objects.get(
+            document_id=self.occurrence_id)
 
-    def resolve_identification(self, args, context, info):
+    def resolve_identity(self, args, context, info):
         return LifeNode._meta.model.objects.get(
-            document_id=self.identification_id)
+            document_id=self.identity_id)

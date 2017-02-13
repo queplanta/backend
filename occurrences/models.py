@@ -29,10 +29,13 @@ class Occurrence(DocumentBase):
         limit_choices_to=limit_by_image_contenttype,
         related_name='occurrence_image'
     )
+
     when = models.CharField(max_length=256, blank=True, null=True)
+
     location = models.PointField(geography=True, null=True)
     location_extra = JSONField(null=True)
     where = models.CharField(max_length=256, blank=True, null=True)
+
     notes = models.TextField(blank=True, null=True)
     is_cultivated = models.BooleanField(default=False)
 
@@ -40,7 +43,7 @@ class Occurrence(DocumentBase):
 
 
 class Suggestion(DocumentBase):
-    whatisthis = models.ForeignKey(DocumentID,
+    occurrence = models.ForeignKey(DocumentID,
                                    related_name="suggestion_occurrence")
     author = models.ForeignKey(DocumentID, related_name="suggestion_author")
     identity = models.ForeignKey(DocumentID,

@@ -16,7 +16,7 @@ from commenting.models_graphql import Comment
 from life.models_graphql import (
     LifeNode, Quizz, generate_quiz, CommonName
 )
-from what.models_graphql import WhatIsThis, SuggestionID
+from occurrences.models_graphql import Occurrence, SuggestionID
 from db.models_graphql import Revision, Document
 
 from .fields import GetBy
@@ -74,8 +74,8 @@ class Query(graphene.ObjectType):
         'edibles': graphene.Argument(graphene.Boolean, required=False)
     }, total_found2=graphene.Int(required=False, name='totalFound2'))
 
-    whatIsThis = relay.Node.Field(WhatIsThis)
-    allWhatIsThis = DjangoFilterConnectionField(WhatIsThis)
+    occurrence = relay.Node.Field(Occurrence)
+    allOccurences = DjangoFilterConnectionField(Occurrence)
     suggestionID = relay.Node.Field(SuggestionID)
 
     lifeNodeQuizz = graphene.Field(Quizz, resolver=generate_quiz)
@@ -97,9 +97,9 @@ class Query(graphene.ObjectType):
             return User._meta.model.objects.get(pk=request.user.pk)
         return None
 
-    def resolve_allWhatIsThis(self, args, request, info):
-        qs = WhatIsThis._meta.model.objects.all()
-        return qs.order_by('-document__created_at')
+    # def resolve_allOccurences(self, args, request, info):
+    #     qs = Occurrence._meta.model.objects.all()
+    #     return qs.order_by('-document__created_at')
 
     def resolve_allLifeNode(self, args, request, info):
         qs = LifeNode._meta.model.objects.all()

@@ -45,7 +45,6 @@ INSTALLED_APPS = [
     'voting',
     'life',
     'images',
-    'what',
     'occurrences',
 ]
 
