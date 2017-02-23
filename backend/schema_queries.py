@@ -75,7 +75,7 @@ class Query(graphene.ObjectType):
     }, total_found2=graphene.Int(required=False, name='totalFound2'))
 
     occurrence = relay.Node.Field(Occurrence)
-    allOccurences = DjangoFilterConnectionField(Occurrence)
+    allOccurrences = DjangoFilterConnectionField(Occurrence)
     suggestionID = relay.Node.Field(SuggestionID)
 
     lifeNodeQuizz = graphene.Field(Quizz, resolver=generate_quiz)
@@ -97,9 +97,9 @@ class Query(graphene.ObjectType):
             return User._meta.model.objects.get(pk=request.user.pk)
         return None
 
-    # def resolve_allOccurences(self, args, request, info):
-    #     qs = Occurrence._meta.model.objects.all()
-    #     return qs.order_by('-document__created_at')
+    def resolve_allOccurrences(self, args, request, info):
+        qs = Occurrence._meta.model.objects.all()
+        return qs.order_by('-document__created_at')
 
     def resolve_allLifeNode(self, args, request, info):
         qs = LifeNode._meta.model.objects.all()
