@@ -4,6 +4,8 @@ from django.contrib.contenttypes.models import ContentType
 
 from ipware.ip import get_real_ip
 
+from .privacy.field import PrivacyField
+
 
 class BigIntegerPK(models.Model):
     # id = models.BigIntegerField(primary_key=True)
@@ -17,6 +19,8 @@ class DocumentID(models.Model):
 
     owner = models.ForeignKey('self', on_delete=models.PROTECT,
                               related_name="owns", null=True)
+
+    privacy = PrivacyField()
 
     revisions_count = models.IntegerField(default=0)
     revision_tip_id = models.BigIntegerField(null=True, blank=True)
@@ -37,6 +41,7 @@ class DocumentID(models.Model):
     @property
     def revision_created(self):
         return Revision.objects.get(pk=self.revision_created_id)
+
 
 REVISION_TYPES_CREATE = 'create'
 REVISION_TYPES_CHANGE = 'change'
