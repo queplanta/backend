@@ -68,6 +68,5 @@ class Document(DjangoObjectType):
             )
 
     def resolve_owner(self, args, context, info):
-        # import pdb; pdb.set_trace()
         if self.owner_id:
             return User._meta.model.objects.get(document_id=self.owner_id)

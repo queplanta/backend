@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'life',
     'images',
     'occurrences',
+    'lists',
 ]
 
 MIDDLEWARE_CLASSES = [

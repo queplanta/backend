@@ -18,6 +18,7 @@ from life.models_graphql import (
 )
 from occurrences.models_graphql import Occurrence, SuggestionID
 from db.models_graphql import Revision, Document
+from lists.models_graphql import List
 
 from .fields import GetBy
 
@@ -77,6 +78,8 @@ class Query(graphene.ObjectType):
     occurrence = relay.Node.Field(Occurrence)
     allOccurrences = DjangoFilterConnectionField(Occurrence)
     suggestionID = relay.Node.Field(SuggestionID)
+
+    list = relay.Node.Field(List)
 
     lifeNodeQuizz = graphene.Field(Quizz, resolver=generate_quiz)
 

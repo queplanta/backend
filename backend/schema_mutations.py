@@ -9,6 +9,7 @@ from db import mutations as db_mutations
 from life import mutations as life_mutations
 from occurrences import mutations as occurrences_mutations
 from pages import mutations as page_mutations
+from lists import mutations as lists_mutations
 
 
 def m_field(m):
@@ -38,6 +39,10 @@ class Mutation(graphene.ObjectType):
     pageCreate = m_field(page_mutations.PageCreate)
     pageEdit = m_field(page_mutations.PageEdit)
     pageDelete = m_field(page_mutations.PageDelete)
+
+    listCreate = m_field(lists_mutations.ListCreate)
+    listEdit = m_field(lists_mutations.ListEdit)
+    listDelete = m_field(lists_mutations.ListDelete)
 
     tagCreate = m_field(TagCreate)
     tagEdit = m_field(TagEdit)

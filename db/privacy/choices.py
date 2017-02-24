@@ -10,12 +10,12 @@ PRIVACY_DEFAULT = PRIVACY_PUBLIC
 PRIVACY_TYPES = {
     PRIVACY_PUBLIC: {
         'title': _('Publico'),
-        'icon': 'icon-globe',
+        'type': 'public',
         'filter': lambda privacy, user: Q(privacy=privacy)
     },
     PRIVACY_FRIENDS: {
         'title': _('Amigos'),
-        'icon': 'icon-user',
+        'type': 'friends',
         'filter': lambda privacy, user: (
             Q(privacy=privacy) & (
                 Q(owner__pk__in=user.friends_id) | Q(owner__pk=user.pk)
@@ -24,7 +24,7 @@ PRIVACY_TYPES = {
     },
     PRIVACY_PRIVATE: {
         'title': _('Privado'),
-        'icon': 'icon-lock',
+        'type': 'private',
         'filter': lambda privacy, user: Q(privacy=privacy, owner=user)
     }
 }
