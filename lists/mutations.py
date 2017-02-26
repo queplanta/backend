@@ -6,7 +6,8 @@ from django.utils.text import slugify
 from accounts.decorators import login_required
 from accounts.permissions import has_permission
 from backend.mutations import Mutation
-from .models_graphql import List
+from db.models import DocumentID
+from .models_graphql import List, ListItem
 
 
 def list_save(list_saving, args, request):
@@ -76,3 +77,36 @@ class ListDelete(Mutation):
         delete_list.delete(request=request)
 
         return ListDelete(listDeletedID=input.get('id'))
+
+
+class ListAddItem(Mutation):
+    class Input:
+        list_id = graphene.ID(required=True)
+        item_id = graphene.ID(required=True)
+        notes = graphene.String(required=False)
+
+    list = graphene.Field(List)
+    list_item = graphene.Field(ListItem)
+
+    @classmethod
+    @login_required
+    def mutate_and_get_payload(cls, input, request, info):
+        gid_type, gid = from_global_id(input.get('list_id'))
+        edited_list = List._meta.model.objects.get(document_id=gid)
+
+        gid_type, gid = from_global_id(input.get('item_id'))
+        item = DocumentID.objects.get(id=gid)
+
+        error = has_permission(cls, request, edited_list, 'edit')
+        if error:
+            return error
+
+        item_added = edited_list.add_item(item.id, input.get('notes'))
+        edited_list.save(request=request)
+
+        list_item = ListItem(
+            id=item_added['id'],
+            notes=item_added['notes'],
+            item=item.get_object()
+        )
+        return ListAddItem(list=edited_list, list_item=list_item)

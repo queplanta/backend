@@ -43,6 +43,7 @@ class Mutation(graphene.ObjectType):
     listCreate = m_field(lists_mutations.ListCreate)
     listEdit = m_field(lists_mutations.ListEdit)
     listDelete = m_field(lists_mutations.ListDelete)
+    listAddItem = m_field(lists_mutations.ListAddItem)
 
     tagCreate = m_field(TagCreate)
     tagEdit = m_field(TagEdit)
