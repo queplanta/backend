@@ -3,6 +3,7 @@ from graphql_relay.node.node import from_global_id
 from graphql_relay.connection.arrayconnection import offset_to_cursor
 
 from django import forms
+from django.contrib.gis.geos import Point
 from multiupload.fields import MultiImageField
 
 from accounts.decorators import login_required
@@ -10,11 +11,11 @@ from backend.mutations import Mutation
 from db.models_graphql import Document
 from utils.forms import form_erros
 from images.models import Image as ImageModel
-from .models_graphql import Occurrence, SuggestionID
+from .models_graphql import Occurrence, SuggestionID, LocationInput
 
 
 class OccurrenceCreateForm(forms.Form):
-    images = MultiImageField(min_num=1)
+    images = MultiImageField(min_num=0)
 
 
 class OccurrenceCreate(Mutation):
@@ -22,6 +23,7 @@ class OccurrenceCreate(Mutation):
         when = graphene.String(required=False)
         where = graphene.String(required=False)
         notes = graphene.String(required=False)
+        location = graphene.Field(LocationInput, required=False)
 
     occurrence = graphene.Field(Occurrence.Connection.Edge)
 
@@ -36,6 +38,11 @@ class OccurrenceCreate(Mutation):
             occurrence.when = input.get('when')
             occurrence.where = input.get('where')
             occurrence.notes = input.get('notes')
+
+            location = input.get('location')
+            if location:
+                occurrence.location = Point(location['lng'], location['lat'])
+
             occurrence.save(request=request)
 
             for image_uploaded in form.cleaned_data['images']:
@@ -51,6 +58,47 @@ class OccurrenceCreate(Mutation):
         else:
             errors = form_erros(form, errors)
         return OccurrenceCreate(errors=errors)
+
+
+class WhatIsThisCreateForm(forms.Form):
+    images = MultiImageField(min_num=1)
+
+
+class WhatIsThisCreate(Mutation):
+    class Input:
+        when = graphene.String(required=False)
+        where = graphene.String(required=False)
+        notes = graphene.String(required=False)
+        location = graphene.Field(LocationInput, required=False)
+
+    occurrence = graphene.Field(Occurrence.Connection.Edge)
+
+    @classmethod
+    @login_required
+    def mutate_and_get_payload(cls, input, request, info):
+        errors = []
+        form = WhatIsThisCreateForm(input, request.FILES)
+        if form.is_valid():
+            occurrence = Occurrence._meta.model()
+            occurrence.author = request.user.document
+            occurrence.when = input.get('when')
+            occurrence.where = input.get('where')
+            occurrence.notes = input.get('notes')
+            occurrence.save(request=request)
+
+            for image_uploaded in form.cleaned_data['images']:
+                image = ImageModel(image=image_uploaded)
+                image.save(request=request)
+                occurrence.images.add(image.document)
+
+            return WhatIsThisCreate(
+                occurrence=Occurrence.Connection.Edge(
+                    node=occurrence,
+                    cursor=offset_to_cursor(0)),
+            )
+        else:
+            errors = form_erros(form, errors)
+        return WhatIsThisCreate(errors=errors)
 
 
 class SuggestionIDCreate(Mutation):

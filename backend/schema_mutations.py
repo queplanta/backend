@@ -65,6 +65,7 @@ class Mutation(graphene.ObjectType):
     lifeNodeCheckQuizz = m_field(life_mutations.CheckQuizz)
 
     occurrenceCreate = m_field(occurrences_mutations.OccurrenceCreate)
+    whatIsThisCreate = m_field(occurrences_mutations.WhatIsThisCreate)
     suggestionIDCreate = m_field(occurrences_mutations.SuggestionIDCreate)
 
     revisionRevert = m_field(db_mutations.RevisionRevert)

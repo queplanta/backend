@@ -49,6 +49,7 @@ class OccurrenceTest(UserTestCase):
                                     author {
                                         username
                                     }
+                                    location { lat, lng }
                                     revisionCreated {
                                         author {
                                             username
@@ -70,6 +71,10 @@ class OccurrenceTest(UserTestCase):
                         'when': 'ontem',
                         'where': 'mariana, mg',
                         'notes': 'na baira da estrada, florindo',
+                        'location': {
+                            'lat': -43.9678283,
+                            'lng': -19.8539275,
+                        }
                     }
                 },
                 'images': [image1, image2],
@@ -99,6 +104,10 @@ class OccurrenceTest(UserTestCase):
                                 'author': {
                                     'username': self.user.username,
                                 }
+                            },
+                            'location': {
+                                'lat': -43.9678283,
+                                'lng': -19.8539275,
                             }
                         }
                     },

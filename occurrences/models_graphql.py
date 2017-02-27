@@ -15,15 +15,22 @@ from voting.models_graphql import VotesNode
 from images.models_graphql import Image
 
 
-class Location(graphene.ObjectType):
-    latitude = graphene.Float()
-    longitude = graphene.Float()
+class LocationFields(graphene.AbstractType):
+    lng = graphene.Float()  # x
+    lat = graphene.Float()  # y
+
+
+class Location(graphene.ObjectType, LocationFields):
+    pass
+
+
+class LocationInput(graphene.InputObjectType, LocationFields):
+    pass
 
 
 class Occurrence(DocumentBase, DjangoObjectType):
     author = graphene.Field(User)
     location = graphene.Field(Location)
-    location = graphene.String()
     suggestions = DjangoConnectionField(lambda: SuggestionID)
     answer = graphene.Field(lambda: SuggestionID)
     images = DjangoConnectionField(lambda: Image)
@@ -43,6 +50,9 @@ class Occurrence(DocumentBase, DjangoObjectType):
         return SuggestionID._meta.model.objects.filter(
             occurrence=self.document
         ).order_by('revision')
+
+    def resolve_location(self, args, request, info):
+        return Location(lng=self.location.x, lat=self.location.y)
 
 
 class SuggestionID(DocumentBase, DjangoObjectType):
