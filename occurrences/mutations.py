@@ -15,7 +15,7 @@ from .models_graphql import Occurrence, SuggestionID, LocationInput
 
 
 class OccurrenceCreateForm(forms.Form):
-    images = MultiImageField(min_num=0)
+    images = MultiImageField(min_num=0, required=False)
 
 
 class OccurrenceCreate(Mutation):
@@ -23,6 +23,7 @@ class OccurrenceCreate(Mutation):
         when = graphene.String(required=False)
         where = graphene.String(required=False)
         notes = graphene.String(required=False)
+        life_id = graphene.ID(required=False)
         location = graphene.Field(LocationInput, required=False)
 
     occurrence = graphene.Field(Occurrence.Connection.Edge)
@@ -42,6 +43,12 @@ class OccurrenceCreate(Mutation):
             location = input.get('location')
             if location:
                 occurrence.location = Point(location['lng'], location['lat'])
+
+            life_id = input.get('life_id')
+            if life_id:
+                life_gid_type, life_gid = from_global_id(life_id)
+                occurrence.identity = Document._meta.model.objects.get(
+                    pk=life_gid)
 
             occurrence.save(request=request)
 

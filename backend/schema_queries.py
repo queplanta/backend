@@ -77,6 +77,7 @@ class Query(graphene.ObjectType):
 
     occurrence = relay.Node.Field(Occurrence)
     allOccurrences = DjangoFilterConnectionField(Occurrence)
+    allWhatIsThis = DjangoFilterConnectionField(Occurrence)
     suggestionID = relay.Node.Field(SuggestionID)
 
     list = relay.Node.Field(List)
@@ -102,7 +103,13 @@ class Query(graphene.ObjectType):
 
     def resolve_allOccurrences(self, args, request, info):
         qs = Occurrence._meta.model.objects.all()
-        return qs.order_by('-document__created_at')
+        return qs.order_by('-document__created_at').filter(
+            location__isnull=False, identity__isnull=False)
+
+    def resolve_allWhatIsThis(self, args, request, info):
+        qs = Occurrence._meta.model.objects.all()
+        return qs.order_by('-document__created_at').filter(
+            identity__isnull=True)
 
     def resolve_allLifeNode(self, args, request, info):
         qs = LifeNode._meta.model.objects.all()

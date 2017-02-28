@@ -34,6 +34,7 @@ class Occurrence(DocumentBase, DjangoObjectType):
     suggestions = DjangoConnectionField(lambda: SuggestionID)
     answer = graphene.Field(lambda: SuggestionID)
     images = DjangoConnectionField(lambda: Image)
+    identity = graphene.Field(LifeNode)
 
     class Meta:
         model = OccurrenceModel
@@ -41,6 +42,9 @@ class Occurrence(DocumentBase, DjangoObjectType):
 
     def resolve_author(self, args, context, info):
         return User._meta.model.objects.get(document_id=self.author_id)
+
+    def resolve_identity(self, args, context, info):
+        return LifeNode._meta.model.objects.get(document_id=self.identity_id)
 
     def resolve_images(self, args, context, info):
         return Image._meta.model.objects.filter(
@@ -52,7 +56,8 @@ class Occurrence(DocumentBase, DjangoObjectType):
         ).order_by('revision')
 
     def resolve_location(self, args, request, info):
-        return Location(lng=self.location.x, lat=self.location.y)
+        if self.location:
+            return Location(lng=self.location.x, lat=self.location.y)
 
 
 class SuggestionID(DocumentBase, DjangoObjectType):
