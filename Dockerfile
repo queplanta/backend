@@ -1,6 +1,6 @@
 FROM python:3.5-onbuild
 RUN apt-get install -y libjpeg62-turbo libjpeg62-turbo-dev libfreetype6 libfreetype6-dev zlib1g-dev
-RUN apt-get install -y libgeos-dev libgeos-3.5.0 libgeos-c1v5
+RUN apt-get install -y libgeos-dev libgeos-3.4.2 libgeos-c1 gdal-bin
 
 ENV DEBIAN_FRONTEND noninteractive
 RUN apt-get update -qq && apt-get install -y locales -qq
