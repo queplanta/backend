@@ -47,15 +47,16 @@ def node_save(node, args, request):
 
     prev_commonNames = []
     if node.pk:
-        prev_commonNames = node.prev_commonNames.values_list('id', flat=True)
+        prev_commonNames = node.commonNames.values_list('id', flat=True)
 
     node.save(request=request)
 
     for prev_img_id in prev_images:
         node.images.add(prev_img_id)
 
+    node.commonNames.clear()
     for prev_name_id in prev_commonNames:
-        node.prev_commonNames.add(prev_name_id)
+        node.commonNames.add(prev_name_id)
 
     commonNames = args.get('commonNames', [])
     for commonNameDict in commonNames:

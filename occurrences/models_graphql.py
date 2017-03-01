@@ -53,7 +53,7 @@ class Occurrence(DocumentBase, DjangoObjectType):
     def resolve_suggestions(self, args, request, info):
         return SuggestionID._meta.model.objects.filter(
             occurrence=self.document
-        ).order_by('revision')
+        ).order_by('-document__votestats__sum_values')
 
     def resolve_location(self, args, request, info):
         if self.location:
