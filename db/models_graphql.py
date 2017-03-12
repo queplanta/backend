@@ -16,6 +16,7 @@ def get_document_type():
 
 
 class Revision(DjangoObjectType):
+    id_int = graphene.Int()
     author = graphene.Field(User)
     after = DjangoConnectionField(lambda: Revision)
     before = graphene.Field(lambda: Revision)
@@ -27,6 +28,9 @@ class Revision(DjangoObjectType):
     class Meta:
         model = RevisionModel
         interfaces = (Node, )
+
+    def resolve_id_int(self, args, request, info):
+        return self.id
 
     def resolve_author(self, args, context, info):
         if self.author_id:

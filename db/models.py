@@ -56,6 +56,8 @@ REVISION_TYPES = (
 
 class Revision(models.Model):
     type = models.CharField(max_length=6, choices=REVISION_TYPES)
+    index = models.IntegerField(default=0)
+    revision_document_id = models.IntegerField(null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     parent = models.ForeignKey('self', null=True, on_delete=models.PROTECT)
     document = models.ForeignKey(DocumentID, on_delete=models.PROTECT)
@@ -71,6 +73,18 @@ class Revision(models.Model):
     def get_object(self):
         return self.document.content_type.model_class().objects_revisions.get(
             pk=self.pk)
+
+    def save(self, **kwargs):
+        if not self.revision_document_id:
+            self.revision_document_id = DocumentID.objects.create(
+                content_type=ContentType.objects.get_for_model(self)
+            ).id
+        if not self.index:
+            self.index = Revision.objects.filter(
+                document_id=self.document_id,
+                id__lt=self.id
+            ).count() + 1
+        return super(Revision, self).save(**kwargs)
 
 
 class TipManager(models.Manager):
