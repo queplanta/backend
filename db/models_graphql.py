@@ -6,13 +6,25 @@ from accounts.models_graphql import User
 
 from .models import (
     Revision as RevisionModel,
-    DocumentID as DocumentIDModel
+    DocumentID as DocumentIDModel,
+    REVISION_TYPES, REVISION_TYPES_CREATE,
+    REVISION_TYPES_CHANGE, REVISION_TYPES_DELETE
 )
 
 
 def get_document_type():
     from db.models_graphql import Document
     return Document
+
+
+class RevisionType(graphene.Enum):
+    CREATE = REVISION_TYPES_CREATE
+    UPDATE = REVISION_TYPES_CHANGE
+    DELETE = REVISION_TYPES_DELETE
+
+    @property
+    def description(self):
+        return dict(REVISION_TYPES)[self._value_]
 
 
 class Revision(DjangoObjectType):
@@ -22,7 +34,8 @@ class Revision(DjangoObjectType):
     before = graphene.Field(lambda: Revision)
     document = graphene.Field(get_document_type)
     object = graphene.Field(Node)
-    type = graphene.String()
+    type = graphene.Field(RevisionType)
+    typeDisplay = graphene.String()
     is_tip = graphene.Boolean()
 
     class Meta:
@@ -47,6 +60,9 @@ class Revision(DjangoObjectType):
     def resolve_object(self, args, context, info):
         Model = self.document.content_type.model_class()
         return Model.objects_revisions.get(pk=self.pk)
+
+    def resolve_typeDisplay(self, args, request, info):
+        return self.get_type_display()
 
     def resolve_is_tip(self, args, context, info):
         return self.id == self.document.revision_tip_id

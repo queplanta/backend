@@ -7,8 +7,12 @@ from django.db import migrations, models
 
 def set_revision_document_id_and_index(apps, schema_editor):
     from db.models import Revision
-    for person in Revision.objects.all():
-        person.save()
+    for revision in Revision.objects.all():
+        revision.index = Revision.objects.filter(
+            document_id=revision.document_id,
+            id__lt=revision.id
+        ).count() + 1
+        revision.save()
 
 
 class Migration(migrations.Migration):

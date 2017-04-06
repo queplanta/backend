@@ -48,9 +48,9 @@ REVISION_TYPES_CHANGE = 'change'
 REVISION_TYPES_DELETE = 'delete'
 
 REVISION_TYPES = (
-    (REVISION_TYPES_CREATE, "Create"),
-    (REVISION_TYPES_CHANGE, "Change"),
-    (REVISION_TYPES_DELETE, "Delete"),
+    (REVISION_TYPES_CREATE, "Criação"),
+    (REVISION_TYPES_CHANGE, "Alteração"),
+    (REVISION_TYPES_DELETE, "Exclusão"),
 )
 
 
@@ -81,8 +81,7 @@ class Revision(models.Model):
             ).id
         if not self.index:
             self.index = Revision.objects.filter(
-                document_id=self.document_id,
-                id__lt=self.id
+                document_id=self.document_id
             ).count() + 1
         return super(Revision, self).save(**kwargs)
 
