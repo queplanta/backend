@@ -3,7 +3,7 @@ from db.models import DocumentBase, DocumentID
 
 
 class Comment(DocumentBase):
-    parent = models.ForeignKey(DocumentID, related_name="comments")
+    parent = models.ForeignKey(DocumentID, related_name="comments", on_delete=models.CASCADE)
     body = models.TextField()
 
     REPUTATION_VALUE = 1
@@ -28,5 +28,5 @@ def update_count(comment):
 
 
 class CommentStats(models.Model):
-    document = models.OneToOneField(DocumentID)
+    document = models.OneToOneField(DocumentID, on_delete=models.CASCADE)
     count = models.IntegerField(default=0)

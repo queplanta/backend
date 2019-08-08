@@ -22,7 +22,7 @@ def _set_vote(input, request, info):
     vote.value = input.get('value')
     vote.save(request=request)
 
-    voting = Voting.get_node(gid, request, info)
+    voting = Voting.get_node(info, gid)
 
     return {
         'vote': vote,
@@ -40,8 +40,8 @@ class VoteSet(Mutation):
 
     @classmethod
     @login_required
-    def mutate_and_get_payload(cls, input, request, info):
-        return VoteSet(**_set_vote(input, request, info))
+    def mutate_and_get_payload(cls, root, info, **input):
+        return VoteSet(**_set_vote(input, info.context, info))
 
 
 class VoteDelete(Mutation):
@@ -53,18 +53,18 @@ class VoteDelete(Mutation):
 
     @classmethod
     @login_required
-    def mutate_and_get_payload(cls, input, request, info):
+    def mutate_and_get_payload(cls, root, info, **input):
         gid_type, gid = from_global_id(input.get('id'))
         vote = VoteModel.objects.get(document_id=gid,
-                                     author=request.user.document)
+                                     author=info.context.user.document)
 
-        error = has_permission(cls, request, vote, 'delete')
+        error = has_permission(cls, info.context, vote, 'delete')
         if error:
             return error
 
         parent_id = vote.parent_id
-        vote.delete(request=request)
+        vote.delete(request=info.context)
 
-        voting = Voting.get_node(parent_id, request, info)
+        voting = Voting.get_node(info, parent_id)
 
         return VoteDelete(voteDeletedID=input.get('id'), voting=voting)

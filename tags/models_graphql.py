@@ -17,8 +17,9 @@ class Tag(DocumentBase, DjangoObjectType):
     class Meta:
         model = TagModel
         interfaces = (Node, DocumentNode)
+        filter_fields = ['slug']
 
-    def resolve_all_posts(self, args, request, info):
+    def resolve_all_posts(self, info):
         Post = get_post_type()
         return Post._meta.model.objects.filter(
             tags=self.document).order_by('-published_at')

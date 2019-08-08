@@ -1,9 +1,11 @@
 import graphene
+import graphql_geojson
+
 from graphql_relay.node.node import from_global_id
 from graphql_relay.connection.arrayconnection import offset_to_cursor
 
 from django import forms
-from django.contrib.gis.geos import Point
+from django.core.exceptions import ValidationError
 from multiupload.fields import MultiImageField
 
 from accounts.decorators import login_required
@@ -11,11 +13,28 @@ from backend.mutations import Mutation
 from db.models_graphql import Document
 from utils.forms import form_erros
 from images.models import Image as ImageModel
-from .models_graphql import Occurrence, SuggestionID, LocationInput
+from .models_graphql import Occurrence, SuggestionID
+
+
+class MyMultiImageField(MultiImageField):
+    def run_validators(self, value):
+        if value in self.empty_values:
+            return
+        errors = []
+        for v in self.validators:
+            for item in value:
+                try:
+                    v(item)
+                except ValidationError as e:
+                    if hasattr(e, 'code') and e.code in self.error_messages:
+                        e.message = self.error_messages[e.code]
+                    errors.extend(e.error_list)
+        if errors:
+            raise ValidationError(errors)
 
 
 class OccurrenceCreateForm(forms.Form):
-    images = MultiImageField(min_num=0, required=False)
+    images = MyMultiImageField(min_num=0, required=False)
 
 
 class OccurrenceCreate(Mutation):
@@ -24,25 +43,25 @@ class OccurrenceCreate(Mutation):
         where = graphene.String(required=False)
         notes = graphene.String(required=False)
         life_id = graphene.ID(required=False)
-        location = graphene.Field(LocationInput, required=False)
+        location = graphene.Field(graphql_geojson.Geometry, required=False)
 
-    occurrence = graphene.Field(Occurrence.Connection.Edge)
+    occurrence = graphene.Field(Occurrence._meta.connection.Edge)
 
     @classmethod
     @login_required
-    def mutate_and_get_payload(cls, input, request, info):
+    def mutate_and_get_payload(cls, root, info, **input):
         errors = []
-        form = OccurrenceCreateForm(input, request.FILES)
+        form = OccurrenceCreateForm(input, info.context.FILES)
         if form.is_valid():
             occurrence = Occurrence._meta.model()
-            occurrence.author = request.user.document
+            occurrence.author = info.context.user.document
             occurrence.when = input.get('when')
             occurrence.where = input.get('where')
             occurrence.notes = input.get('notes')
 
             location = input.get('location')
             if location:
-                occurrence.location = Point(location['lng'], location['lat'])
+                occurrence.location = location
 
             life_id = input.get('life_id')
             if life_id:
@@ -50,15 +69,15 @@ class OccurrenceCreate(Mutation):
                 occurrence.identity = Document._meta.model.objects.get(
                     pk=life_gid)
 
-            occurrence.save(request=request)
+            occurrence.save(request=info.context)
 
             for image_uploaded in form.cleaned_data['images']:
                 image = ImageModel(image=image_uploaded)
-                image.save(request=request)
+                image.save(request=info.context)
                 occurrence.images.add(image.document)
 
             return OccurrenceCreate(
-                occurrence=Occurrence.Connection.Edge(
+                occurrence=Occurrence._meta.connection.Edge(
                     node=occurrence,
                     cursor=offset_to_cursor(0)),
             )
@@ -76,30 +95,30 @@ class WhatIsThisCreate(Mutation):
         when = graphene.String(required=False)
         where = graphene.String(required=False)
         notes = graphene.String(required=False)
-        location = graphene.Field(LocationInput, required=False)
+        location = graphene.Field(graphql_geojson.Geometry, required=False)
 
-    occurrence = graphene.Field(Occurrence.Connection.Edge)
+    occurrence = graphene.Field(Occurrence._meta.connection.Edge)
 
     @classmethod
     @login_required
-    def mutate_and_get_payload(cls, input, request, info):
+    def mutate_and_get_payload(cls, root, info, **input):
         errors = []
-        form = WhatIsThisCreateForm(input, request.FILES)
+        form = WhatIsThisCreateForm(input, info.context.FILES)
         if form.is_valid():
             occurrence = Occurrence._meta.model()
-            occurrence.author = request.user.document
+            occurrence.author = info.context.user.document
             occurrence.when = input.get('when')
             occurrence.where = input.get('where')
             occurrence.notes = input.get('notes')
-            occurrence.save(request=request)
+            occurrence.save(request=info.context)
 
             for image_uploaded in form.cleaned_data['images']:
                 image = ImageModel(image=image_uploaded)
-                image.save(request=request)
+                image.save(request=info.context)
                 occurrence.images.add(image.document)
 
             return WhatIsThisCreate(
-                occurrence=Occurrence.Connection.Edge(
+                occurrence=Occurrence._meta.connection.Edge(
                     node=occurrence,
                     cursor=offset_to_cursor(0)),
             )
@@ -115,13 +134,13 @@ class SuggestionIDCreate(Mutation):
         notes = graphene.String(required=False)
 
     occurrence = graphene.Field(Occurrence)
-    suggestionID = graphene.Field(SuggestionID.Connection.Edge)
+    suggestionID = graphene.Field(SuggestionID._meta.connection.Edge)
 
     @classmethod
     @login_required
-    def mutate_and_get_payload(cls, input, request, info):
+    def mutate_and_get_payload(cls, root, info, **input):
         suggestion = SuggestionID._meta.model()
-        suggestion.author = request.user.document
+        suggestion.author = info.context.user.document
 
         gid_type, gid = from_global_id(input.get('occurrence'))
         suggestion.occurrence = Document._meta.model.objects.get(pk=gid)
@@ -130,11 +149,11 @@ class SuggestionIDCreate(Mutation):
         suggestion.identity = Document._meta.model.objects.get(pk=gid)
 
         suggestion.notes = input.get('notes')
-        suggestion.save(request=request)
+        suggestion.save(request=info.context)
 
         return SuggestionIDCreate(
             occurrence=suggestion.occurrence.get_object(),
-            suggestionID=SuggestionID.Connection.Edge(
+            suggestionID=SuggestionID._meta.connection.Edge(
                 node=suggestion, cursor=offset_to_cursor(0)
             ),
         )

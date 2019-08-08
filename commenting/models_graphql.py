@@ -1,5 +1,5 @@
 import graphene
-from graphene.relay import Node
+from graphene import relay
 from graphene_django import DjangoConnectionField, DjangoObjectType
 
 from db.models import DocumentID
@@ -14,9 +14,9 @@ class Commenting(graphene.ObjectType):
     comments = DjangoConnectionField(lambda: Comment)
 
     class Meta:
-        interfaces = (Node, )
+        interfaces = (relay.Node, )
 
-    def resolve_comments(self, args, request, info):
+    def resolve_comments(self, info):
         return Comment._meta.model.objects.filter(
             parent=self._document.pk
         ).order_by('-document__created_at')
@@ -28,12 +28,12 @@ class Commenting(graphene.ObjectType):
             )
         return self._stats
 
-    def resolve_count(self, args, context, info):
+    def resolve_count(self, info):
         return self.stats().count
 
     @classmethod
-    def get_node(cls, id, context, info):
-        doc = DocumentID.objects.get(pk=id)
+    def get_node(cls, info, _id):
+        doc = DocumentID.objects.get(pk=_id)
         c = Commenting(id=doc.pk)
         c._document = doc
         return c
@@ -42,7 +42,7 @@ class Commenting(graphene.ObjectType):
 class CommentsNode(graphene.Interface):
     commenting = graphene.Field(Commenting)
 
-    def resolve_commenting(self, args, request, info):
+    def resolve_commenting(self, info):
         c = Commenting(id=self.document.pk)
         c._document = self.document
         return c
@@ -51,4 +51,5 @@ class CommentsNode(graphene.Interface):
 class Comment(DocumentBase, DjangoObjectType):
     class Meta:
         model = CommentModel
-        interfaces = (Node, DocumentNode, CommentsNode, VotesNode)
+        interfaces = (relay.Node, DocumentNode, CommentsNode, VotesNode)
+        filter_fields = []

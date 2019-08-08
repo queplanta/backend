@@ -11,20 +11,20 @@ class DocumentNode(DocumentBase, graphene.Interface):
     revision_created = graphene.Field(Revision)
     revisions = DjangoConnectionField(Revision)
 
-    def resolve_document(self, args, context, info):
+    def resolve_document(self, info):
         if self.document_id:
             return Document._meta.model.objects.get(pk=self.document_id)
 
-    def resolve_revision_current(self, args, context, info):
+    def resolve_revision_current(self, info):
         if self.document.revision_tip_id:
             return Revision._meta.model.objects.get(
                 pk=self.document.revision_tip_id)
 
-    def resolve_revision_created(self, args, context, info):
+    def resolve_revision_created(self, info):
         if self.document.revision_created_id:
             return Revision._meta.model.objects.get(
                 pk=self.document.revision_created_id)
 
-    def resolve_revisions(self, args, context, info):
+    def resolve_revisions(self, info):
         return Revision._meta.model.objects.filter(
             document_id=self.document_id).order_by('-created_at')

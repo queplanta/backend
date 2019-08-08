@@ -3,6 +3,7 @@ import os
 
 from django.utils import timezone
 from django.utils.text import slugify
+from django.utils.deconstruct import deconstructible
 
 
 def random_file_name():
@@ -21,21 +22,28 @@ def slugify_filename(filename):
     return build_filename(filename, new_filename)
 
 
-def set_upload_to_random_filename(folder):
-    def set_upload_to(instance, filename):
+@deconstructible
+class set_upload_to_random_filename(object):
+    def __init__(self, folder):
+        self.folder = folder
+
+    def __call__(self, instance, filename):
         today = timezone.now()
         new_filename = random_file_name()
         filename = build_filename(filename, new_filename)
-        path = os.path.join(folder, today.strftime("%Y/%m"))
+        path = os.path.join(self.folder, today.strftime("%Y/%m"))
         return os.path.join(path, filename)
-    return set_upload_to
 
 
-def set_upload_to_random_folder(folder):
-    def set_upload_to(instance, filename):
+@deconstructible
+class set_upload_to_random_folder(object):
+    def __init__(self, folder):
+        self.folder = folder
+
+    def __call__(self, instance, filename):
         today = timezone.now()
         new_folder_name = random_file_name()
-        path = os.path.join(folder, today.strftime("%Y/%m"), new_folder_name)
+        path = os.path.join(self.folder, today.strftime("%Y/%m"), new_folder_name)
         filename = slugify_filename(filename)
         return os.path.join(path, filename)
-    return set_upload_to
+

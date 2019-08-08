@@ -4,7 +4,7 @@ from .models import User
 
 
 class ModelBackend(backends.ModelBackend):
-    def authenticate(self, username=None, password=None, **kwargs):
+    def authenticate(self, request=None, username=None, password=None, **kwargs):
         try:
             user = User.objects.get(
                 Q(username__iexact=username) | Q(email__iexact=username))

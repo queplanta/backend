@@ -6,8 +6,8 @@ from .ranking import confidence, hot
 
 class Vote(DocumentBase):
     value = models.IntegerField(default=0)
-    parent = models.ForeignKey(DocumentID, related_name="votes")
-    author = models.ForeignKey(DocumentID, related_name="votes_author")
+    parent = models.ForeignKey(DocumentID, related_name="votes", on_delete=models.CASCADE)
+    author = models.ForeignKey(DocumentID, related_name="votes_author", on_delete=models.CASCADE)
 
     # class Meta:
     #   unique_together = ('object_id', 'content_type', 'user')
@@ -78,7 +78,7 @@ def remove_reputation(vote):
 
 
 class VoteStats(models.Model):
-    document = models.OneToOneField(DocumentID)
+    document = models.OneToOneField(DocumentID, on_delete=models.CASCADE)
     count = models.IntegerField(default=0)
     sum_values = models.IntegerField(default=0)
     count_downs = models.IntegerField(default=0)

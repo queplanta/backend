@@ -49,7 +49,7 @@ class OccurrenceTest(UserTestCase):
                                     author {
                                         username
                                     }
-                                    location { lat, lng }
+                                    location { type, coordinates }
                                     revisionCreated {
                                         author {
                                             username
@@ -72,8 +72,8 @@ class OccurrenceTest(UserTestCase):
                         'where': 'mariana, mg',
                         'notes': 'na baira da estrada, florindo',
                         'location': {
-                            'lat': -43.9678283,
-                            'lng': -19.8539275,
+                            'type': 'Point',
+                            'coordinates': [-19.8539275, -43.9678283],
                         }
                     }
                 },
@@ -106,8 +106,8 @@ class OccurrenceTest(UserTestCase):
                                 }
                             },
                             'location': {
-                                'lat': -43.9678283,
-                                'lng': -19.8539275,
+                                'type': 'Point',
+                                'coordinates': [-19.8539275, -43.9678283],
                             }
                         }
                     },

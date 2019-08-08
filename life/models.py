@@ -67,7 +67,7 @@ def limit_by_image_contenttype():
 
 class LifeNode(DocumentBase):
     rank = models.IntegerField(choices=RANK_CHOICES)
-    parent = models.ForeignKey(DocumentID, related_name="children", null=True)
+    parent = models.ForeignKey(DocumentID, related_name="children", null=True, on_delete=models.SET_NULL)
 
     title = models.CharField(max_length=512)
     slug = models.SlugField(max_length=512, null=True)
@@ -104,9 +104,9 @@ class CommonName(DocumentBase):
 
 
 class Characteristic(DocumentBase):
-    tag = models.ForeignKey(DocumentID, related_name="characteristic_tag")
+    tag = models.ForeignKey(DocumentID, related_name="characteristic_tag", on_delete=models.CASCADE)
     lifeNode = models.ForeignKey(DocumentID,
-                                 related_name="characteristic_lifeNode")
+                                 related_name="characteristic_lifeNode", on_delete=models.CASCADE)
     value = models.CharField(max_length=512, null=True)
 
     def _get_tag(self):

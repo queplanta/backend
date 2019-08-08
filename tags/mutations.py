@@ -25,9 +25,9 @@ class TagCreate(Mutation):
 
     @classmethod
     @login_required
-    def mutate_and_get_payload(cls, input, request, info):
+    def mutate_and_get_payload(cls, root, info, **input):
         tag = Tag._meta.model()
-        tag = tag_save(tag, input, request)
+        tag = tag_save(tag, input, info.context)
         return TagCreate(tag=tag)
 
 
@@ -42,15 +42,15 @@ class TagEdit(Mutation):
 
     @classmethod
     @login_required
-    def mutate_and_get_payload(cls, input, request, info):
+    def mutate_and_get_payload(cls, root, info, **input):
         gid_type, gid = from_global_id(input.get('id'))
         tag = Tag._meta.model.objects.get(document_id=gid)
 
-        error = has_permission(cls, request, tag, 'edit')
+        error = has_permission(cls, info.context, tag, 'edit')
         if error:
             return error
 
-        tag = tag_save(tag, input, request)
+        tag = tag_save(tag, input, info.context)
         return TagEdit(tag=tag)
 
 
@@ -62,14 +62,14 @@ class TagDelete(Mutation):
 
     @classmethod
     @login_required
-    def mutate_and_get_payload(cls, input, request, info):
+    def mutate_and_get_payload(cls, root, info, **input):
         gid_type, gid = from_global_id(input.get('id'))
         tag = Tag._meta.model.objects.get(document_id=gid)
 
-        error = has_permission(cls, request, tag, 'delete')
+        error = has_permission(cls, info.context, tag, 'delete')
         if error:
             return error
 
-        tag.delete(request=request)
+        tag.delete(request=info.context)
 
         return TagDelete(tagDeletedID=input.get('id'))

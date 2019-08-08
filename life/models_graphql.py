@@ -102,12 +102,13 @@ class LifeNode(DocumentBase, DjangoObjectType):
     class Meta:
         model = LifeNodeModel
         interfaces = (Node, DocumentNode, CommentsNode, VotesNode)
+        filter_fields = []
 
-    def resolve_parent(self, args, request, info):
+    def resolve_parent(self, info):
         if self.parent:
             return self.parent.get_object()
 
-    def resolve_parents(self, args, request, info):
+    def resolve_parents(self, info):
         def get_parents(obj):
             parents = []
             if obj.parent:
@@ -117,28 +118,28 @@ class LifeNode(DocumentBase, DjangoObjectType):
             return parents
         return get_parents(self)
 
-    def resolve_rankDisplay(self, args, request, info):
+    def resolve_rankDisplay(self, info):
         return self.get_rank_display()
 
-    def resolve_edibilityDisplay(self, args, request, info):
+    def resolve_edibilityDisplay(self, info):
         return EDIBILITY_CHOICES.get(self.edibility, '')
 
-    def resolve_commonNames(self, args, request, info):
+    def resolve_commonNames(self, info, **args):
         return CommonName._meta.model.objects.filter(
             document_id__in=self.commonNames.values_list('id', flat=True)
         ).order_by('name')
 
-    def resolve_children(self, args, request, info):
+    def resolve_children(self, info):
         return LifeNode._meta.model.objects.filter(
             parent=self.document
         ).order_by('title')
 
-    def resolve_images(self, args, context, info):
+    def resolve_images(self, info):
         return Image._meta.model.objects.filter(
             document_id__in=self.images.values_list('id', flat=True)
         )
 
-    def resolve_characteristics(self, args, request, info):
+    def resolve_characteristics(self, info, **args):
         return Characteristic._meta.model.objects.filter(
             lifeNode=self.document
         )
@@ -158,10 +159,10 @@ class Characteristic(DocumentBase, DjangoObjectType):
         model = CharacteristicModel
         interfaces = (Node, DocumentNode, CommentsNode, VotesNode)
 
-    def resolve_tag(self, args, request, info):
+    def resolve_tag(self, info):
         return self._get_tag()
 
-    def resolve_title(self, args, request, info):
+    def resolve_title(self, info):
         return self._get_tag().title
 
 
@@ -174,7 +175,7 @@ class Quizz(graphene.ObjectType):
         interfaces = (Node, )
 
 
-def generate_quiz(root, args, context, info):
+def generate_quiz(root, info):
     image = Image._meta.model.objects.filter(
         document__lifeNode_image__rank__in=(RANK_GENUS, RANK_SPECIES)
     ).order_by('?').first()
