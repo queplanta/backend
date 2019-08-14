@@ -17,7 +17,7 @@ class List(DocumentBase, DjangoObjectType):
         model = ListModel
         interfaces = (Node, DocumentNode, CommentsNode, VotesNode)
 
-    def resolve_items(self, args, context, info):
+    def resolve_items(self, info):
         if not self.items:
             return []
 

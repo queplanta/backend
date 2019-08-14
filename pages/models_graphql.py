@@ -11,3 +11,4 @@ class Page(DocumentBase, DjangoObjectType):
     class Meta:
         model = PageModel
         interfaces = (Node, DocumentNode, CommentsNode)
+        filter_fields = []

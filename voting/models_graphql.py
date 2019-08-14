@@ -21,24 +21,24 @@ class Voting(graphene.ObjectType):
         interfaces = (Node, )
 
     @classmethod
-    def get_node(cls, id, context, info):
-        doc = DocumentID.objects.get(pk=id)
+    def get_node(cls, info, _id):
+        doc = DocumentID.objects.get(pk=_id)
         c = Voting(id=doc.pk)
         c._document = doc
         return c
 
-    def resolve_votes(self, args, request, info):
+    def resolve_votes(self, info):
         return Vote._meta.model.objects.filter(
             parent_id=self._document.pk
         ).order_by('-document__created_at')
 
-    def resolve_mine(self, args, request, info):
-        if not request.user.is_authenticated():
+    def resolve_mine(self, info):
+        if not info.context.user.is_authenticated:
             return None
 
         try:
             vote = VoteModel.objects.get(
-                author=request.user.document,
+                author=info.context.user.document,
                 parent_id=self._document.pk
             )
         except VoteModel.DoesNotExist:
@@ -52,23 +52,23 @@ class Voting(graphene.ObjectType):
             )
         return self._stats
 
-    def resolve_count(self, args, context, info):
+    def resolve_count(self, info):
         return self.stats().count
 
-    def resolve_count_ups(self, args, context, info):
+    def resolve_count_ups(self, info):
         return self.stats().count_ups
 
-    def resolve_count_downs(self, args, context, info):
+    def resolve_count_downs(self, info):
         return self.stats().count_downs
 
-    def resolve_sum_values(self, args, context, info):
+    def resolve_sum_values(self, info):
         return self.stats().sum_values
 
 
 class VotesNode(graphene.Interface):
     voting = graphene.Field(Voting)
 
-    def resolve_voting(self, args, request, info):
+    def resolve_voting(self, info):
         c = Voting(id=self.document.pk)
         c._document = self.document
         return c
@@ -81,6 +81,6 @@ class Vote(DocumentBase, DjangoObjectType):
         model = VoteModel
         interfaces = (Node, DocumentNode)
 
-    def resolve_author(self, args, context, info):
+    def resolve_author(self, info):
         if self.author_id:
             return User._meta.model.objects.get(document_id=self.author_id)

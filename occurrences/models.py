@@ -21,9 +21,9 @@ def limit_by_image_contenttype():
 class Occurrence(DocumentBase):
     identity = models.ForeignKey(
         DocumentID, related_name="occurrence_identity",
-        blank=True, null=True)
+        blank=True, null=True, on_delete=models.SET_NULL)
     identity_alt = models.CharField(max_length=256, blank=True, null=True)
-    author = models.ForeignKey(DocumentID, related_name="occurrence_author")
+    author = models.ForeignKey(DocumentID, related_name="occurrence_author", on_delete=models.CASCADE)
     images = ManyToManyField(
         DocumentID,
         limit_choices_to=limit_by_image_contenttype,
@@ -44,10 +44,10 @@ class Occurrence(DocumentBase):
 
 class Suggestion(DocumentBase):
     occurrence = models.ForeignKey(DocumentID,
-                                   related_name="suggestion_occurrence")
-    author = models.ForeignKey(DocumentID, related_name="suggestion_author")
+                                   related_name="suggestion_occurrence", on_delete=models.CASCADE)
+    author = models.ForeignKey(DocumentID, related_name="suggestion_author", on_delete=models.CASCADE)
     identity = models.ForeignKey(DocumentID,
-                                 related_name="suggestion_identity")
+                                 related_name="suggestion_identity", on_delete=models.CASCADE)
     notes = models.TextField(blank=True, null=True)
 
     is_correct = models.NullBooleanField()

@@ -12,9 +12,9 @@ def user_passes_test(test_func):
 
     def decorator(view_func):
         @wraps(view_func)
-        def _wrapped_view(cls, args, context, info):
-            if test_func(context.user):
-                return view_func(cls, args, context, info)
+        def _wrapped_view(cls, root, info, **data):
+            if test_func(info.context.user):
+                return view_func(cls, root, info, **data)
             return cls(errors=[LoginRequiredError()])
         return _wrapped_view
     return decorator
@@ -22,7 +22,7 @@ def user_passes_test(test_func):
 
 def login_required(function):
     actual_decorator = user_passes_test(
-        lambda u: u.is_authenticated(),
+        lambda u: u.is_authenticated,
     )
     if function:
         return actual_decorator(function)

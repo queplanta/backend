@@ -42,29 +42,29 @@ class Revision(DjangoObjectType):
         model = RevisionModel
         interfaces = (Node, )
 
-    def resolve_id_int(self, args, request, info):
+    def resolve_id_int(self, info):
         return self.id
 
-    def resolve_author(self, args, context, info):
+    def resolve_author(self, info):
         if self.author_id:
             return User._meta.model.objects.get(document_id=self.author_id)
 
-    def resolve_after(self, args, context, info):
+    def resolve_after(self, info):
         return Revision._meta.model.objects.filter(
             parent_id=self.id
         ).order_by('-created_at')
 
-    def resolve_before(self, args, context, info):
+    def resolve_before(self, info):
         return self.parent
 
-    def resolve_object(self, args, context, info):
+    def resolve_object(self, info):
         Model = self.document.content_type.model_class()
         return Model.objects_revisions.get(pk=self.pk)
 
-    def resolve_typeDisplay(self, args, request, info):
+    def resolve_typeDisplay(self, info):
         return self.get_type_display()
 
-    def resolve_is_tip(self, args, context, info):
+    def resolve_is_tip(self, info):
         return self.id == self.document.revision_tip_id
 
 
@@ -77,16 +77,16 @@ class Document(DjangoObjectType):
         model = DocumentIDModel
         interfaces = (Node, )
 
-    def resolve_revision_tip(self, args, context, info):
+    def resolve_revision_tip(self, info):
         if self.revision_tip_id:
             return Revision._meta.model.objects.get(pk=self.revision_tip_id)
 
-    def resolve_revision_created(self, args, context, info):
+    def resolve_revision_created(self, info):
         if self.revision_created_id:
             return Revision._meta.model.objects.get(
                 pk=self.revision_created_id
             )
 
-    def resolve_owner(self, args, context, info):
+    def resolve_owner(self, info):
         if self.owner_id:
             return User._meta.model.objects.get(document_id=self.owner_id)

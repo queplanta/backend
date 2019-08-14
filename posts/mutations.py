@@ -53,9 +53,9 @@ class PostCreate(Mutation):
 
     @classmethod
     @login_required
-    def mutate_and_get_payload(cls, input, request, info):
+    def mutate_and_get_payload(cls, root, info, **input):
         post = Post._meta.model()
-        post = post_save(post, input, request)
+        post = post_save(post, input, info.context)
         return PostCreate(post=post)
 
 

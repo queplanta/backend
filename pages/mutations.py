@@ -30,9 +30,9 @@ class PageCreate(Mutation):
 
     @classmethod
     @login_required
-    def mutate_and_get_payload(cls, input, request, info):
+    def mutate_and_get_payload(cls, root, info, **input):
         page = Page._meta.model()
-        page = page_save(page, input, request)
+        page = page_save(page, input, info.context)
         return PageCreate(page=page)
 
 
@@ -49,15 +49,15 @@ class PageEdit(Mutation):
 
     @classmethod
     @login_required
-    def mutate_and_get_payload(cls, input, request, info):
+    def mutate_and_get_payload(cls, root, info, **input):
         gid_type, gid = from_global_id(input.get('id'))
         page = Page._meta.model.objects.get(document_id=gid)
 
-        error = has_permission(cls, request, page, 'edit')
+        error = has_permission(cls, info.context, page, 'edit')
         if error:
             return error
 
-        page = page_save(page, input, request)
+        page = page_save(page, input, info.context)
         return PageEdit(page=page)
 
 
@@ -69,14 +69,14 @@ class PageDelete(Mutation):
 
     @classmethod
     @login_required
-    def mutate_and_get_payload(cls, input, request, info):
+    def mutate_and_get_payload(cls, root, info, **input):
         gid_type, gid = from_global_id(input.get('id'))
         page = Page._meta.model.objects.get(document_id=gid)
 
-        error = has_permission(cls, request, page, 'delete')
+        error = has_permission(cls, info.context, page, 'delete')
         if error:
             return error
 
-        page.delete(request=request)
+        page.delete(request=info.context)
 
         return PageDelete(pageDeletedID=input.get('id'))

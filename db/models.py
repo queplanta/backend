@@ -134,7 +134,7 @@ class DocumentBase(models.Model):
         ip = None
         useragent = None
         if request:
-            if request.user.is_authenticated():
+            if request.user.is_authenticated:
                 author = request.user
             ip = get_real_ip(request)
             useragent = request.META.get('HTTP_USER_AGENT')
@@ -187,7 +187,7 @@ class DocumentBase(models.Model):
         self.save(request=request, **kwargs)
 
     def get_my_perms(self, user):
-        if user.is_authenticated():
+        if user.is_authenticated:
             if user.is_superuser or \
                     user.document == self.document.revision_created.author:
                 return ['edit', 'delete']

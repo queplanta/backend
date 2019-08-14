@@ -62,7 +62,7 @@ class Query(graphene.ObjectType):
     tag = relay.Node.Field(Tag)
     tag_by_slug = GetBy(Tag, slug=graphene.String(required=True))
 
-    all_comments = DjangoFilterConnectionField(Tag)
+    all_comments = DjangoFilterConnectionField(Comment)
     comment = relay.Node.Field(Comment)
     comment_by_parent_id = GetBy(Comment, id=graphene.ID(required=True))
 
@@ -96,22 +96,22 @@ class Query(graphene.ObjectType):
     def resolve_viewer(self, *args, **kwargs):
         return get_default_viewer(*args, **kwargs)
 
-    def resolve_me(self, args, request, info):
-        if request.user.is_authenticated():
-            return User._meta.model.objects.get(pk=request.user.pk)
+    def resolve_me(parent, info):
+        if info.context.user.is_authenticated:
+            return User._meta.model.objects.get(pk=info.context.user.pk)
         return None
 
-    def resolve_allOccurrences(self, args, request, info):
+    def resolve_allOccurrences(self, info):
         qs = Occurrence._meta.model.objects.all()
         return qs.order_by('-document__created_at').filter(
             location__isnull=False, identity__isnull=False)
 
-    def resolve_allWhatIsThis(self, args, request, info):
+    def resolve_allWhatIsThis(self, info):
         qs = Occurrence._meta.model.objects.all()
         return qs.order_by('-document__created_at').filter(
             identity__isnull=True)
 
-    def resolve_allLifeNode(self, args, request, info):
+    def resolve_allLifeNode(self, info):
         qs = LifeNode._meta.model.objects.all()
         if 'edibles' in args and bool(args['edibles']):
             qs = qs.filter(edibility__gte=1)
@@ -130,5 +130,5 @@ class Query(graphene.ObjectType):
 
         return qs.order_by('document_id').distinct()
 
-    def resolve_version(self, args, request, info):
+    def resolve_version(self, info):
         return os.getenv('VERSION', 'master')

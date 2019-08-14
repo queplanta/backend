@@ -17,7 +17,7 @@ class RevisionRevert(Mutation):
 
     @classmethod
     @login_required
-    def mutate_and_get_payload(cls, input, request, info):
+    def mutate_and_get_payload(cls, root, info, **input):
         try:
             gid_type, gid = from_global_id(input.get('id'))
         except Error:
@@ -33,12 +33,12 @@ class RevisionRevert(Mutation):
         document.save(update_fields=['revision_tip_id'])
 
         current_obj.is_tip = None
-        current_obj.save(update_fields=['is_tip'], request=request)
+        current_obj.save(update_fields=['is_tip'], request=info.context)
 
         obj = revision.get_object()
         obj.is_tip = True
         obj.is_deleted = None
-        obj.save(update_fields=['is_tip', 'is_deleted'], request=request)
+        obj.save(update_fields=['is_tip', 'is_deleted'], request=info.context)
 
         return RevisionRevert(
             node=obj,

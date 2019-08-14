@@ -29,9 +29,9 @@ class ListCreate(Mutation):
 
     @classmethod
     @login_required
-    def mutate_and_get_payload(cls, input, request, info):
+    def mutate_and_get_payload(cls, root, info, **input):
         created_list = List._meta.model()
-        created_list = list_save(created_list, input, request)
+        created_list = list_save(created_list, input, info.context)
         return ListCreate(list=created_list)
 
 
@@ -46,15 +46,15 @@ class ListEdit(Mutation):
 
     @classmethod
     @login_required
-    def mutate_and_get_payload(cls, input, request, info):
+    def mutate_and_get_payload(cls, root, info, **input):
         gid_type, gid = from_global_id(input.get('id'))
         edited_list = List._meta.model.objects.get(document_id=gid)
 
-        error = has_permission(cls, request, edited_list, 'edit')
+        error = has_permission(cls, info.context, edited_list, 'edit')
         if error:
             return error
 
-        edited_list = list_save(edited_list, input, request)
+        edited_list = list_save(edited_list, input, info.context)
         return ListEdit(post=edited_list)
 
 
@@ -66,15 +66,15 @@ class ListDelete(Mutation):
 
     @classmethod
     @login_required
-    def mutate_and_get_payload(cls, input, request, info):
+    def mutate_and_get_payload(cls, root, info, **input):
         gid_type, gid = from_global_id(input.get('id'))
         delete_list = List._meta.model.objects.get(document_id=gid)
 
-        error = has_permission(cls, request, delete_list, 'delete')
+        error = has_permission(cls, info.context, delete_list, 'delete')
         if error:
             return error
 
-        delete_list.delete(request=request)
+        delete_list.delete(request=info.context)
 
         return ListDelete(listDeletedID=input.get('id'))
 
@@ -90,19 +90,19 @@ class ListAddItem(Mutation):
 
     @classmethod
     @login_required
-    def mutate_and_get_payload(cls, input, request, info):
+    def mutate_and_get_payload(cls, root, info, **input):
         gid_type, gid = from_global_id(input.get('list_id'))
         edited_list = List._meta.model.objects.get(document_id=gid)
 
         gid_type, gid = from_global_id(input.get('item_id'))
         item = DocumentID.objects.get(id=gid)
 
-        error = has_permission(cls, request, edited_list, 'edit')
+        error = has_permission(cls, info.context, edited_list, 'edit')
         if error:
             return error
 
         item_added = edited_list.add_item(item.id, input.get('notes'))
-        edited_list.save(request=request)
+        edited_list.save(request=info.context)
 
         list_item = ListItem(
             id=item_added['id'],

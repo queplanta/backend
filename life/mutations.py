@@ -29,7 +29,7 @@ class ImageForm(forms.Form):
     description = forms.CharField(required=False)
 
 
-def node_save(node, args, request):
+def node_save(node, args, info):
     node.title = args.get('title', node.title)
     node.description = args.get('description', node.description)
     node.gbif_id = args.get('gbif_id', node.gbif_id)
@@ -49,7 +49,7 @@ def node_save(node, args, request):
     if node.pk:
         prev_commonNames = node.commonNames.values_list('id', flat=True)
 
-    node.save(request=request)
+    node.save(request=info.context)
 
     for prev_img_id in prev_images:
         node.images.add(prev_img_id)
@@ -83,14 +83,14 @@ def node_save(node, args, request):
 
         commonName.name = commonName_str
         commonName.language = commonNameDict['language']
-        commonName.save(request=request)
+        commonName.save(request=info.context)
         if commonName.document_id not in prev_commonNames:
             node.commonNames.add(commonName.document)
 
     imagesToAdd = args.get('imagesToAdd', [])
     for imageToAdd in imagesToAdd:
         form = ImageForm(imageToAdd, MultiValueDict({
-            'image': request.FILES.getlist(imageToAdd['field'])
+            'image': info.context.FILES.getlist(imageToAdd['field'])
         }))
         if form.is_valid():
             data = form.cleaned_data
@@ -98,7 +98,7 @@ def node_save(node, args, request):
                 image=data['image'],
                 description=data['description']
             )
-            image.save(request=request)
+            image.save(request=info.context)
             node.images.add(image.document)
 
     return node
@@ -130,9 +130,9 @@ class LifeNodeCreate(Mutation):
 
     @classmethod
     @login_required
-    def mutate_and_get_payload(cls, input, request, info):
+    def mutate_and_get_payload(cls, root, info, **input):
         node = LifeNode._meta.model()
-        node = node_save(node, input, request)
+        node = node_save(node, input, info)
         return LifeNodeCreate(lifeNode=node)
 
 
@@ -152,15 +152,15 @@ class LifeNodeEdit(Mutation):
 
     @classmethod
     @login_required
-    def mutate_and_get_payload(cls, input, request, info):
+    def mutate_and_get_payload(cls, root, info, **input):
         gid_type, gid = from_global_id(input.get('id'))
         node = LifeNode._meta.model.objects.get(document_id=gid)
 
-        error = has_permission(cls, request, node, 'edit')
+        error = has_permission(cls, info.context, node, 'edit')
         if error:
             return error
 
-        node = node_save(node, input, request)
+        node = node_save(node, input, info)
         return LifeNodeEdit(lifeNode=node)
 
 
@@ -172,15 +172,15 @@ class LifeNodeDelete(Mutation):
 
     @classmethod
     @login_required
-    def mutate_and_get_payload(cls, input, request, info):
+    def mutate_and_get_payload(cls, root, info, **input):
         gid_type, gid = from_global_id(input.get('id'))
         node = LifeNode._meta.model.objects.get(document_id=gid)
 
-        error = has_permission(cls, request, node, 'delete')
+        error = has_permission(cls, info.context, node, 'delete')
         if error:
             return error
 
-        node.delete(request=request)
+        node.delete(request=info.context)
 
         return LifeNodeDelete(lifeNodeDeletedID=input.get('id'))
 
@@ -196,7 +196,7 @@ class SpeciesCreate(Mutation):
 
     @classmethod
     @login_required
-    def mutate_and_get_payload(cls, input, request, info):
+    def mutate_and_get_payload(cls, root, info, **input):
         genus_qs = LifeNodeModel.objects.filter(
             title__iexact=input.get('genus'),
             rank=RANK_BY_STRING['genus'])
@@ -217,20 +217,20 @@ class SpeciesCreate(Mutation):
                     rank=RANK_BY_STRING['family'],
                     title=input.get('family')
                 )
-                family.save(request=request)
+                family.save(request=info.context)
             genus = LifeNodeModel(
                 rank=RANK_BY_STRING['genus'],
                 title=input.get('genus'),
                 parent=family.document if family else None
             )
-            genus.save(request=request)
+            genus.save(request=info.context)
 
         species = LifeNodeModel(
             parent=genus.document if genus else None,
             rank=RANK_BY_STRING['species'],
             title=input.get('species'),
         )
-        species.save(request=request)
+        species.save(request=info.context)
 
         commonNames_raw = input.get('commonNames', '')
         for commonName_str in commonNames_raw.split(','):
@@ -246,7 +246,7 @@ class SpeciesCreate(Mutation):
                 commonName = CommonName(
                     name=commonName_str,
                 )
-                commonName.save(request=request)
+                commonName.save(request=info.context)
             species.commonNames.add(commonName.document)
 
         return SpeciesCreate(species=species)
@@ -259,15 +259,15 @@ class CharacteristicAdd(Mutation):
         value = graphene.String()
 
     lifeNode = graphene.Field(LifeNode)
-    characteristic = graphene.Field(Characteristic.Connection.Edge)
+    characteristic = graphene.Field(Characteristic._meta.connection.Edge)
 
     @classmethod
     @login_required
-    def mutate_and_get_payload(cls, input, request, info):
+    def mutate_and_get_payload(cls, root, info, **input):
         gid_type, gid = from_global_id(input.get('lifeNode'))
         node = LifeNode._meta.model.objects.get(document_id=gid)
 
-        error = has_permission(cls, request, node, 'edit')
+        error = has_permission(cls, info.context, node, 'edit')
         if error:
             return error
 
@@ -281,18 +281,18 @@ class CharacteristicAdd(Mutation):
                 title=tag_title,
                 slug=tag_slug,
             )
-            tag.save(request=request)
+            tag.save(request=info.context)
 
         c = CharacteristicModel(
             tag=tag.document,
             lifeNode=node.document,
             value=input.get('value')
         )
-        c.save(request=request)
+        c.save(request=info.context)
 
         return CharacteristicAdd(
             lifeNode=node,
-            characteristic=Characteristic.Connection.Edge(
+            characteristic=Characteristic._meta.connection.Edge(
                 node=c, cursor=offset_to_cursor(0))
         )
 
@@ -306,7 +306,7 @@ class CheckQuizz(Mutation):
     correct = graphene.Boolean()
 
     @classmethod
-    def mutate_and_get_payload(cls, input, request, info):
+    def mutate_and_get_payload(cls, root, info, **input):
         correct = check_password(
             str(input.get('choice')),
             input.get('correct')
@@ -314,5 +314,5 @@ class CheckQuizz(Mutation):
 
         return CheckQuizz(
             correct=correct,
-            quizz=generate_quiz(cls, input, request, info)
+            quizz=generate_quiz(root, info)
         )

@@ -19,5 +19,5 @@ class Image(DocumentBase, DjangoObjectType):
         model = ImageModel
         interfaces = (Node, DocumentNode, CommentsNode, VotesNode)
 
-    def resolve_image(self, args, request, info):
+    def resolve_image(self, info):
         return self.image

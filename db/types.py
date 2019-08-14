@@ -13,21 +13,21 @@ class DocumentBase(graphene.AbstractType):
 
     my_perms = graphene.List(graphene.String)
 
-    def resolve_id(self, args, request, info):
+    def resolve_id(self, info):
         if hasattr(self, '_id_with_revision'):
             return "%d:%d" % (self.document_id,
                               self.revision_id)
         return self.document_id
 
-    def resolve_id_int(self, args, request, info):
+    def resolve_id_int(self, info):
         return self.document_id
 
     @classmethod
-    def get_node(cls, id, context, info):
-        return cls._meta.model.objects.get(document_id=id)
+    def get_node(cls, info, _id):
+        return cls._meta.model.objects.get(document_id=_id)
 
-    def resolve_my_perms(self, args, request, info):
-        return self.get_my_perms(request.user)
+    def resolve_my_perms(self, info):
+        return self.get_my_perms(info.context.user)
 
 
 class DateTimeField(DateTime):

@@ -65,14 +65,14 @@ class RegisterAbstract(graphene.AbstractType):
     user = graphene.Field(User)
 
     @classmethod
-    def mutate_and_get_payload(cls, input, request, info):
+    def mutate_and_get_payload(cls, root, info, **data):
         errors = []
         user = None
 
-        form = UserCreationForm(data=input)
+        form = UserCreationForm(data=data)
         if form.is_valid():
             user = form.save(commit=False)
-            user.save(request=request)
+            user.save(request=info.context)
         else:
             errors = form_erros(form, errors)
         return Register(user=user, errors=errors)
@@ -88,15 +88,13 @@ class RegisterAndAuthenticate(RegisterAbstract, Mutation):
         pass
 
     @classmethod
-    def mutate_and_get_payload(cls, input, request, info):
-        register = super(
-            RegisterAndAuthenticate,
-            cls).mutate_and_get_payload(input, request, info)
+    def mutate_and_get_payload(cls, root, info, **data):
+        register = super().mutate_and_get_payload(root, info, **data)
         if register.user:
             # workarout to re authenticate the user
             # when as change the user on the DB it gets disconected
             register.user.backend = settings.DEFAULT_AUTHENTICATION_BACKENDS
-            auth_login(request, register.user)
+            auth_login(info.context, register.user)
         return RegisterAndAuthenticate(user=register.user,
                                        errors=register.errors)
 
@@ -107,19 +105,21 @@ class Authenticate(Mutation):
         password = graphene.String(required=True)
 
     @classmethod
-    def mutate_and_get_payload(cls, input, request, info):
+    def mutate_and_get_payload(cls, root, info, **data):
         errors = []
         user = None
+        request = info.context
 
-        if request.user.is_authenticated():
+        if request.user.is_authenticated:
             auth_logout(request)
 
-        form = AuthenticationForm(data=input)
+        form = AuthenticationForm(request=request, data=data)
         if form.is_valid():
             user = form.get_user()
             auth_login(request, user)
         else:
             errors = form_erros(form, errors)
+
         return Authenticate(errors=errors)
 
 
@@ -129,8 +129,8 @@ class Deauthenticate(Mutation):
 
     @classmethod
     @login_required
-    def mutate_and_get_payload(cls, input, request, info):
-        auth_logout(request)
+    def mutate_and_get_payload(cls, root, info, **data):
+        auth_logout(info.context)
         return Deauthenticate()
 
 
@@ -142,17 +142,17 @@ class PasswordChange(Mutation):
 
     @classmethod
     @login_required
-    def mutate_and_get_payload(cls, input, request, info):
+    def mutate_and_get_payload(cls, root, info, **data):
         errors = []
-        form = PasswordChangeForm(user=request.user, data=input)
+        form = PasswordChangeForm(user=info.context.user, data=data)
         if form.is_valid():
             user = form.save(commit=False)
-            user.save(request=request)
+            user.save(request=info.context)
 
             # workarout to re authenticate the user
             # when as change the user on the DB it gets disconected
             user.backend = settings.DEFAULT_AUTHENTICATION_BACKENDS
-            auth_login(request, user)
+            auth_login(info.context, user)
         else:
             errors = form_erros(form, errors)
         return PasswordChange(errors=errors)
@@ -163,17 +163,17 @@ class PasswordResetEmail(Mutation):
         email = graphene.String(required=True)
 
     @classmethod
-    def mutate_and_get_payload(cls, input, request, info):
+    def mutate_and_get_payload(cls, root, info, **data):
         errors = []
-        form = PasswordResetForm(data=input)
+        form = PasswordResetForm(data=data)
         if form.is_valid():
             opts = {
-                'use_https': request.is_secure(),
+                'use_https': info.context.is_secure(),
                 'token_generator': default_token_generator,
                 'from_email': None,
                 'email_template_name': 'registration/password_reset_email.html',
                 'subject_template_name': 'registration/password_reset_subject.txt',
-                'request': request,
+                'request': info.context,
                 'html_email_template_name': None,
                 'extra_email_context': None,
             }
@@ -191,27 +191,27 @@ class PasswordResetComplete(Mutation):
         new_password2 = graphene.String(required=True)
 
     @classmethod
-    def mutate_and_get_payload(cls, input, request, info):
+    def mutate_and_get_payload(cls, root, info, **data):
         errors = []
         UserModel = User._meta.model
 
         try:
             # urlsafe_base64_decode() decodes to bytestring on Python 3
-            uid = force_text(urlsafe_base64_decode(input.get('uidb64')))
+            uid = force_text(urlsafe_base64_decode(data.get('uidb64')))
             user = UserModel.objects.get(pk=uid)
         except (TypeError, ValueError, OverflowError, UserModel.DoesNotExist):
             user = None
 
-        if user and default_token_generator.check_token(user, input.get('token')):
-            form = SetPasswordForm(user=user, data=input)
+        if user and default_token_generator.check_token(user, data.get('token')):
+            form = SetPasswordForm(user=user, data=data)
             if form.is_valid():
                 user = form.save(commit=False)
-                user.save(request=request)
+                user.save(request=info.context)
 
                 # workarout to re authenticate the user
                 # when as change the user on the DB it gets disconected
                 user.backend = settings.DEFAULT_AUTHENTICATION_BACKENDS
-                auth_login(request, user)
+                auth_login(info.context, user)
             else:
                 errors = form_erros(form, errors)
         else:
@@ -265,11 +265,12 @@ class ProfileEdit(Mutation):
 
     @classmethod
     @login_required
-    def mutate_and_get_payload(cls, input, request, info):
+    def mutate_and_get_payload(cls, root, info, **data):
         errors = []
+        request = info.context
         user = request.user
 
-        form = UserEditForm(data=input, instance=user)
+        form = UserEditForm(data=data, instance=user)
         if form.is_valid():
             user = form.save(commit=False)
             user.save(request=request)
