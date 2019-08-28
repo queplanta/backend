@@ -7,7 +7,7 @@ python:
 # virtualenv:
 #   system_site_packages: true
 before_install:
-  - sudo apt-get install -y libgeos-dev libgeos-3.7.1 libgeos-c1v5 gdal-bin libgdal-dev
+  - sudo apt-get install -y libgeos-dev libgeos-3.6.2 libgeos-c1v5 gdal-bin libgdal-dev
   - export DJANGO_SETTINGS_MODULE=backend.settings_test
 install:
   - pip install -r requirements.txt
