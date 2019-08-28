@@ -4,17 +4,20 @@ language: python
 python:
   - "3.7"
   - "nightly"
-virtualenv:
-  system_site_packages: true
+# virtualenv:
+#   system_site_packages: true
 before_install:
+  - sudo apt-get install -y libgeos-dev libgeos-3.7.1 libgeos-c1v5 gdal-bin libgdal-dev
   - export DJANGO_SETTINGS_MODULE=backend.settings_test
 install:
-  - apt-get install -y libgeos-dev libgeos-3.7.1 libgeos-c1v5 gdal-bin
   - pip install -r requirements.txt
 services:
   - postgresql
 addons:
   postgresql: "9.6"
+  apt:
+    packages:
+      - postgresql-9.6-postgis-2.3
 before_script:
   - python manage.py migrate --noinput
 script: python manage.py test --noinput
