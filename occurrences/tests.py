@@ -1,5 +1,6 @@
 from backend.tests import UserTestCase
 from django.test.client import MULTIPART_CONTENT
+from .models import Occurrence
 
 
 class OccurrenceTest(UserTestCase):
@@ -253,6 +254,31 @@ class OccurrenceTest(UserTestCase):
                 }
             }
         })
+
+
+        # delete a occurrence
+        response = self.graphql({
+            'query': '''
+                mutation M($input_0: OccurrenceDeleteInput!) {
+                    occurrenceDelete(input: $input_0) {
+                        clientMutationId,
+                        occurrenceDeletedID
+                        errors {
+                            code
+                        },
+                    }
+                }
+            ''',
+            'variables': {
+                'input_0': {
+                    'clientMutationId': '1',
+                    'id': occurrence['id'],
+                }
+            }
+        })
+        assert Occurrence.objects_revisions.all().count() == 1
+        assert Occurrence.objects.all().count() == 0
+
 
     def _do_create_life_node(self, client, node):
         return self.graphql({

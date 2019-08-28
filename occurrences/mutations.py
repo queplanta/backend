@@ -86,6 +86,27 @@ class OccurrenceCreate(Mutation):
         return OccurrenceCreate(errors=errors)
 
 
+class OccurrenceDelete(Mutation):
+    class Input:
+        id = graphene.ID(required=True)
+
+    occurenceDeletedID = graphene.ID(required=True)
+
+    @classmethod
+    @login_required
+    def mutate_and_get_payload(cls, input, request, info):
+        gid_type, gid = from_global_id(input.get('id'))
+        occurence = Occurence._meta.model.objects.get(document_id=gid)
+
+        error = has_permission(cls, request, occurence, 'delete')
+        if error:
+            return error
+
+        occurence.delete(request=request)
+
+        return OccurenceDelete(occurenceDeletedID=input.get('id'))
+
+
 class WhatIsThisCreateForm(forms.Form):
     images = MultiImageField(min_num=1)
 
@@ -157,3 +178,24 @@ class SuggestionIDCreate(Mutation):
                 node=suggestion, cursor=offset_to_cursor(0)
             ),
         )
+
+
+class SuggestionIDDelete(Mutation):
+    class Input:
+        id = graphene.ID(required=True)
+
+    suggestionDeletedID = graphene.ID(required=True)
+
+    @classmethod
+    @login_required
+    def mutate_and_get_payload(cls, input, request, info):
+        gid_type, gid = from_global_id(input.get('id'))
+        suggestion = SuggestionID._meta.model.objects.get(document_id=gid)
+
+        error = has_permission(cls, request, suggestion, 'delete')
+        if error:
+            return error
+
+        suggestion.delete(request=request)
+
+        return SuggestionIDDelete(suggestionDeletedID=input.get('id'))
