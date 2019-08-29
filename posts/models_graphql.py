@@ -21,7 +21,7 @@ class Post(DocumentBase, DjangoObjectType):
         interfaces = (Node, DocumentNode, CommentsNode, VotesNode)
         filter_fields = ['published_at']
 
-    def resolve_tags(self, info):
+    def resolve_tags(self, info, **kwargs):
         Tag = get_tag_type()
         return Tag._meta.model.objects.filter(
             document_id__in=self.tags.values_list('id', flat=True)

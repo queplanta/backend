@@ -20,7 +20,7 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True if os.getenv('DEBUG') == 'true' else False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['sb', 'queplanta.com']
 
 
 # Application definition
@@ -146,7 +146,8 @@ GRAPHENE = {
     'SCHEMA': 'backend.schema.schema',
     'MIDDLEWARE': [
         'graphene_django.debug.DjangoDebugMiddleware',
-    ]
+    ],
+    'RELAY_CONNECTION_MAX_LIMIT': 10000,
 }
 
 # Testing

@@ -26,9 +26,9 @@ def LoginRequiredError():
 
 
 class GetBy(graphene.Field):
-    def model_resolver(self, instance, args, context, info):
+    def model_resolver(self, instance, info, **kwargs):
         try:
-            return self.type._meta.model.objects.get(**args)
+            return self.type._meta.model.objects.get(**kwargs)
         except self.type._meta.model.DoesNotExist:
             return None
 

@@ -23,9 +23,9 @@ class Thumbnail(graphene.Field):
     def get_resolver(self, parent_resolver):
         resolver = self.resolver or parent_resolver
 
-        def built_thumbnail(instance, args, context, info):
-            instance = resolver(instance, args, context, info)
-            url = get_thumbnail(instance, '%(width)dx%(height)d' % args,
+        def built_thumbnail(instance, info, **kwargs):
+            instance = resolver(instance, info, **kwargs)
+            url = get_thumbnail(instance, '%(width)dx%(height)d' % kwargs,
                                 crop='center', quality=90).url
             return File(url=url)
 

@@ -36,11 +36,11 @@ class Occurrence(DocumentBase, DjangoObjectType):
     def resolve_identity(self, info):
         return LifeNode._meta.model.objects.get(document_id=self.identity_id)
 
-    def resolve_images(self, info):
+    def resolve_images(self, info, **kwargs):
         return Image._meta.model.objects.filter(
             document__occurrence_image=self)
 
-    def resolve_suggestions(self, info):
+    def resolve_suggestions(self, info, **kwargs):
         return SuggestionID._meta.model.objects.filter(
             occurrence=self.document
         ).order_by('-document__votestats__sum_values')

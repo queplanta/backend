@@ -29,13 +29,13 @@ def get_default_viewer(*args, **kwargs):
 
 class NodeField(RelayNodeField):
     def get_resolver(self, parent_resolver):
-        resolver = self.resolver or parent_resolver
+        resolver = super().get_resolver(parent_resolver)
 
-        def get_node(instance, args, context, info):
-            global_id = args.get('id')
+        def get_node(instance, info, **kwargs):
+            global_id = kwargs.get('id')
             if global_id == 'viewer':
-                return get_default_viewer(instance, args, context, info)
-            return resolver(instance, args, context, info)
+                return get_default_viewer(instance, info, **kwargs)
+            return resolver(instance, info, **kwargs)
 
         return get_node
 
@@ -101,17 +101,17 @@ class Query(graphene.ObjectType):
             return User._meta.model.objects.get(pk=info.context.user.pk)
         return None
 
-    def resolve_allOccurrences(self, info):
+    def resolve_allOccurrences(self, info, **kwargs):
         qs = Occurrence._meta.model.objects.all()
         return qs.order_by('-document__created_at').filter(
             location__isnull=False, identity__isnull=False)
 
-    def resolve_allWhatIsThis(self, info):
+    def resolve_allWhatIsThis(self, info, **kwargs):
         qs = Occurrence._meta.model.objects.all()
         return qs.order_by('-document__created_at').filter(
             identity__isnull=True)
 
-    def resolve_allLifeNode(self, info):
+    def resolve_allLifeNode(self, info, **args):
         qs = LifeNode._meta.model.objects.all()
         if 'edibles' in args and bool(args['edibles']):
             qs = qs.filter(edibility__gte=1)

@@ -129,12 +129,12 @@ class LifeNode(DocumentBase, DjangoObjectType):
             document_id__in=self.commonNames.values_list('id', flat=True)
         ).order_by('name')
 
-    def resolve_children(self, info):
+    def resolve_children(self, info, **kwargs):
         return LifeNode._meta.model.objects.filter(
             parent=self.document
         ).order_by('title')
 
-    def resolve_images(self, info):
+    def resolve_images(self, info, **kwargs):
         return Image._meta.model.objects.filter(
             document_id__in=self.images.values_list('id', flat=True)
         )

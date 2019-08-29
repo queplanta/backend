@@ -49,7 +49,7 @@ class Revision(DjangoObjectType):
         if self.author_id:
             return User._meta.model.objects.get(document_id=self.author_id)
 
-    def resolve_after(self, info):
+    def resolve_after(self, info, **kwargs):
         return Revision._meta.model.objects.filter(
             parent_id=self.id
         ).order_by('-created_at')
