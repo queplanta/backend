@@ -7,7 +7,7 @@ from .models import Page as PageModel
 from commenting.models_graphql import CommentsNode
 
 
-class Page(DocumentBase, DjangoObjectType):
+class Page(DjangoObjectType, DocumentBase):
     class Meta:
         model = PageModel
         interfaces = (Node, DocumentNode, CommentsNode)

@@ -11,7 +11,7 @@ def get_post_type():
     return Post
 
 
-class Tag(DocumentBase, DjangoObjectType):
+class Tag(DjangoObjectType, DocumentBase):
     all_posts = DjangoConnectionField(get_post_type)
 
     class Meta:
@@ -19,7 +19,7 @@ class Tag(DocumentBase, DjangoObjectType):
         interfaces = (Node, DocumentNode)
         filter_fields = ['slug']
 
-    def resolve_all_posts(self, info):
+    def resolve_all_posts(self, info, **kwargs):
         Post = get_post_type()
         return Post._meta.model.objects.filter(
             tags=self.document).order_by('-published_at')

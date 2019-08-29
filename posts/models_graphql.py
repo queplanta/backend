@@ -13,7 +13,7 @@ def get_tag_type():
     return Tag
 
 
-class Post(DocumentBase, DjangoObjectType):
+class Post(DjangoObjectType, DocumentBase):
     tags = DjangoConnectionField(get_tag_type)
 
     class Meta:

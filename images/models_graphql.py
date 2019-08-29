@@ -12,7 +12,7 @@ from commenting.models_graphql import CommentsNode
 from voting.models_graphql import VotesNode
 
 
-class Image(DocumentBase, DjangoObjectType):
+class Image(DjangoObjectType, DocumentBase):
     image = Thumbnail()
 
     class Meta:

@@ -10,7 +10,7 @@ from commenting.models_graphql import CommentsNode
 from voting.models_graphql import VotesNode
 
 
-class List(DocumentBase, DjangoObjectType):
+class List(DjangoObjectType, DocumentBase):
     items = graphene.List(lambda: ListItem)
 
     class Meta:

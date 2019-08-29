@@ -21,13 +21,13 @@ class Voting(graphene.ObjectType):
         interfaces = (Node, )
 
     @classmethod
-    def get_node(cls, info, _id):
-        doc = DocumentID.objects.get(pk=_id)
+    def get_node(cls, info, **kwargs):
+        doc = DocumentID.objects.get(pk=kwargs['id'])
         c = Voting(id=doc.pk)
         c._document = doc
         return c
 
-    def resolve_votes(self, info):
+    def resolve_votes(self, info, **kwargs):
         return Vote._meta.model.objects.filter(
             parent_id=self._document.pk
         ).order_by('-document__created_at')
@@ -74,7 +74,7 @@ class VotesNode(graphene.Interface):
         return c
 
 
-class Vote(DocumentBase, DjangoObjectType):
+class Vote(DjangoObjectType, DocumentBase):
     author = graphene.Field(User)
 
     class Meta:

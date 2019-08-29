@@ -17,7 +17,7 @@ from voting.models_graphql import VotesNode
 from images.models_graphql import Image
 
 
-class Occurrence(DocumentBase, DjangoObjectType):
+class Occurrence(DjangoObjectType, DocumentBase):
     author = graphene.Field(User)
     suggestions = DjangoConnectionField(lambda: SuggestionID)
     answer = graphene.Field(lambda: SuggestionID)
@@ -46,7 +46,7 @@ class Occurrence(DocumentBase, DjangoObjectType):
         ).order_by('-document__votestats__sum_values')
 
 
-class SuggestionID(DocumentBase, DjangoObjectType):
+class SuggestionID(DjangoObjectType, DocumentBase):
     author = graphene.Field(User)
     occurrence = graphene.Field(Occurrence)
     identity = graphene.Field(LifeNode)

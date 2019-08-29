@@ -16,7 +16,7 @@ class Commenting(graphene.ObjectType):
     class Meta:
         interfaces = (relay.Node, )
 
-    def resolve_comments(self, info):
+    def resolve_comments(self, info, **kwargs):
         return Comment._meta.model.objects.filter(
             parent=self._document.pk
         ).order_by('-document__created_at')
@@ -32,8 +32,8 @@ class Commenting(graphene.ObjectType):
         return self.stats().count
 
     @classmethod
-    def get_node(cls, info, _id):
-        doc = DocumentID.objects.get(pk=_id)
+    def get_node(cls, info, **kwargs):
+        doc = DocumentID.objects.get(pk=kwargs['id'])
         c = Commenting(id=doc.pk)
         c._document = doc
         return c
@@ -48,7 +48,7 @@ class CommentsNode(graphene.Interface):
         return c
 
 
-class Comment(DocumentBase, DjangoObjectType):
+class Comment(DjangoObjectType, DocumentBase):
     class Meta:
         model = CommentModel
         interfaces = (relay.Node, DocumentNode, CommentsNode, VotesNode)

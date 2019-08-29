@@ -85,7 +85,7 @@ EDIBILITY_CHOICES_DESCRIPTION = {
 }
 
 
-class LifeNode(DocumentBase, DjangoObjectType):
+class LifeNode(DjangoObjectType, DocumentBase):
     parent = graphene.Field(lambda: LifeNode)
     parents = graphene.List(lambda: LifeNode)
     rank = graphene.Field(Rank)
@@ -124,7 +124,7 @@ class LifeNode(DocumentBase, DjangoObjectType):
     def resolve_edibilityDisplay(self, info):
         return EDIBILITY_CHOICES.get(self.edibility, '')
 
-    def resolve_commonNames(self, info, **args):
+    def resolve_commonNames(self, info, **kwargs):
         return CommonName._meta.model.objects.filter(
             document_id__in=self.commonNames.values_list('id', flat=True)
         ).order_by('name')
@@ -139,19 +139,19 @@ class LifeNode(DocumentBase, DjangoObjectType):
             document_id__in=self.images.values_list('id', flat=True)
         )
 
-    def resolve_characteristics(self, info, **args):
+    def resolve_characteristics(self, info, **kwargs):
         return Characteristic._meta.model.objects.filter(
             lifeNode=self.document
         )
 
 
-class CommonName(DocumentBase, DjangoObjectType):
+class CommonName(DjangoObjectType, DocumentBase):
     class Meta:
         model = CommonNameModel
         interfaces = (Node, DocumentNode, VotesNode)
 
 
-class Characteristic(DocumentBase, DjangoObjectType):
+class Characteristic(DjangoObjectType, DocumentBase):
     tag = graphene.Field(lambda: Tag)
     title = graphene.String()
 
