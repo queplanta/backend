@@ -25,6 +25,6 @@ class DocumentNode(DocumentBase, graphene.Interface):
             return Revision._meta.model.objects.get(
                 pk=self.document.revision_created_id)
 
-    def resolve_revisions(self, info):
+    def resolve_revisions(self, info, **kwargs):
         return Revision._meta.model.objects.filter(
             document_id=self.document_id).order_by('-created_at')
