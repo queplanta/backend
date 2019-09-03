@@ -9,6 +9,7 @@ from django.core.exceptions import ValidationError
 from multiupload.fields import MultiImageField
 
 from accounts.decorators import login_required
+from accounts.permissions import has_permission
 from backend.mutations import Mutation
 from db.models_graphql import Document
 from utils.forms import form_erros
@@ -94,21 +95,21 @@ class OccurrenceDelete(Mutation):
 
     @classmethod
     @login_required
-    def mutate_and_get_payload(cls, input, request, info):
+    def mutate_and_get_payload(cls, root, info, **input):
         gid_type, gid = from_global_id(input.get('id'))
-        occurence = Occurence._meta.model.objects.get(document_id=gid)
+        occurence = Occurrence._meta.model.objects.get(document_id=gid)
 
-        error = has_permission(cls, request, occurence, 'delete')
+        error = has_permission(cls, info.context, occurence, 'delete')
         if error:
             return error
 
-        occurence.delete(request=request)
+        occurence.delete(request=info.context)
 
-        return OccurenceDelete(occurenceDeletedID=input.get('id'))
+        return OccurrenceDelete(occurenceDeletedID=input.get('id'))
 
 
 class WhatIsThisCreateForm(forms.Form):
-    images = MultiImageField(min_num=1)
+    images = MyMultiImageField(min_num=1)
 
 
 class WhatIsThisCreate(Mutation):

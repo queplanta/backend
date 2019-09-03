@@ -7,17 +7,26 @@ from graphene.relay import GlobalID, Node
 from graphql.language import ast
 
 
+class MyGlobalID(GlobalID):
+    @staticmethod
+    def resolve_id(root, info, **args):
+        if hasattr(root, '_id_with_revision'):
+            return "%d:%d" % (root.document_id,
+                              root.revision_id)
+        return root.document_id
+
+    @staticmethod
+    def id_resolver(parent_resolver, node, root, info, parent_type_name=None, **args):
+        type_id = MyGlobalID.resolve_id(root, info, **args)
+        parent_type_name = parent_type_name or info.parent_type.name
+        return node.to_global_id(parent_type_name, type_id)  # root._meta.name
+
+
 class DocumentBase(graphene.AbstractType):
-    id = GlobalID(Node, required=True)
+    id = MyGlobalID(Node, required=True)
     id_int = graphene.Int()
 
     my_perms = graphene.List(graphene.String)
-
-    def resolve_id(self, info):
-        if hasattr(self, '_id_with_revision'):
-            return "%d:%d" % (self.document_id,
-                              self.revision_id)
-        return self.document_id
 
     def resolve_id_int(self, info):
         return self.document_id
