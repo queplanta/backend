@@ -6,6 +6,8 @@ from graphene_django.filter import DjangoFilterConnectionField
 from graphene_django.debug import DjangoDebug
 
 from django.db.models import Q
+from django.contrib.postgres.search import SearchQuery, SearchVector, SearchRank
+from django.db.models.expressions import RawSQL
 
 from accounts.models_graphql import User
 from posts.models_graphql import Post
@@ -117,16 +119,31 @@ class Query(graphene.ObjectType):
             qs = qs.filter(edibility__gte=1)
         if 'search' in args and len(args['search']) > 2:
             s = args['search'].strip()
-            q_objects = Q(title__icontains=s)
 
-            commonNames = CommonName._meta.model.objects.filter(
-                name__icontains=s
-            ).distinct().values_list('document_id', flat=True)
+            vector = SearchVector('title', weight='A') + SearchVector('commonNamesStr', weight='B')
+            query = SearchQuery(s)
 
-            if len(commonNames) > 0:
-                q_objects |= Q(commonNames__id__in=commonNames)
+            qs = qs.annotate(commonNamesStr=RawSQL("""
+                SELECT STRING_AGG(DISTINCT "life_commonname"."name", ', ') AS names
+                FROM "life_lifenode_commonNames"
+                INNER JOIN life_commonname ON "life_commonname"."document_id" = "life_lifenode_commonNames"."documentid_id"
+                WHERE "life_lifenode_commonNames"."lifenode_id" = "life_lifenode"."revision_id"
+                AND "life_commonname"."is_tip" IS TRUE
+                AND "life_commonname"."is_deleted" IS NOT TRUE
+            """, []))
 
-            qs = qs.filter(q_objects)
+            return qs.annotate(search_rank=SearchRank(vector, query)).filter(search_rank__gte=0.3).order_by('search_rank')
+
+            #  q_objects = Q(title__icontains=s)
+
+            #  commonNames = CommonName._meta.model.objects.filter(
+            #      name__icontains=s
+            #  ).distinct().values_list('document_id', flat=True)
+
+            #  if len(commonNames) > 0:
+            #      q_objects |= Q(commonNames__id__in=commonNames)
+
+            #  qs = qs.filter(q_objects)
 
         return qs.order_by('document_id').distinct()
 
