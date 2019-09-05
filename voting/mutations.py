@@ -22,7 +22,7 @@ def _set_vote(input, request, info):
     vote.value = input.get('value')
     vote.save(request=request)
 
-    voting = Voting.get_node(info, gid)
+    voting = Voting.get_node(info, id=gid)
 
     return {
         'vote': vote,
@@ -65,6 +65,6 @@ class VoteDelete(Mutation):
         parent_id = vote.parent_id
         vote.delete(request=info.context)
 
-        voting = Voting.get_node(info, parent_id)
+        voting = Voting.get_node(info, id=parent_id)
 
         return VoteDelete(voteDeletedID=input.get('id'), voting=voting)

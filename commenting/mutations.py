@@ -40,7 +40,7 @@ class CommentCreate(Mutation):
         return CommentCreate(
             comment=Comment._meta.connection.Edge(node=comment,
                                             cursor=offset_to_cursor(0)),
-            commenting=Commenting.get_node(info, gid)
+            commenting=Commenting.get_node(info, id=gid)
         )
 
 
@@ -87,5 +87,5 @@ class CommentDelete(Mutation):
 
         return CommentDelete(
             commentDeletedID=input.get('id'),
-            commenting=Commenting.get_node(info, parent_id)
+            commenting=Commenting.get_node(info, id=parent_id)
         )
