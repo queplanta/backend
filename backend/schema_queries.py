@@ -127,6 +127,7 @@ class Query(graphene.ObjectType):
                 q_objects |= Q(commonNames__id__in=commonNames)
 
             qs = qs.filter(q_objects)
+            return qs.distinct()
 
         return qs.order_by('document_id').distinct()
 

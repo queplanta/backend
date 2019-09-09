@@ -32,8 +32,8 @@ class Commenting(graphene.ObjectType):
         return self.stats().count
 
     @classmethod
-    def get_node(cls, info, **kwargs):
-        doc = DocumentID.objects.get(pk=kwargs['id'])
+    def get_node(cls, info, id):
+        doc = DocumentID.objects.get(pk=id)
         c = Commenting(id=doc.pk)
         c._document = doc
         return c
@@ -53,3 +53,7 @@ class Comment(DjangoObjectType, DocumentBase):
         model = CommentModel
         interfaces = (relay.Node, DocumentNode, CommentsNode, VotesNode)
         filter_fields = []
+
+    @classmethod
+    def get_node(cls, info, id):
+        return cls._meta.model.objects.get(document_id=id)

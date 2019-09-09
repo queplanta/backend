@@ -32,8 +32,8 @@ class DocumentBase(graphene.AbstractType):
         return self.document_id
 
     @classmethod
-    def get_node(cls, info, **kwargs):
-        return cls._meta.model.objects.get(document_id=kwargs['id'])
+    def get_node(cls, info, id):
+        return cls._meta.model.objects.get(document_id=id)
 
     def resolve_my_perms(self, info):
         return self.get_my_perms(info.context.user)
