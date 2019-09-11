@@ -16,7 +16,7 @@ from commenting.models_graphql import Comment
 from life.models_graphql import (
     LifeNode, Quizz, generate_quiz, CommonName
 )
-from occurrences.models_graphql import Occurrence, SuggestionID
+from occurrences.models_graphql import Occurrence, OccurrenceFilter, SuggestionID
 from db.models_graphql import Revision, Document
 from lists.models_graphql import List
 
@@ -76,8 +76,8 @@ class Query(graphene.ObjectType):
     }, total_found2=graphene.Int(required=False, name='totalFound2'))
 
     occurrence = relay.Node.Field(Occurrence)
-    allOccurrences = DjangoFilterConnectionField(Occurrence)
-    allWhatIsThis = DjangoFilterConnectionField(Occurrence)
+    allOccurrences = DjangoFilterConnectionField(Occurrence, filterset_class=OccurrenceFilter)
+    allWhatIsThis = DjangoFilterConnectionField(Occurrence, filterset_class=OccurrenceFilter)
     suggestionID = relay.Node.Field(SuggestionID)
 
     list = relay.Node.Field(List)

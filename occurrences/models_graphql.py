@@ -1,3 +1,4 @@
+import django_filters
 import graphene
 import graphql_geojson
 from graphene.relay import Node
@@ -44,6 +45,14 @@ class Occurrence(DjangoObjectType, DocumentBase):
         return SuggestionID._meta.model.objects.filter(
             occurrence=self.document
         ).order_by('-document__votestats__sum_values')
+
+
+class OccurrenceFilter(django_filters.FilterSet):
+    isIdentityNull = django_filters.BooleanFilter(field_name='identity', lookup_expr='isnull')
+
+    class Meta:
+        model = OccurrenceModel
+        fields = ['isIdentityNull', 'identity']
 
 
 class SuggestionID(DjangoObjectType, DocumentBase):

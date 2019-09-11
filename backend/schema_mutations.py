@@ -67,6 +67,7 @@ class Mutation(graphene.ObjectType):
     occurrenceCreate = m_field(occurrences_mutations.OccurrenceCreate)
     occurrenceDelete = m_field(occurrences_mutations.OccurrenceDelete)
     whatIsThisCreate = m_field(occurrences_mutations.WhatIsThisCreate)
+    whatIsThisIdentify = m_field(occurrences_mutations.WhatIsThisIdentify)
 
     suggestionIDCreate = m_field(occurrences_mutations.SuggestionIDCreate)
     suggestionIDDelete = m_field(occurrences_mutations.SuggestionIDDelete)

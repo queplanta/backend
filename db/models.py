@@ -5,13 +5,7 @@ from django.contrib.contenttypes.models import ContentType
 from ipware.ip import get_real_ip
 
 from .privacy.field import PrivacyField
-
-
-class BigIntegerPK(models.Model):
-    # id = models.BigIntegerField(primary_key=True)
-
-    class Meta:
-        abstract = True
+from .reputations import get_perms_by_reputation
 
 
 class DocumentID(models.Model):
@@ -187,8 +181,4 @@ class DocumentBase(models.Model):
         self.save(request=request, **kwargs)
 
     def get_my_perms(self, user):
-        if user.is_authenticated:
-            if user.is_superuser or \
-                    user.document == self.document.revision_created.author:
-                return ['edit', 'delete']
-        return []
+        return get_perms_by_reputation(self, user)

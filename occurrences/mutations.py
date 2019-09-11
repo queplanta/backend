@@ -149,6 +149,33 @@ class WhatIsThisCreate(Mutation):
         return WhatIsThisCreate(errors=errors)
 
 
+class WhatIsThisIdentify(Mutation):
+    class Input:
+        id = graphene.ID(required=True)
+        life_id = graphene.ID(required=True)
+
+    occurrence = graphene.Field(Occurrence._meta.connection.Edge)
+
+    @classmethod
+    @login_required
+    def mutate_and_get_payload(cls, root, info, **input):
+        gid_type, gid = from_global_id(input.get('id'))
+        occurence = Occurrence._meta.model.objects.get(document_id=gid)
+
+        error = has_permission(cls, info.context, occurence, 'identify')
+        if error:
+            return error
+
+        life_id = input.get('life_id')
+        life_gid_type, life_gid = from_global_id(life_id)
+        occurrence.identity = Document._meta.model.objects.get(
+            pk=life_gid)
+
+        occurence.save(request=info.context, message="define identificação")
+
+        return WhatIsThisIdentify(occurrence=occurrence)
+
+
 class SuggestionIDCreate(Mutation):
     class Input:
         occurrence = graphene.ID(required=True)
