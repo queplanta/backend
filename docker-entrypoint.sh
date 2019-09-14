@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -xe
 python manage.py migrate # Apply database migrations
 python manage.py collectstatic --noinput # Collect static files
 python manage.py graphql_schema --out ./public/schema.json
