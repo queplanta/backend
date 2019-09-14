@@ -108,8 +108,7 @@ class Query(graphene.ObjectType):
 
     def resolve_allWhatIsThis(self, info, **kwargs):
         qs = Occurrence._meta.model.objects.all()
-        return qs.order_by('-document__created_at').filter(
-            identity__isnull=True)
+        return qs.order_by('-document__created_at').filter()
 
     def resolve_allLifeNode(self, info, **args):
         qs = LifeNode._meta.model.objects.all()
