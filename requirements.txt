@@ -9,6 +9,7 @@ django-ipware==1.1.5
 Pillow==6.1.0
 sorl-thumbnail==12.5.0
 django-multiupload==0.5.2
+django-rosetta==0.9.3
 iso8601
 
 # Tests

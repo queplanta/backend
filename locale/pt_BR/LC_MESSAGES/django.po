@@ -1,0 +1,60 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2019-09-14 17:40+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: src/multiupload/examples/contact_form/models.py:6
+msgid "Name"
+msgstr ""
+
+#: src/multiupload/examples/contact_form/models.py:7
+msgid "Email"
+msgstr ""
+
+#: src/multiupload/examples/contact_form/models.py:8
+msgid "Content"
+msgstr ""
+
+#: src/multiupload/examples/contact_form/models.py:12
+msgid "Message"
+msgstr ""
+
+#: src/multiupload/examples/contact_form/models.py:13
+msgid "Attachment"
+msgstr ""
+
+#: src/multiupload/multiupload/fields.py:43
+#, python-format
+msgid ""
+"Ensure at least %(min_num)s files are uploaded (received %(num_files)s)."
+msgstr ""
+
+#: src/multiupload/multiupload/fields.py:46
+#, python-format
+msgid "Ensure at most %(max_num)s files are uploaded (received %(num_files)s)."
+msgstr ""
+
+#: src/multiupload/multiupload/fields.py:49
+#, python-format
+msgid "File %(uploaded_file_name)s exceeded maximum upload size."
+msgstr ""
+
+#: src/multiupload/multiupload/fields.py:117
+#, python-format
+msgid "Invalid media_type. Valid types are: %(valid_types)s"
+msgstr ""

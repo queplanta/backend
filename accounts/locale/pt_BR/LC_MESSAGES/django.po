@@ -1,0 +1,103 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2019-09-14 17:40+0000\n"
+"PO-Revision-Date: 2019-09-14 18:22+0000\n"
+"Last-Translator: b'  <eu@alisson.net>'\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Translated-Using: django-rosetta 0.9.3\n"
+
+#: accounts/models.py:21
+msgid "username"
+msgstr "Usuário"
+
+#: accounts/models.py:23
+msgid "Required. 30 characters or fewer. Letters, digits and @/./+/-/_ only."
+msgstr ""
+"Obrigatório. 30 caracteres ou menos. Letras, dígitos e @/./+/-/_ apenas."
+
+#: accounts/models.py:27
+msgid ""
+"Enter a valid username. This value may contain only letters, numbers and "
+"@/./+/-/_ characters."
+msgstr ""
+"Entre um nome de usuário valido. Este valor deve conter apenas letras, "
+"números e @/./+/-/_ caracteres."
+
+#: accounts/models.py:32
+msgid "A user with that username already exists."
+msgstr "Este nome de usuário já esta sendo usado."
+
+#: accounts/models.py:35
+msgid "first name"
+msgstr "Primeiro nome"
+
+#: accounts/models.py:36
+msgid "last name"
+msgstr "Último nome"
+
+#: accounts/models.py:37
+msgid "email address"
+msgstr "Endereço de email"
+
+#: accounts/models.py:39
+msgid "staff status"
+msgstr ""
+
+#: accounts/models.py:41
+msgid "Designates whether the user can log into this admin site."
+msgstr ""
+
+#: accounts/models.py:44
+msgid "active"
+msgstr "ativo"
+
+#: accounts/models.py:47
+msgid ""
+"Designates whether this user should be treated as active. Unselect this "
+"instead of deleting accounts."
+msgstr ""
+
+#: accounts/models.py:51
+msgid "date joined"
+msgstr ""
+
+#: accounts/models.py:64
+msgid "user"
+msgstr "usuário"
+
+#: accounts/models.py:65
+msgid "users"
+msgstr "usuários"
+
+#: accounts/models_graphql.py:38
+msgid "Você não tem permissão"
+msgstr ""
+
+#: accounts/mutations.py:39 accounts/mutations.py:240
+msgid "Este usuario já esta usado por outra pessoa. Por favor, tente outro."
+msgstr ""
+
+#: accounts/mutations.py:49 accounts/mutations.py:251
+msgid "Este e-mail já esta usado por outra pessoa. Por favor, tente outro."
+msgstr ""
+
+#: accounts/mutations.py:220
+msgid "Password reset failed"
+msgstr ""
+
+#: accounts/permissions.py:6
+msgid "You don't have permission to perform this action"
+msgstr "Você não tem permissão para fazer esta ação."

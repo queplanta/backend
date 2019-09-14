@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.conf.urls import url
+from django.conf.urls import url, include
 from django.contrib import admin
 from django.views.decorators.csrf import csrf_exempt
 from django.views.static import serve as static_serve
@@ -26,4 +26,5 @@ urlpatterns = [
         {'document_root': settings.MEDIA_ROOT, 'show_indexes': True}),
     url(r'^static/(?P<path>.*)$', static_serve,
         {'document_root': settings.STATIC_ROOT, 'show_indexes': True}),
+    url(r'^rosetta/', include('rosetta.urls')),
 ]
