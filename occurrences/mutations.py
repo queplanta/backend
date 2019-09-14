@@ -6,16 +6,17 @@ from graphql_relay.connection.arrayconnection import offset_to_cursor
 
 from django import forms
 from django.core.exceptions import ValidationError
+from django.utils.translation import ugettext_lazy as _
 from multiupload.fields import MultiImageField
 
 from accounts.decorators import login_required
 from accounts.permissions import has_permission
+from backend.fields import Error
 from backend.mutations import Mutation
 from db.models_graphql import Document
 from utils.forms import form_erros
 from images.models import Image as ImageModel
 from .models_graphql import Occurrence, SuggestionID
-
 
 class MyMultiImageField(MultiImageField):
     def run_validators(self, value):
@@ -97,13 +98,13 @@ class OccurrenceDelete(Mutation):
     @login_required
     def mutate_and_get_payload(cls, root, info, **input):
         gid_type, gid = from_global_id(input.get('id'))
-        occurence = Occurrence._meta.model.objects.get(document_id=gid)
+        occurrence = Occurrence._meta.model.objects.get(document_id=gid)
 
-        error = has_permission(cls, info.context, occurence, 'delete')
+        error = has_permission(cls, info.context, occurrence, 'delete')
         if error:
             return error
 
-        occurence.delete(request=info.context)
+        occurrence.delete(request=info.context)
 
         return OccurrenceDelete(occurenceDeletedID=input.get('id'))
 
@@ -160,9 +161,9 @@ class WhatIsThisIdentify(Mutation):
     @login_required
     def mutate_and_get_payload(cls, root, info, **input):
         gid_type, gid = from_global_id(input.get('id'))
-        occurence = Occurrence._meta.model.objects.get(document_id=gid)
+        occurrence = Occurrence._meta.model.objects.get(document_id=gid)
 
-        error = has_permission(cls, info.context, occurence, 'identify')
+        error = has_permission(cls, info.context, occurrence, 'identify')
         if error:
             return error
 
@@ -171,7 +172,7 @@ class WhatIsThisIdentify(Mutation):
         occurrence.identity = Document._meta.model.objects.get(
             pk=life_gid)
 
-        occurence.save(request=info.context, message="define identificação")
+        occurrence.save(request=info.context, message="define identificação")
 
         return WhatIsThisIdentify(occurrence=occurrence)
 
@@ -198,8 +199,21 @@ class SuggestionIDCreate(Mutation):
         suggestion.identity = Document._meta.model.objects.get(pk=gid)
 
         suggestion.notes = input.get('notes')
-        suggestion.save(request=info.context)
 
+        suggestion_exists = SuggestionID._meta.model.objects.filter(
+            occurrence=suggestion.occurrence,
+            identity=suggestion.identity
+        ).exists()
+        if suggestion_exists:
+            return SuggestionIDCreate(
+                errors=[Error(
+                    code='duplicated',
+                    location='identity',
+                    message=_('This name was already suggested. Please vote on that suggestion or suggest another one.'),
+                )]
+            )
+
+        suggestion.save(request=info.context)
         return SuggestionIDCreate(
             occurrence=suggestion.occurrence.get_object(),
             suggestionID=SuggestionID._meta.connection.Edge(
@@ -216,14 +230,14 @@ class SuggestionIDDelete(Mutation):
 
     @classmethod
     @login_required
-    def mutate_and_get_payload(cls, input, request, info):
+    def mutate_and_get_payload(cls, root, info, **input):
         gid_type, gid = from_global_id(input.get('id'))
         suggestion = SuggestionID._meta.model.objects.get(document_id=gid)
 
-        error = has_permission(cls, request, suggestion, 'delete')
+        error = has_permission(cls, info.context, suggestion, 'delete')
         if error:
             return error
 
-        suggestion.delete(request=request)
+        suggestion.delete(request=info.context)
 
         return SuggestionIDDelete(suggestionDeletedID=input.get('id'))
