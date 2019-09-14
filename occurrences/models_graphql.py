@@ -42,9 +42,14 @@ class Occurrence(DjangoObjectType, DocumentBase):
             document__occurrence_image=self)
 
     def resolve_suggestions(self, info, **kwargs):
-        return SuggestionID._meta.model.objects.filter(
+        qs = SuggestionID._meta.model.objects.filter(
             occurrence=self.document
-        ).order_by('-document__votestats__sum_values')
+        )
+        if self.identity_id:
+            return qs.extra(
+                select={'is_choosen_as_valid': "CASE WHEN identity_id = %d THEN 1 ELSE 0 END" % self.identity_id}
+            ).order_by('-is_choosen_as_valid', '-document__votestats__sum_values')
+        return qs.order_by('-document__votestats__sum_values')
 
 
 class OccurrenceFilter(django_filters.FilterSet):
