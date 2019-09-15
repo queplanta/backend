@@ -21,3 +21,7 @@ class Image(DjangoObjectType, DocumentBase):
 
     def resolve_image(self, info, **kwargs):
         return self.image
+
+    @classmethod
+    def get_node(cls, info, id):
+        return cls._meta.model.objects.get(document_id=id)

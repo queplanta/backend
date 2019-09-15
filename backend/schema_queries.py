@@ -19,6 +19,7 @@ from life.models_graphql import (
 from occurrences.models_graphql import Occurrence, OccurrenceFilter, SuggestionID
 from db.models_graphql import Revision, Document
 from lists.models_graphql import List
+from images.models_graphql import Image
 
 from .fields import GetBy
 
@@ -65,6 +66,8 @@ class Query(graphene.ObjectType):
     all_comments = DjangoFilterConnectionField(Comment)
     comment = relay.Node.Field(Comment)
     comment_by_parent_id = GetBy(Comment, id=graphene.ID(required=True))
+
+    image = relay.Node.Field(Image)
 
     vote = relay.Node.Field(Vote)
 
