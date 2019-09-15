@@ -38,6 +38,7 @@ class Occurrence(DocumentBase):
 
     notes = models.TextField(blank=True, null=True)
     is_cultivated = models.BooleanField(default=False)
+    is_request = models.BooleanField(default=False)
 
     REPUTATION_VALUE = 1
 

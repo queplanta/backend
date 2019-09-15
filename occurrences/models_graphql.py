@@ -35,6 +35,8 @@ class Occurrence(DjangoObjectType, DocumentBase):
         return User._meta.model.objects.get(document_id=self.author_id)
 
     def resolve_identity(self, info):
+        if not self.identity_id:
+            return None
         return LifeNode._meta.model.objects.get(document_id=self.identity_id)
 
     def resolve_images(self, info, **kwargs):

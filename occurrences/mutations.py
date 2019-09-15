@@ -60,6 +60,7 @@ class OccurrenceCreate(Mutation):
             occurrence.when = input.get('when')
             occurrence.where = input.get('where')
             occurrence.notes = input.get('notes')
+            occurrence.is_request = False
 
             location = input.get('location')
             if location:
@@ -133,6 +134,7 @@ class WhatIsThisCreate(Mutation):
             occurrence.when = input.get('when')
             occurrence.where = input.get('where')
             occurrence.notes = input.get('notes')
+            occurrence.is_request = True
             occurrence.save(request=info.context)
 
             for image_uploaded in form.cleaned_data['images']:
@@ -163,6 +165,10 @@ class WhatIsThisIdentify(Mutation):
         gid_type, gid = from_global_id(input.get('id'))
         occurrence = Occurrence._meta.model.objects.get(document_id=gid)
 
+        prev_images = []
+        if occurrence.pk:
+            prev_images = occurrence.images.values_list('id', flat=True)
+
         error = has_permission(cls, info.context, occurrence, 'identify')
         if error:
             return error
@@ -173,6 +179,9 @@ class WhatIsThisIdentify(Mutation):
             pk=life_gid)
 
         occurrence.save(request=info.context, message="define identificação")
+
+        for prev_img_id in prev_images:
+            occurrence.images.add(prev_img_id)
 
         return WhatIsThisIdentify(occurrence=occurrence)
 
