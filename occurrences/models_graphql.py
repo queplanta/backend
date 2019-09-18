@@ -31,6 +31,10 @@ class Occurrence(DjangoObjectType, DocumentBase):
         geojson_field = 'location'
         filter_fields = []
 
+    @classmethod
+    def get_node(cls, info, id):
+        return cls._meta.model.objects.get(document_id=id)
+
     def resolve_author(self, info):
         return User._meta.model.objects.get(document_id=self.author_id)
 
