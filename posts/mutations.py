@@ -72,15 +72,15 @@ class PostEdit(Mutation):
 
     @classmethod
     @login_required
-    def mutate_and_get_payload(cls, input, request, info):
+    def mutate_and_get_payload(cls, root, info, **input):
         gid_type, gid = from_global_id(input.get('id'))
         post = Post._meta.model.objects.get(document_id=gid)
 
-        error = has_permission(cls, request, post, 'edit')
+        error = has_permission(cls, info.context, post, 'edit')
         if error:
             return error
 
-        post = post_save(post, input, request)
+        post = post_save(post, input, info.context)
         return PostEdit(post=post)
 
 
@@ -92,14 +92,14 @@ class PostDelete(Mutation):
 
     @classmethod
     @login_required
-    def mutate_and_get_payload(cls, input, request, info):
+    def mutate_and_get_payload(cls, root, info, **input):
         gid_type, gid = from_global_id(input.get('id'))
         post = Post._meta.model.objects.get(document_id=gid)
 
-        error = has_permission(cls, request, post, 'delete')
+        error = has_permission(cls, info.context, post, 'delete')
         if error:
             return error
 
-        post.delete(request=request)
+        post.delete(request=info.context)
 
         return PostDelete(postDeletedID=input.get('id'))
