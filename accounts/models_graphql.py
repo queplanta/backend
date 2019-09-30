@@ -22,6 +22,8 @@ class User(DjangoObjectType, DocumentBase):
 
     actions = DjangoConnectionField(get_revision_type)
 
+    my_perms = graphene.List(graphene.String)
+
     def resolve_is_authenticated(self, info):
         return info.context.user.is_authenticated
 
@@ -46,3 +48,8 @@ class User(DjangoObjectType, DocumentBase):
         Revision = get_revision_type()
         return Revision._meta.model.objects.filter(
             author_id=self.document.pk).order_by('-created_at')
+
+    def resolve_my_perms(self, info, **kwargs):
+        if self.is_superuser:
+            return ['add_page', 'add_post']
+        return []
