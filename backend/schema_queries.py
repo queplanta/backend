@@ -91,7 +91,7 @@ class Query(graphene.ObjectType):
 
     version = graphene.String()
 
-    debug = graphene.Field(DjangoDebug, name='__debug')
+    debug = graphene.Field(DjangoDebug, name='_debug')
 
     class Meta:
         interfaces = (relay.Node,)

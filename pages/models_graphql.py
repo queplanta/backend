@@ -12,3 +12,7 @@ class Page(DjangoObjectType, DocumentBase):
         model = PageModel
         interfaces = (Node, DocumentNode, CommentsNode)
         filter_fields = []
+
+    @classmethod
+    def get_node(cls, info, id):
+        return cls._meta.model.objects.get(document_id=id)

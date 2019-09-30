@@ -21,6 +21,10 @@ class Post(DjangoObjectType, DocumentBase):
         interfaces = (Node, DocumentNode, CommentsNode, VotesNode)
         filter_fields = ['published_at']
 
+    @classmethod
+    def get_node(cls, info, id):
+        return cls._meta.model.objects.get(document_id=id)
+
     def resolve_tags(self, info, **kwargs):
         Tag = get_tag_type()
         return Tag._meta.model.objects.filter(

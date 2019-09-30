@@ -299,7 +299,8 @@ class ProfileChangeAvatar(Mutation):
 
     @classmethod
     @login_required
-    def mutate_and_get_payload(cls, input, request, info):
+    def mutate_and_get_payload(cls, root, info, **input):
+        request = info.context
         errors = []
         user = request.user
 
