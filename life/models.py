@@ -101,6 +101,10 @@ class LifeNode(DocumentBase):
 class CommonName(DocumentBase):
     name = models.CharField(max_length=255)
     language = models.CharField(max_length=255, null=True, blank=True)
+    country = models.CharField(max_length=3, null=True, blank=True)
+    region = models.CharField(max_length=3, null=True, blank=True)
+
+    REPUTATION_VALUE = 1
 
 
 class Characteristic(DocumentBase):

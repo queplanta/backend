@@ -99,6 +99,8 @@ class LifeNode(DjangoObjectType, DocumentBase):
     images = DjangoConnectionField(Image)
     characteristics = DjangoConnectionField(lambda: Characteristic)
 
+    commonName = graphene.Field(lambda: CommonName)
+
     class Meta:
         model = LifeNodeModel
         interfaces = (Node, DocumentNode, CommentsNode, VotesNode)
@@ -128,6 +130,12 @@ class LifeNode(DjangoObjectType, DocumentBase):
         return CommonName._meta.model.objects.filter(
             document_id__in=self.commonNames.values_list('id', flat=True)
         ).order_by('name')
+
+    def resolve_commonName(self, info):
+        return CommonName._meta.model.objects.filter(
+            document_id__in=self.commonNames.values_list('id', flat=True),
+            language="por",
+        ).order_by('-document__votestats__sum_values').first()
 
     def resolve_children(self, info, **kwargs):
         return LifeNode._meta.model.objects.filter(
