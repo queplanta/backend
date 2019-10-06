@@ -10,13 +10,14 @@ from life import mutations as life_mutations
 from occurrences import mutations as occurrences_mutations
 from pages import mutations as page_mutations
 from lists import mutations as lists_mutations
+from images.mutations import Mutations as ImagesMutations
 
 
 def m_field(m):
     return m.Field()
 
 
-class Mutation(graphene.ObjectType):
+class Mutation(ImagesMutations, graphene.ObjectType):
     register = m_field(accounts_mutations.Register)
     registerAndAuthenticate = m_field(
         accounts_mutations.RegisterAndAuthenticate)

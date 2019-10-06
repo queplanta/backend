@@ -1,12 +1,21 @@
 from django.db import models
 
-from db.models import DocumentBase
+from db.models import DocumentBase, DocumentID
+from db.fields import ManyToManyField
+
+from images.models import limit_by_image_contenttype
 
 
 class Page(DocumentBase):
     title = models.CharField(max_length=255)
     url = models.URLField(max_length=255)
     body = models.TextField()
+
+    images = ManyToManyField(
+        DocumentID,
+        limit_choices_to=limit_by_image_contenttype,
+        related_name='page_image'
+    )
 
     published_at = models.DateTimeField(null=True)
 

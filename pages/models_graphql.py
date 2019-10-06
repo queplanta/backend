@@ -5,12 +5,13 @@ from db.types_revision import DocumentNode, DocumentBase
 
 from .models import Page as PageModel
 from commenting.models_graphql import CommentsNode
+from images.models_graphql import ImagesNode
 
 
 class Page(DjangoObjectType, DocumentBase):
     class Meta:
         model = PageModel
-        interfaces = (Node, DocumentNode, CommentsNode)
+        interfaces = (Node, DocumentNode, CommentsNode, ImagesNode)
         filter_fields = []
 
     @classmethod

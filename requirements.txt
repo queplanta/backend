@@ -15,3 +15,4 @@ iso8601
 # Tests
 django-nose==1.4.4
 coverage==4.1
+factoryboy==2.12.0

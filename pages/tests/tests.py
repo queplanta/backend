@@ -1,4 +1,5 @@
 from backend.tests import UserTestCase
+from .factories import PageFactory
 
 
 class PagesTest(UserTestCase):
@@ -69,3 +70,23 @@ class PagesTest(UserTestCase):
             }
         }
         self.assertEqual(response.json(), expected)
+
+    def test_page_by_url(self):
+        page = PageFactory()
+        response = self.graphql({
+            'query': '''
+                query PageQuery(
+                  $url: String!
+                ) {
+                  page: pageByUrl(url: $url) {
+                    url
+                    title
+                  }
+                }
+                ''',
+            'variables': {
+                'url': page.url
+            }
+        }, client=self.client)
+        self.assertEqual(response.json(), {'data': {'page': {'url': page.url, 'title': page.title}}})
+

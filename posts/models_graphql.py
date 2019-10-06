@@ -6,6 +6,7 @@ from db.types_revision import DocumentNode, DocumentBase
 from .models import Post as PostModel
 from commenting.models_graphql import CommentsNode
 from voting.models_graphql import VotesNode
+from images.models_graphql import ImagesNode
 
 
 def get_tag_type():
@@ -18,7 +19,7 @@ class Post(DjangoObjectType, DocumentBase):
 
     class Meta:
         model = PostModel
-        interfaces = (Node, DocumentNode, CommentsNode, VotesNode)
+        interfaces = (Node, DocumentNode, CommentsNode, VotesNode, ImagesNode)
         filter_fields = ['published_at']
 
     @classmethod

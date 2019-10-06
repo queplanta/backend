@@ -6,7 +6,7 @@ from django.utils.text import slugify
 from db.models import DocumentBase, DocumentID
 from db.fields import ManyToManyField
 
-from images.models import Image
+from images.models import limit_by_image_contenttype
 
 
 RANK_KINGDOM = 10
@@ -48,16 +48,6 @@ RANK_STRING_BY_INT = {v: k for k, v in RANK_BY_STRING.items()}
 def limit_by_commonName_contenttype():
     try:
         ct = ContentType.objects.get_for_model(CommonName)
-        return {
-            'content_type': ct
-        }
-    except ContentType.DoesNotExist:
-        return {}
-
-
-def limit_by_image_contenttype():
-    try:
-        ct = ContentType.objects.get_for_model(Image)
         return {
             'content_type': ct
         }

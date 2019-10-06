@@ -14,4 +14,16 @@ def get_perms_by_reputation(obj, user):
         if is_user_rep_gte(user, 10) or has_obj_perms:
             perms.append('identify')
 
+    if obj_class_name == 'LifeNode':
+        if is_user_rep_gte(user, 4) or has_obj_perms:
+            perms.append('add_image')
+
+    if obj_class_name == 'Post':
+        if has_obj_perms:
+            perms.append('add_image')
+
+    if obj_class_name == 'Page':
+        if has_obj_perms:
+            perms.append('add_image')
+
     return perms

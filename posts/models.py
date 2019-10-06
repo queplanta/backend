@@ -5,6 +5,7 @@ from db.models import DocumentBase, DocumentID
 from db.fields import ManyToManyField
 
 from tags.models import Tag
+from images.models import limit_by_image_contenttype
 
 
 def limit_by_tag_contenttype():
@@ -23,6 +24,12 @@ class Post(DocumentBase):
     body = models.TextField()
 
     published_at = models.DateTimeField(null=True)
+
+    images = ManyToManyField(
+        DocumentID,
+        limit_choices_to=limit_by_image_contenttype,
+        related_name='post_image'
+    )
 
     tags = ManyToManyField(
         DocumentID,
