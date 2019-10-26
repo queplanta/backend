@@ -154,13 +154,18 @@ GRAPHENE = {
 }
 
 # Testing
-EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
+EMAIL_BACKEND = os.getenv('EMAIL_BACKEND', 'django.core.mail.backends.locmem.EmailBackend')
+SENDGRID_API_KEY = os.getenv('SENDGRID_API_KEY')
 # TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'public')
 MEDIA_URL = '/public/'
 
 DEFAULT_USER_AVATAR = 'default_user_avatar.jpg'
+
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+DEFAULT_FROM_EMAIL = 'Que Planta <nao-responda@queplanta.com>'
 
 
 ##################

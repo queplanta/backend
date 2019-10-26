@@ -11,7 +11,7 @@ from .schema import schema
 def dumb_view(request, *args, **kwargs):
     return None
 
-URL_PASSWORD_RESET = r'me/reset/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/'
+URL_PASSWORD_RESET = r'conta/resetar-senha/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/'
 
 
 urlpatterns = [
