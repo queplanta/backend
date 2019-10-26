@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-09-14 17:40+0000\n"
+"POT-Creation-Date: 2019-10-26 23:22+0000\n"
 "PO-Revision-Date: 2019-09-14 18:22+0000\n"
 "Last-Translator: b'  <eu@alisson.net>'\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -30,8 +30,8 @@ msgstr ""
 
 #: accounts/models.py:27
 msgid ""
-"Enter a valid username. This value may contain only letters, numbers and "
-"@/./+/-/_ characters."
+"Enter a valid username. This value may contain only letters, numbers and @/./"
+"+/-/_ characters."
 msgstr ""
 "Entre um nome de usuário valido. Este valor deve conter apenas letras, "
 "números e @/./+/-/_ caracteres."
@@ -82,19 +82,23 @@ msgstr "usuário"
 msgid "users"
 msgstr "usuários"
 
-#: accounts/models_graphql.py:38
+#: accounts/models_graphql.py:40
 msgid "Você não tem permissão"
 msgstr ""
 
-#: accounts/mutations.py:39 accounts/mutations.py:240
+#: accounts/mutations.py:39 accounts/mutations.py:251
 msgid "Este usuario já esta usado por outra pessoa. Por favor, tente outro."
 msgstr ""
 
-#: accounts/mutations.py:49 accounts/mutations.py:251
+#: accounts/mutations.py:49 accounts/mutations.py:262
 msgid "Este e-mail já esta usado por outra pessoa. Por favor, tente outro."
 msgstr ""
 
-#: accounts/mutations.py:220
+#: accounts/mutations.py:166
+msgid "Email not found."
+msgstr ""
+
+#: accounts/mutations.py:231
 msgid "Password reset failed"
 msgstr ""
 
