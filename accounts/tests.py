@@ -244,6 +244,20 @@ class AccountsTest(UserTestCase):
                 }
             })
 
+        # email don't exist
+        response = password_reset_email('non-existing@alisson.net')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), {
+            'data': {
+                'mePasswordResetEmail': {
+                    'errors': [{
+                        'code': 'email_not_found',
+                    }],
+                    'clientMutationId': 'passwordresetemail'
+                },
+            }
+        })
+
         # get token
         response = password_reset_email('eu@alisson.net')
         self.assertEqual(response.status_code, 200)

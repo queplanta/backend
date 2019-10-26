@@ -158,6 +158,17 @@ class PasswordChange(Mutation):
         return PasswordChange(errors=errors)
 
 
+class NoUserPasswordResetForm(PasswordResetForm):
+    def clean_email(self):
+        email = self.cleaned_data['email']
+        if not UserModel.objects.filter(email=email).exists():
+            raise forms.ValidationError(
+                _("Email not found."),
+                code='email_not_found',
+            )
+        return email
+
+
 class PasswordResetEmail(Mutation):
     class Input:
         email = graphene.String(required=True)
@@ -165,7 +176,7 @@ class PasswordResetEmail(Mutation):
     @classmethod
     def mutate_and_get_payload(cls, root, info, **data):
         errors = []
-        form = PasswordResetForm(data=data)
+        form = NoUserPasswordResetForm(data=data)
         if form.is_valid():
             opts = {
                 'use_https': info.context.is_secure(),
