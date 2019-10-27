@@ -6,7 +6,7 @@ from tags.mutations import TagCreate, TagEdit, TagDelete
 from commenting.mutations import CommentCreate, CommentEdit, CommentDelete
 from voting import mutations as voting_mutations
 from db import mutations as db_mutations
-from life import mutations as life_mutations
+from life.mutations import Mutations as LifeMutations
 from occurrences import mutations as occurrences_mutations
 from pages import mutations as page_mutations
 from lists import mutations as lists_mutations
@@ -17,7 +17,7 @@ def m_field(m):
     return m.Field()
 
 
-class Mutation(ImagesMutations, graphene.ObjectType):
+class Mutation(ImagesMutations, LifeMutations, graphene.ObjectType):
     register = m_field(accounts_mutations.Register)
     registerAndAuthenticate = m_field(
         accounts_mutations.RegisterAndAuthenticate)
@@ -56,14 +56,6 @@ class Mutation(ImagesMutations, graphene.ObjectType):
 
     voteSet = m_field(voting_mutations.VoteSet)
     voteDelete = m_field(voting_mutations.VoteDelete)
-
-    speciesCreate = m_field(life_mutations.SpeciesCreate)
-    lifeNodeCreate = m_field(life_mutations.LifeNodeCreate)
-    lifeNodeEdit = m_field(life_mutations.LifeNodeEdit)
-    lifeNodeDelete = m_field(life_mutations.LifeNodeDelete)
-    lifeNodeCharacteristicAdd = m_field(life_mutations.CharacteristicAdd)
-
-    lifeNodeCheckQuizz = m_field(life_mutations.CheckQuizz)
 
     occurrenceCreate = m_field(occurrences_mutations.OccurrenceCreate)
     occurrenceDelete = m_field(occurrences_mutations.OccurrenceDelete)

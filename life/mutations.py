@@ -13,10 +13,10 @@ from db.models_graphql import Document
 from backend.mutations import Mutation
 from .models_graphql import (
     LifeNode, Characteristic, Rank, Edibility,
-    Quizz, generate_quiz
+    Quizz, generate_quiz, CommonName
 )
 from .models import (
-    RANK_BY_STRING, CommonName,
+    RANK_BY_STRING, CommonName as CommonNameModel,
     LifeNode as LifeNodeModel,
     Characteristic as CharacteristicModel
 )
@@ -77,9 +77,9 @@ def node_save(node, args, info):
             }
 
         try:
-            commonName = CommonName.objects.get(**get)
-        except CommonName.DoesNotExist:
-            commonName = CommonName()
+            commonName = CommonNameModel.objects.get(**get)
+        except CommonNameModel.DoesNotExist:
+            commonName = CommonNameModel()
 
         commonName.name = commonName_str
         commonName.language = commonNameDict['language']
@@ -241,15 +241,61 @@ class SpeciesCreate(Mutation):
                 continue
 
             try:
-                commonName = CommonName.objects.get(name=commonName_str)
-            except CommonName.DoesNotExist:
-                commonName = CommonName(
+                commonName = CommonNameModel.objects.get(name=commonName_str)
+            except CommonNameModel.DoesNotExist:
+                commonName = CommonNameModel(
                     name=commonName_str,
                 )
                 commonName.save(request=info.context)
             species.commonNames.add(commonName.document)
 
         return SpeciesCreate(species=species)
+
+
+class CommonNameAdd(Mutation):
+    class Input:
+        lifeNode = graphene.ID(required=True)
+        name = graphene.String(required=True)
+        language = graphene.String()
+        country = graphene.String()
+        region = graphene.String()
+
+    lifeNode = graphene.Field(LifeNode)
+    commonName = graphene.Field(CommonName._meta.connection.Edge)
+
+    @classmethod
+    @login_required
+    def mutate_and_get_payload(cls, root, info, **input):
+        gid_type, gid = from_global_id(input.get('lifeNode'))
+        node = LifeNode._meta.model.objects.get(document_id=gid)
+
+        error = has_permission(cls, info.context, node, 'edit')
+        if error:
+            return error
+
+        try:
+            common_name = CommonNameModel.objects.get(
+                name=input.get('name'),
+                language=input.get('language'),
+                country=input.get('country'),
+                region=input.get('region')
+            )
+        except CommonNameModel.DoesNotExist:
+            common_name = CommonNameModel(
+                name=input.get('name'),
+                language=input.get('language'),
+                country=input.get('country'),
+                region=input.get('region')
+            )
+            common_name.save(request=info.context)
+
+        node.commonNames.add(common_name.document)
+
+        return CommonNameAdd(
+            lifeNode=node,
+            commonName=CommonName._meta.connection.Edge(
+                node=common_name, cursor=offset_to_cursor(0))
+        )
 
 
 class CharacteristicAdd(Mutation):
@@ -316,3 +362,13 @@ class CheckQuizz(Mutation):
             correct=correct,
             quizz=generate_quiz(root, info)
         )
+
+
+class Mutations(object):
+    speciesCreate = SpeciesCreate.Field()
+    lifeNodeCreate = LifeNodeCreate.Field()
+    lifeNodeEdit = LifeNodeEdit.Field()
+    lifeNodeDelete = LifeNodeDelete.Field()
+    lifeNodeCharacteristicAdd = CharacteristicAdd.Field()
+    lifeNodeCheckQuizz = CheckQuizz.Field()
+    lifeNodeCommonNameAdd = CommonNameAdd.Field()
