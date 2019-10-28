@@ -15,6 +15,7 @@ URL_PASSWORD_RESET = r'conta/resetar-senha/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token
 
 
 urlpatterns = [
+    url(r's/', include('shortener.urls')),
     url(r'^admin/', admin.site.urls),
     url(r'^graphql', csrf_exempt(GraphQLView.as_view(schema=schema,
                                                      graphiql=True))),

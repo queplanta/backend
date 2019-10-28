@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'sorl.thumbnail',
     'django_nose',
     'graphene_django',
+    'shortener',
     'db',
     'accounts',
     'tags',
@@ -166,6 +167,13 @@ DEFAULT_USER_AVATAR = 'default_user_avatar.jpg'
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 DEFAULT_FROM_EMAIL = 'Que Planta <nao-responda@queplanta.com>'
+
+# URL Shortner
+SHORTENER_ENABLED = True
+SHORTENER_MAX_URLS = -1
+SHORTENER_MAX_CONCURRENT = -1
+SHORTENER_LIFESPAN = -1
+SHORTENER_MAX_USES = -1
 
 
 ##################

@@ -20,6 +20,7 @@ from occurrences.models_graphql import Occurrence, OccurrenceFilter, SuggestionI
 from db.models_graphql import Revision, Document
 from lists.models_graphql import List
 from images.models_graphql import Image
+from shortenr.models_graphql import Query as ShortnerQuery
 
 from .fields import GetBy
 
@@ -41,7 +42,7 @@ class NodeField(RelayNodeField):
         return get_node
 
 
-class Query(graphene.ObjectType):
+class Query(ShortnerQuery, graphene.ObjectType):
     id = graphene.ID(required=True)
     viewer = graphene.Field(lambda: Query)
     me = graphene.Field(User)
