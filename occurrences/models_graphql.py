@@ -5,7 +5,7 @@ from graphene.relay import Node
 from graphene_django import DjangoConnectionField, DjangoObjectType
 from graphene_django.converter import convert_django_field
 
-from db.types_revision import DocumentNode, DocumentBase
+from db.types_revision import DocumentNode, DocumentBase, CountedConnection
 
 from .models import (
     Occurrence as OccurrenceModel,
@@ -30,6 +30,7 @@ class Occurrence(DjangoObjectType, DocumentBase):
         interfaces = (Node, DocumentNode, CommentsNode, VotesNode)
         geojson_field = 'location'
         filter_fields = []
+        connection_class = CountedConnection
 
     @classmethod
     def get_node(cls, info, id):
@@ -74,6 +75,7 @@ class SuggestionID(DjangoObjectType, DocumentBase):
     class Meta:
         model = SuggestionIDModel
         interfaces = (Node, DocumentNode, CommentsNode, VotesNode)
+        connection_class = CountedConnection
 
     def resolve_author(self, info):
         return User._meta.model.objects.get(document_id=self.author_id)

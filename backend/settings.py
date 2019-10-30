@@ -175,6 +175,13 @@ SHORTENER_MAX_CONCURRENT = -1
 SHORTENER_LIFESPAN = -1
 SHORTENER_MAX_USES = -1
 
+if not DEBUG:
+    import sentry_sdk
+    from sentry_sdk.integrations.django import DjangoIntegration
+    sentry_sdk.init(
+        dsn="https://685969ae3ca34c85b253d72623d2b433@sentry.io/1798652",
+        integrations=[DjangoIntegration()]
+    )
 
 ##################
 # LOCAL SETTINGS #

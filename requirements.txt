@@ -12,6 +12,7 @@ django-multiupload==0.5.2
 django-rosetta==0.9.3
 django-sendgrid-v5==0.8.0
 django-link-shortener==0.4
+sentry-sdk==0.13.0
 iso8601
 
 # Tests
