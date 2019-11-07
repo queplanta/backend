@@ -5,6 +5,7 @@ from django.contrib.auth.hashers import make_password
 from random import shuffle
 
 from db.types_revision import DocumentNode, DocumentBase
+from db.graphene import CountedConnection
 
 from .models import (
     RANK_CHOICES, RANK_GENUS, RANK_SPECIES,
@@ -105,6 +106,7 @@ class LifeNode(DjangoObjectType, DocumentBase):
         model = LifeNodeModel
         interfaces = (Node, DocumentNode, CommentsNode, VotesNode)
         filter_fields = []
+        connection_class = CountedConnection
 
     def resolve_parent(self, info):
         if self.parent:
@@ -157,6 +159,7 @@ class CommonName(DjangoObjectType, DocumentBase):
     class Meta:
         model = CommonNameModel
         interfaces = (Node, DocumentNode, VotesNode)
+        connection_class = CountedConnection
 
 
 class Characteristic(DjangoObjectType, DocumentBase):
@@ -166,6 +169,7 @@ class Characteristic(DjangoObjectType, DocumentBase):
     class Meta:
         model = CharacteristicModel
         interfaces = (Node, DocumentNode, CommentsNode, VotesNode)
+        connection_class = CountedConnection
 
     def resolve_tag(self, info):
         return self._get_tag()

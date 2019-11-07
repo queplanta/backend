@@ -4,6 +4,7 @@ from graphene_django import DjangoObjectType, DjangoConnectionField
 
 from db.models import DocumentID
 from db.types_revision import DocumentNode, DocumentBase
+from db.graphene import CountedConnection
 from accounts.models_graphql import User
 
 from .models import Vote as VoteModel, VoteStats
@@ -80,6 +81,7 @@ class Vote(DjangoObjectType, DocumentBase):
     class Meta:
         model = VoteModel
         interfaces = (Node, DocumentNode)
+        connection_class = CountedConnection
 
     def resolve_author(self, info):
         if self.author_id:

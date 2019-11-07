@@ -4,6 +4,7 @@ from graphene_django import DjangoConnectionField, DjangoObjectType
 
 from db.models import DocumentID
 from db.types_revision import DocumentNode, DocumentBase
+from db.graphene import CountedConnection
 from voting.models_graphql import VotesNode
 
 from .models import Comment as CommentModel, CommentStats
@@ -53,6 +54,7 @@ class Comment(DjangoObjectType, DocumentBase):
         model = CommentModel
         interfaces = (relay.Node, DocumentNode, CommentsNode, VotesNode)
         filter_fields = []
+        connection_class = CountedConnection
 
     @classmethod
     def get_node(cls, info, id):

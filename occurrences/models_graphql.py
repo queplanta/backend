@@ -5,7 +5,8 @@ from graphene.relay import Node
 from graphene_django import DjangoConnectionField, DjangoObjectType
 from graphene_django.converter import convert_django_field
 
-from db.types_revision import DocumentNode, DocumentBase, CountedConnection
+from db.types_revision import DocumentNode, DocumentBase
+from db.graphene import CountedConnection
 
 from .models import (
     Occurrence as OccurrenceModel,

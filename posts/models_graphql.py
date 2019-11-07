@@ -2,6 +2,7 @@ from graphene_django import DjangoConnectionField, DjangoObjectType
 from graphene.relay import Node
 
 from db.types_revision import DocumentNode, DocumentBase
+from db.graphene import CountedConnection
 
 from .models import Post as PostModel
 from commenting.models_graphql import CommentsNode
@@ -21,6 +22,7 @@ class Post(DjangoObjectType, DocumentBase):
         model = PostModel
         interfaces = (Node, DocumentNode, CommentsNode, VotesNode, ImagesNode)
         filter_fields = ['published_at']
+        connection_class = CountedConnection
 
     @classmethod
     def get_node(cls, info, id):

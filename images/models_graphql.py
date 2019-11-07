@@ -4,6 +4,7 @@ from graphene_django import DjangoConnectionField, DjangoObjectType
 
 from db.models import DocumentID
 from db.types_revision import DocumentNode, DocumentBase
+from db.graphene import CountedConnection
 
 from .models import (
     Image as ImageModel,
@@ -54,6 +55,7 @@ class Image(DjangoObjectType, DocumentBase):
     class Meta:
         model = ImageModel
         interfaces = (Node, DocumentNode, CommentsNode, VotesNode)
+        connection_class = CountedConnection
 
     def resolve_image(self, info, **kwargs):
         return self.image

@@ -9,6 +9,8 @@ from graphene_django import DjangoObjectType, DjangoConnectionField
 from graphene_django.filter import DjangoFilterConnectionField
 
 from db.types import DocumentBase
+from db.graphene import CountedConnection
+
 from images.fields import Thumbnail
 from backend.fields import GetBy
 
@@ -35,6 +37,7 @@ class User(DjangoObjectType, DocumentBase):
         model = UserModel
         exclude_fields = ('is_superuser', 'password', 'is_staff')
         interfaces = (Node, )
+        connection_class = CountedConnection
 
     def resolve_email(self, info):
         if info.context.user.is_authenticated and\

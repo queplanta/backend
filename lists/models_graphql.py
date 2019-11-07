@@ -4,6 +4,7 @@ from graphene.relay import Node
 
 from db.models import DocumentID
 from db.types_revision import DocumentNode, DocumentBase
+from db.graphene import CountedConnection
 
 from .models import List as ListModel
 from commenting.models_graphql import CommentsNode
@@ -16,6 +17,7 @@ class List(DjangoObjectType, DocumentBase):
     class Meta:
         model = ListModel
         interfaces = (Node, DocumentNode, CommentsNode, VotesNode)
+        connection_class = CountedConnection
 
     def resolve_items(self, info):
         if not self.items:

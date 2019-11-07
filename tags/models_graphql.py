@@ -2,6 +2,7 @@ from graphene_django import DjangoObjectType, DjangoConnectionField
 from graphene.relay import Node
 
 from db.types_revision import DocumentNode, DocumentBase
+from db.graphene import CountedConnection
 
 from .models import Tag as TagModel
 
@@ -18,6 +19,7 @@ class Tag(DjangoObjectType, DocumentBase):
         model = TagModel
         interfaces = (Node, DocumentNode)
         filter_fields = ['slug']
+        connection_class = CountedConnection
 
     def resolve_all_posts(self, info, **kwargs):
         Post = get_post_type()
