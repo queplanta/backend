@@ -7,7 +7,7 @@ from graphene_django.debug import DjangoDebug
 
 from django.db.models import Q
 
-from accounts.models_graphql import User
+from accounts.models_graphql import Query as UserQuery
 from posts.models_graphql import Post
 from pages.models_graphql import Page
 from tags.models_graphql import Tag
@@ -42,12 +42,9 @@ class NodeField(RelayNodeField):
         return get_node
 
 
-class Query(ShortnerQuery, graphene.ObjectType):
+class Query(UserQuery, ShortnerQuery, graphene.ObjectType):
     id = graphene.ID(required=True)
     viewer = graphene.Field(lambda: Query)
-    me = graphene.Field(User)
-    user = relay.Node.Field(User)
-    user_by_username = GetBy(User, username=graphene.String(required=True))
 
     revision = relay.Node.Field(Revision)
     document = relay.Node.Field(Document)
@@ -99,11 +96,6 @@ class Query(ShortnerQuery, graphene.ObjectType):
 
     def resolve_viewer(self, *args, **kwargs):
         return get_default_viewer(*args, **kwargs)
-
-    def resolve_me(parent, info):
-        if info.context.user.is_authenticated:
-            return User._meta.model.objects.get(pk=info.context.user.pk)
-        return None
 
     def resolve_allOccurrences(self, info, **kwargs):
         qs = Occurrence._meta.model.objects.all()

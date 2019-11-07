@@ -54,15 +54,11 @@ class ImageTest(UserTestCase):
                     mutation M($input_0: ImageCreateInput!) {
                         imageCreate(input: $input_0) {
                             clientMutationId,
-                            imaging {
-                                images(first: 10) {
-                                    edges {
-                                        node {
-                                            description
-                                        }
-                                    }
+                            image {
+                                node {
+                                    description
                                 }
-                            },
+                            }
                             errors {
                                 code,
                             },
@@ -81,13 +77,9 @@ class ImageTest(UserTestCase):
         expected = {
             'data': {
                 'imageCreate': {
-                    'imaging': {
-                        'images': {
-                            'edges': [{
-                                'node': {
-                                    'description': 'image description'
-                                }
-                            }]
+                    'image': {
+                        'node': {
+                            'description': 'image description'
                         }
                     },
                     'clientMutationId': '1',
