@@ -9,7 +9,7 @@ from db import mutations as db_mutations
 from life.mutations import Mutations as LifeMutations
 from occurrences import mutations as occurrences_mutations
 from pages import mutations as page_mutations
-from lists import mutations as lists_mutations
+from lists.mutations import Mutations as ListsMutations
 from images.mutations import Mutations as ImagesMutations
 
 
@@ -17,7 +17,7 @@ def m_field(m):
     return m.Field()
 
 
-class Mutation(ImagesMutations, LifeMutations, graphene.ObjectType):
+class Mutation(ImagesMutations, LifeMutations, ListsMutations, graphene.ObjectType):
     register = m_field(accounts_mutations.Register)
     registerAndAuthenticate = m_field(
         accounts_mutations.RegisterAndAuthenticate)
@@ -40,11 +40,6 @@ class Mutation(ImagesMutations, LifeMutations, graphene.ObjectType):
     pageCreate = m_field(page_mutations.PageCreate)
     pageEdit = m_field(page_mutations.PageEdit)
     pageDelete = m_field(page_mutations.PageDelete)
-
-    listCreate = m_field(lists_mutations.ListCreate)
-    listEdit = m_field(lists_mutations.ListEdit)
-    listDelete = m_field(lists_mutations.ListDelete)
-    listAddItem = m_field(lists_mutations.ListAddItem)
 
     tagCreate = m_field(TagCreate)
     tagEdit = m_field(TagEdit)

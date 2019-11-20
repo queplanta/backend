@@ -1,5 +1,9 @@
 from backend.tests import UserTestCase
 from django.test.client import MULTIPART_CONTENT
+from graphql_relay.node.node import to_global_id
+
+from .factories import LifeNodeFactory
+from lists.tests.factories import CollectionItemFactory, WishItemFactory
 
 
 class LifeNodeTest(UserTestCase):
@@ -38,6 +42,12 @@ class LifeNodeTest(UserTestCase):
                                 id,
                                 title,
                                 rank
+                            },
+                            myCollectionItem {
+                                id
+                            }
+                            myWishItem {
+                                id
                             }
                         },
                         errors {
@@ -133,7 +143,9 @@ class LifeNodeTest(UserTestCase):
                             'id': parent['id'],
                             'title': parent['title'],
                             'rank': parent['rank'],
-                        }
+                        },
+                        'myCollectionItem': None,
+                        'myWishItem': None,
                     },
                     'clientMutationId': '1',
                     'errors': None
@@ -272,6 +284,76 @@ class LifeNodeTest(UserTestCase):
                     },
                     'clientMutationId': '1',
                     'errors': None
+                },
+            }
+        }
+        self.assertEqual(response.json(), expected)
+
+    def test_my_collection_item(self):
+        self._do_login()
+        life_node = LifeNodeFactory()
+        collection_item = CollectionItemFactory(
+            plant=life_node.document,
+            user=self.user.document,
+        )
+        collection_item_id = to_global_id("CollectionItem", collection_item.document.pk)
+
+        response = self.graphql({
+            'query': '''
+                query M($id: Int!) {
+                    lifeNodeByIntID(documentId: $id) {
+                        myCollectionItem {
+                            id
+                        }
+                    }
+                }
+                ''',
+            'variables': {
+                'id': life_node.document_id,
+            },
+        }, client=self.client)
+
+        expected = {
+            'data': {
+                'lifeNodeByIntID': {
+                    'myCollectionItem': {
+                        'id': collection_item_id,
+                    },
+                },
+            }
+        }
+        self.assertEqual(response.json(), expected)
+
+    def test_my_wish_item(self):
+        self._do_login()
+        life_node = LifeNodeFactory()
+        wish_item = WishItemFactory(
+            plant=life_node.document,
+            user=self.user.document,
+        )
+        wish_item_id = to_global_id("WishItem", wish_item.document.pk)
+
+        response = self.graphql({
+            'query': '''
+                query M($id: Int!) {
+                    lifeNodeByIntID(documentId: $id) {
+                        myWishItem {
+                            id
+                        }
+                    }
+                }
+                ''',
+            'variables': {
+                'id': life_node.document_id,
+            },
+        }, client=self.client)
+
+        expected = {
+            'data': {
+                'lifeNodeByIntID': {
+                    'myWishItem': {
+                        'id': wish_item_id,
+                    },
                 },
             }
         }

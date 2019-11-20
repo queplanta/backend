@@ -3,7 +3,7 @@ import uuid
 from django.db import models
 from django.contrib.postgres.fields import JSONField
 
-from db.models import DocumentBase
+from db.models import DocumentBase, DocumentID
 
 
 class List(DocumentBase):
@@ -27,3 +27,17 @@ class List(DocumentBase):
         self.items = items
 
         return item
+
+
+class CollectionItem(DocumentBase):
+    plant = models.ForeignKey(
+        DocumentID, related_name="collection_item_plant",
+        blank=True, null=True, on_delete=models.SET_NULL)
+    user = models.ForeignKey(DocumentID, related_name="collection_item_user", on_delete=models.CASCADE)
+
+
+class WishItem(DocumentBase):
+    plant = models.ForeignKey(
+        DocumentID, related_name="wish_item_plant",
+        blank=True, null=True, on_delete=models.SET_NULL)
+    user = models.ForeignKey(DocumentID, related_name="wish_item_user", on_delete=models.CASCADE)

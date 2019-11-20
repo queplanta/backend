@@ -1,5 +1,6 @@
 import graphene
 from graphql_relay.node.node import from_global_id
+from graphql_relay.connection.arrayconnection import offset_to_cursor
 
 from django.utils.text import slugify
 
@@ -7,7 +8,8 @@ from accounts.decorators import login_required
 from accounts.permissions import has_permission
 from backend.mutations import Mutation
 from db.models import DocumentID
-from .models_graphql import List, ListItem
+from life.models import LifeNode as LifeNodeModel
+from .models_graphql import List, ListItem, CollectionItem, WishItem
 
 
 def list_save(list_saving, args, request):
@@ -110,3 +112,108 @@ class ListAddItem(Mutation):
             item=item.get_object()
         )
         return ListAddItem(list=edited_list, list_item=list_item)
+
+
+class CollectionItemAdd(Mutation):
+    class Input:
+        plant_id = graphene.ID(required=True)
+
+    collection_item = graphene.Field(CollectionItem._meta.connection.Edge)
+
+    @classmethod
+    @login_required
+    def mutate_and_get_payload(cls, root, info, **input):
+        gid_type, gid = from_global_id(input.get('plant_id'))
+        life_node = LifeNodeModel.objects.get(document_id=gid)
+
+        CollectionItemModel = CollectionItem._meta.model
+
+        collection_item = CollectionItemModel(
+            plant=life_node.document,
+            user=info.context.user.document
+        )
+        collection_item.save(request=info.context)
+
+        return CollectionItemAdd(
+            collection_item=CollectionItem._meta.connection.Edge(
+                node=collection_item,
+                cursor=offset_to_cursor(0)
+            )
+        )
+
+
+class CollectionItemDelete(Mutation):
+    class Input:
+        id = graphene.ID(required=True)
+
+    deleted_id = graphene.ID(required=True)
+
+    @classmethod
+    @login_required
+    def mutate_and_get_payload(cls, root, info, **input):
+        gid_type, gid = from_global_id(input.get('id'))
+        collection_item = CollectionItem._meta.model.objects.get(document_id=gid)
+        collection_item.delete(request=info.context)
+
+        return CollectionItemDelete(
+            deleted_id=input.get('id')
+        )
+
+
+class WishItemAdd(Mutation):
+    class Input:
+        plant_id = graphene.ID(required=True)
+
+    wish_item = graphene.Field(WishItem._meta.connection.Edge)
+
+    @classmethod
+    @login_required
+    def mutate_and_get_payload(cls, root, info, **input):
+        gid_type, gid = from_global_id(input.get('plant_id'))
+        life_node = LifeNodeModel.objects.get(document_id=gid)
+
+        WishItemModel = WishItem._meta.model
+
+        wish_item = WishItemModel(
+            plant=life_node.document,
+            user=info.context.user.document
+        )
+        wish_item.save(request=info.context)
+
+        return WishItemAdd(
+            wish_item=WishItem._meta.connection.Edge(
+                node=wish_item,
+                cursor=offset_to_cursor(0)
+            )
+        )
+
+
+class WishItemDelete(Mutation):
+    class Input:
+        id = graphene.ID(required=True)
+
+    deleted_id = graphene.ID(required=True)
+
+    @classmethod
+    @login_required
+    def mutate_and_get_payload(cls, root, info, **input):
+        gid_type, gid = from_global_id(input.get('id'))
+        wish_item = WishItem._meta.model.objects.get(document_id=gid)
+        wish_item.delete(request=info.context)
+
+        return WishItemDelete(
+            deleted_id=input.get('id')
+        )
+
+
+class Mutations(object):
+    list_create = ListCreate.Field()
+    list_edit = ListEdit.Field()
+    list_delete = ListDelete.Field()
+    list_add_item = ListAddItem.Field()
+
+    collection_item_add = CollectionItemAdd.Field()
+    collection_item_delete = CollectionItemDelete.Field()
+
+    wish_item_add = WishItemAdd.Field()
+    wish_item_delete = WishItemDelete.Field()

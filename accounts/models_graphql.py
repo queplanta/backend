@@ -22,22 +22,39 @@ def get_revision_type():
     return Revision
 
 
+def get_collection_item_type():
+    from lists.models_graphql import CollectionItem
+    return CollectionItem
+
+
+def get_wish_item_type():
+    from lists.models_graphql import WishItem
+    return WishItem
+
+
 class User(DjangoObjectType, DocumentBase):
     is_authenticated = graphene.Boolean()
     avatar = Thumbnail()
 
     actions = DjangoConnectionField(get_revision_type)
 
-    my_perms = graphene.List(graphene.String)
+    collection_list = DjangoConnectionField(get_collection_item_type)
+    wish_list = DjangoConnectionField(get_wish_item_type)
 
-    def resolve_is_authenticated(self, info):
-        return info.context.user.is_authenticated
+    my_perms = graphene.List(graphene.String)
 
     class Meta:
         model = UserModel
         exclude_fields = ('is_superuser', 'password', 'is_staff')
         interfaces = (Node, )
         connection_class = CountedConnection
+
+    @classmethod
+    def get_node(cls, info, id):
+        return cls._meta.model.objects.get(document_id=id)
+
+    def resolve_is_authenticated(self, info):
+        return info.context.user.is_authenticated
 
     def resolve_email(self, info):
         if info.context.user.is_authenticated and\
@@ -55,6 +72,18 @@ class User(DjangoObjectType, DocumentBase):
         Revision = get_revision_type()
         return Revision._meta.model.objects.filter(
             author_id=self.document.pk).order_by('-created_at')
+
+    def resolve_collection_list(self, info, **kwargs):
+        CollectionItem = get_collection_item_type()
+        return CollectionItem._meta.model.objects.filter(
+            user_id=self.document_id
+        ).order_by('-document__created_at')
+
+    def resolve_wish_list(self, info, **kwargs):
+        WishItem = get_wish_item_type()
+        return WishItem._meta.model.objects.filter(
+            user_id=self.document_id
+        ).order_by('-document__created_at')
 
     def resolve_my_perms(self, info, **kwargs):
         if self.is_superuser:

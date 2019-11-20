@@ -6,9 +6,10 @@ from db.models import DocumentID
 from db.types_revision import DocumentNode, DocumentBase
 from db.graphene import CountedConnection
 
-from .models import List as ListModel
+from .models import List as ListModel, CollectionItem as CollectionItemModel, WishItem as WishItemModel
 from commenting.models_graphql import CommentsNode
 from voting.models_graphql import VotesNode
+from life.models_graphql import LifeNode
 
 
 class List(DjangoObjectType, DocumentBase):
@@ -37,3 +38,31 @@ class ListItem(graphene.ObjectType):
     id = graphene.String()
     item = graphene.Field(Node)
     notes = graphene.String(required=False)
+
+
+class CollectionItem(DjangoObjectType, DocumentBase):
+    plant = graphene.Field(LifeNode)
+
+    class Meta:
+        model = CollectionItemModel
+        interfaces = (Node, DocumentNode, CommentsNode, VotesNode)
+        connection_class = CountedConnection
+
+    def resolve_plant(self, info):
+        if not self.plant_id:
+            return None
+        return LifeNode._meta.model.objects.get(document_id=self.plant_id)
+
+
+class WishItem(DjangoObjectType, DocumentBase):
+    plant = graphene.Field(LifeNode)
+
+    class Meta:
+        model = WishItemModel
+        interfaces = (Node, DocumentNode, CommentsNode, VotesNode)
+        connection_class = CountedConnection
+
+    def resolve_plant(self, info):
+        if not self.plant_id:
+            return None
+        return LifeNode._meta.model.objects.get(document_id=self.plant_id)

@@ -86,6 +86,16 @@ EDIBILITY_CHOICES_DESCRIPTION = {
 }
 
 
+def get_collection_item_type():
+    from lists.models_graphql import CollectionItem
+    return CollectionItem
+
+
+def get_wish_item_type():
+    from lists.models_graphql import WishItem
+    return WishItem
+
+
 class LifeNode(DjangoObjectType, DocumentBase):
     parent = graphene.Field(lambda: LifeNode)
     parents = graphene.List(lambda: LifeNode)
@@ -101,6 +111,9 @@ class LifeNode(DjangoObjectType, DocumentBase):
     characteristics = DjangoConnectionField(lambda: Characteristic)
 
     commonName = graphene.Field(lambda: CommonName)
+
+    myCollectionItem = graphene.Field(get_collection_item_type)
+    myWishItem = graphene.Field(get_wish_item_type)
 
     class Meta:
         model = LifeNodeModel
@@ -153,6 +166,32 @@ class LifeNode(DjangoObjectType, DocumentBase):
         return Characteristic._meta.model.objects.filter(
             lifeNode=self.document
         )
+    
+    def resolve_myCollectionItem(self, info, **kwargs):
+        if not info.context.user.is_authenticated:
+            return None
+
+        CollectionItem = get_collection_item_type()
+        try:
+            return CollectionItem._meta.model.objects.get(
+                plant_id=self.document_id,
+                user_id=info.context.user.document_id
+            )
+        except CollectionItem._meta.model.DoesNotExist:
+            return None
+
+    def resolve_myWishItem(self, info, **kwargs):
+        if not info.context.user.is_authenticated:
+            return None
+
+        WishItem = get_wish_item_type()
+        try:
+            return WishItem._meta.model.objects.get(
+                plant_id=self.document_id,
+                user_id=info.context.user.document_id
+            )
+        except WishItem._meta.model.DoesNotExist:
+            return None
 
 
 class CommonName(DjangoObjectType, DocumentBase):
