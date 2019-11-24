@@ -12,6 +12,11 @@ from voting.models_graphql import VotesNode
 from life.models_graphql import LifeNode
 
 
+def get_user_type():
+    from accounts.models_graphql import User
+    return User
+
+
 class List(DjangoObjectType, DocumentBase):
     items = graphene.List(lambda: ListItem)
 
@@ -42,6 +47,7 @@ class ListItem(graphene.ObjectType):
 
 class CollectionItem(DjangoObjectType, DocumentBase):
     plant = graphene.Field(LifeNode)
+    user = graphene.Field(get_user_type)
 
     class Meta:
         model = CollectionItemModel
@@ -53,9 +59,15 @@ class CollectionItem(DjangoObjectType, DocumentBase):
             return None
         return LifeNode._meta.model.objects.get(document_id=self.plant_id)
 
+    def resolve_user(self, info):
+        if self.user_id:
+            User = get_user_type()
+            return User._meta.model.objects.get(document_id=self.user_id)
+
 
 class WishItem(DjangoObjectType, DocumentBase):
     plant = graphene.Field(LifeNode)
+    user = graphene.Field(get_user_type)
 
     class Meta:
         model = WishItemModel
@@ -66,3 +78,8 @@ class WishItem(DjangoObjectType, DocumentBase):
         if not self.plant_id:
             return None
         return LifeNode._meta.model.objects.get(document_id=self.plant_id)
+
+    def resolve_user(self, info):
+        if self.user_id:
+            User = get_user_type()
+            return User._meta.model.objects.get(document_id=self.user_id)

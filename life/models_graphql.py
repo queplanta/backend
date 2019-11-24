@@ -13,6 +13,7 @@ from .models import (
     CommonName as CommonNameModel,
     Characteristic as CharacteristicModel
 )
+from accounts.models_graphql import User
 from commenting.models_graphql import CommentsNode
 from voting.models_graphql import VotesNode
 from images.models_graphql import Image
@@ -115,11 +116,18 @@ class LifeNode(DjangoObjectType, DocumentBase):
     myCollectionItem = graphene.Field(get_collection_item_type)
     myWishItem = graphene.Field(get_wish_item_type)
 
+    collectionList = DjangoConnectionField(get_collection_item_type)
+    wishList = DjangoConnectionField(get_wish_item_type)
+
     class Meta:
         model = LifeNodeModel
         interfaces = (Node, DocumentNode, CommentsNode, VotesNode)
         filter_fields = []
         connection_class = CountedConnection
+
+    @classmethod
+    def get_node(cls, info, id):
+        return cls._meta.model.objects.get(document_id=id)
 
     def resolve_parent(self, info):
         if self.parent:
@@ -192,6 +200,18 @@ class LifeNode(DjangoObjectType, DocumentBase):
             )
         except WishItem._meta.model.DoesNotExist:
             return None
+
+    def resolve_collectionList(self, info, **kwargs):
+        CollectionItem = get_collection_item_type()
+        return CollectionItem._meta.model.objects.filter(
+            plant=self.document_id
+        ).order_by('-document__created_at')
+
+    def resolve_wishList(self, info, **kwargs):
+        WishItem = get_wish_item_type()
+        return WishItem._meta.model.objects.filter(
+            plant=self.document_id,
+        ).order_by('-document__created_at')
 
 
 class CommonName(DjangoObjectType, DocumentBase):

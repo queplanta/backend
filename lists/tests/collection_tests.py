@@ -47,6 +47,49 @@ class CollectionListTest(UserTestCase):
         collection_list_length = response.json()['data']['user']['collectionList']['totalCount']
         self.assertEqual(collection_list_length, 1)
 
+    def test_life_node_collection_list(self):
+        self._do_login()
+        life_node = LifeNodeFactory()
+        life_node_2 = LifeNodeFactory()
+
+        CollectionItemFactory(
+            plant=life_node.document,
+            user=self.user.document,
+        )
+        CollectionItemFactory(
+            plant=life_node.document,
+            user=self.user_2.document,
+        )
+        CollectionItemFactory(
+            plant=life_node_2.document,
+            user=self.user.document,
+        )
+        response = self.graphql({
+            'query': '''
+                query Q($id: ID!) {
+                    lifeNode(id: $id) {
+                        collectionList(first: 10) {
+                            totalCount
+                            edges {
+                                node {
+                                    id
+                                    user {
+                                        username
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                ''',
+            'variables': {
+                'id': to_global_id("LifeNode", life_node.document.pk),
+            },
+        }, client=self.client)
+
+        collection_list_length = response.json()['data']['lifeNode']['collectionList']['totalCount']
+        self.assertEqual(collection_list_length, 2)
+
     def test_mutation_add(self):
         self._do_login()
         life_node = LifeNodeFactory()
@@ -182,6 +225,49 @@ class WishListTest(UserTestCase):
 
         collection_list_length = response.json()['data']['user']['collectionList']['totalCount']
         self.assertEqual(collection_list_length, 1)
+
+    def test_life_node_wish_list(self):
+        self._do_login()
+        life_node = LifeNodeFactory()
+        life_node_2 = LifeNodeFactory()
+
+        WishItemFactory(
+            plant=life_node.document,
+            user=self.user.document,
+        )
+        WishItemFactory(
+            plant=life_node.document,
+            user=self.user_2.document,
+        )
+        WishItemFactory(
+            plant=life_node_2.document,
+            user=self.user.document,
+        )
+        response = self.graphql({
+            'query': '''
+                query Q($id: ID!) {
+                    lifeNode(id: $id) {
+                        wishList(first: 10) {
+                            totalCount
+                            edges {
+                                node {
+                                    id
+                                    user {
+                                        username
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                ''',
+            'variables': {
+                'id': to_global_id("LifeNode", life_node.document.pk),
+            },
+        }, client=self.client)
+
+        collection_list_length = response.json()['data']['lifeNode']['wishList']['totalCount']
+        self.assertEqual(collection_list_length, 2)
 
     def test_mutation_add(self):
         self._do_login()
