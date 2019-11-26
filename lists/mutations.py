@@ -9,6 +9,7 @@ from accounts.permissions import has_permission
 from backend.mutations import Mutation
 from db.models import DocumentID
 from life.models import LifeNode as LifeNodeModel
+from life.models_graphql import LifeNode
 from .models_graphql import List, ListItem, CollectionItem, WishItem
 
 
@@ -147,16 +148,19 @@ class CollectionItemDelete(Mutation):
         id = graphene.ID(required=True)
 
     deleted_id = graphene.ID(required=True)
+    life_node = graphene.Field(LifeNode)
 
     @classmethod
     @login_required
     def mutate_and_get_payload(cls, root, info, **input):
         gid_type, gid = from_global_id(input.get('id'))
         collection_item = CollectionItem._meta.model.objects.get(document_id=gid)
+        life_node = LifeNodeMode.objects.get(document_id=collection_item.plant_id)
         collection_item.delete(request=info.context)
 
         return CollectionItemDelete(
-            deleted_id=input.get('id')
+            deleted_id=input.get('id'),
+            life_node=life_node
         )
 
 
@@ -193,16 +197,19 @@ class WishItemDelete(Mutation):
         id = graphene.ID(required=True)
 
     deleted_id = graphene.ID(required=True)
+    life_node = graphene.Field(LifeNode)
 
     @classmethod
     @login_required
     def mutate_and_get_payload(cls, root, info, **input):
         gid_type, gid = from_global_id(input.get('id'))
         wish_item = WishItem._meta.model.objects.get(document_id=gid)
+        life_node = LifeNodeMode.objects.get(document_id=collection_item.plant_id)
         wish_item.delete(request=info.context)
 
         return WishItemDelete(
-            deleted_id=input.get('id')
+            deleted_id=input.get('id'),
+            life_node=life_node
         )
 
 

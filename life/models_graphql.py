@@ -180,26 +180,20 @@ class LifeNode(DjangoObjectType, DocumentBase):
             return None
 
         CollectionItem = get_collection_item_type()
-        try:
-            return CollectionItem._meta.model.objects.get(
-                plant_id=self.document_id,
-                user_id=info.context.user.document_id
-            )
-        except CollectionItem._meta.model.DoesNotExist:
-            return None
+        return CollectionItem._meta.model.objects.filter(
+            plant_id=self.document_id,
+            user_id=info.context.user.document_id
+        ).first()
 
     def resolve_myWishItem(self, info, **kwargs):
         if not info.context.user.is_authenticated:
             return None
 
         WishItem = get_wish_item_type()
-        try:
-            return WishItem._meta.model.objects.get(
-                plant_id=self.document_id,
-                user_id=info.context.user.document_id
-            )
-        except WishItem._meta.model.DoesNotExist:
-            return None
+        return WishItem._meta.model.objects.filter(
+            plant_id=self.document_id,
+            user_id=info.context.user.document_id
+        ).first()
 
     def resolve_collectionList(self, info, **kwargs):
         CollectionItem = get_collection_item_type()
