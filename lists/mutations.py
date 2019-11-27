@@ -129,11 +129,16 @@ class CollectionItemAdd(Mutation):
 
         CollectionItemModel = CollectionItem._meta.model
 
-        collection_item = CollectionItemModel(
+        collection_item = CollectionItemModel.objects.filter(
             plant=life_node.document,
             user=info.context.user.document
-        )
-        collection_item.save(request=info.context)
+        ).first()
+        if not collection_item:
+            collection_item = CollectionItemModel(
+                plant=life_node.document,
+                user=info.context.user.document
+            )
+            collection_item.save(request=info.context)
 
         return CollectionItemAdd(
             collection_item=CollectionItem._meta.connection.Edge(
@@ -155,7 +160,7 @@ class CollectionItemDelete(Mutation):
     def mutate_and_get_payload(cls, root, info, **input):
         gid_type, gid = from_global_id(input.get('id'))
         collection_item = CollectionItem._meta.model.objects.get(document_id=gid)
-        life_node = LifeNodeMode.objects.get(document_id=collection_item.plant_id)
+        life_node = LifeNodeModel.objects.get(document_id=collection_item.plant_id)
         collection_item.delete(request=info.context)
 
         return CollectionItemDelete(
@@ -178,11 +183,16 @@ class WishItemAdd(Mutation):
 
         WishItemModel = WishItem._meta.model
 
-        wish_item = WishItemModel(
+        wish_item = WishItemModel.objects.filter(
             plant=life_node.document,
             user=info.context.user.document
-        )
-        wish_item.save(request=info.context)
+        ).first()
+        if not wish_item:
+            wish_item = WishItemModel(
+                plant=life_node.document,
+                user=info.context.user.document
+            )
+            wish_item.save(request=info.context)
 
         return WishItemAdd(
             wish_item=WishItem._meta.connection.Edge(
@@ -204,7 +214,7 @@ class WishItemDelete(Mutation):
     def mutate_and_get_payload(cls, root, info, **input):
         gid_type, gid = from_global_id(input.get('id'))
         wish_item = WishItem._meta.model.objects.get(document_id=gid)
-        life_node = LifeNodeMode.objects.get(document_id=collection_item.plant_id)
+        life_node = LifeNodeModel.objects.get(document_id=wish_item.plant_id)
         wish_item.delete(request=info.context)
 
         return WishItemDelete(
