@@ -5,7 +5,11 @@ from graphene.relay.node import NodeField as RelayNodeField
 from graphene_django.filter import DjangoFilterConnectionField
 from graphene_django.debug import DjangoDebug
 
+from decimal import Decimal
+
+from django.db import connection
 from django.db.models import Q
+from django.contrib.gis.geos import Polygon
 
 from accounts.models_graphql import Query as UserQuery
 from posts.models_graphql import Post
@@ -16,7 +20,7 @@ from commenting.models_graphql import Comment
 from life.models_graphql import (
     LifeNode, Quizz, generate_quiz, CommonName
 )
-from occurrences.models_graphql import Occurrence, OccurrenceFilter, SuggestionID
+from occurrences.models_graphql import Occurrence, OccurrenceFilter, SuggestionID, OccurrenceCluster
 from db.models_graphql import Revision, Document
 from lists.models_graphql import List
 from images.models_graphql import Image
@@ -77,7 +81,10 @@ class Query(UserQuery, ShortnerQuery, graphene.ObjectType):
     }, total_found2=graphene.Int(required=False, name='totalFound2'))
 
     occurrence = relay.Node.Field(Occurrence)
-    allOccurrences = DjangoFilterConnectionField(Occurrence, filterset_class=OccurrenceFilter)
+    all_occurrences = DjangoFilterConnectionField(Occurrence, filterset_class=OccurrenceFilter)
+    all_occurrences_cluster = graphene.List(OccurrenceCluster, args={
+        'within_bbox': graphene.Argument(graphene.String, required=True),
+    })
     allWhatIsThis = DjangoFilterConnectionField(Occurrence, filterset_class=OccurrenceFilter)
     suggestionID = relay.Node.Field(SuggestionID)
 
@@ -97,10 +104,48 @@ class Query(UserQuery, ShortnerQuery, graphene.ObjectType):
     def resolve_viewer(self, *args, **kwargs):
         return get_default_viewer(*args, **kwargs)
 
-    def resolve_allOccurrences(self, info, **kwargs):
+    def resolve_all_occurrences(self, info, **kwargs):
         qs = Occurrence._meta.model.objects.all()
         return qs.order_by('-document__created_at').filter(
             location__isnull=False, identity__isnull=False)
+
+    def resolve_all_occurrences_cluster(self, info, **kwargs):
+        from geopy import distance
+
+        within_bbox = kwargs.get('within_bbox')
+        bbox = [Decimal(v) for v in within_bbox.split(',')]
+        geom = Polygon.from_bbox(bbox)
+
+        distance_km = distance.distance(bbox[0:2], bbox[2:4]).km
+
+        if distance_km <= 11:
+            # return occurrences item
+            pass
+
+        # return clusters 
+        items = []
+        with connection.cursor() as cursor:
+            cursor.execute('''
+                WITH clusters AS (
+                    SELECT unnest(ST_ClusterWithin("occurrences_occurrence"."location"::geometry, 0.0035)) AS cluster
+                    FROM "occurrences_occurrence"
+                    WHERE ST_CoveredBy("occurrences_occurrence"."location", ST_GeographyFromText(%s))
+                )
+                SELECT
+                    ST_NumGeometries("clusters"."cluster") as num_geometries,
+                    ST_AsEWKT(ST_Buffer(ST_ConvexHull("clusters"."cluster"), 0.0005)) as geom,
+                    ARRAY_AGG("occurrences_occurrence"."document_id") AS document_ids
+                FROM "occurrences_occurrence", "clusters"
+                WHERE ST_Contains(ST_CollectionExtract("clusters"."cluster", 1), "occurrences_occurrence"."location"::geometry)
+                GROUP BY "clusters"."cluster";
+            ''', [geom.ewkt])
+            for row in cursor.fetchall():
+                items.append(OccurrenceCluster(
+                    count=row[0],
+                    polygon=OccurrenceCluster.polygon.parse_value(row[1]),
+                    occurrences=row[2],
+                ))
+        return items
 
     def resolve_allWhatIsThis(self, info, **kwargs):
         qs = Occurrence._meta.model.objects.all()

@@ -1,6 +1,6 @@
 from backend.tests import UserTestCase
 from django.test.client import MULTIPART_CONTENT
-from .models import Occurrence
+from occurrences.models import Occurrence
 
 
 class OccurrenceTest(UserTestCase):
