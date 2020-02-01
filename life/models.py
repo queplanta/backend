@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.postgres.fields import ArrayField
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _
 from django.utils.text import slugify
@@ -44,6 +45,60 @@ RANK_BY_STRING = {
 }
 RANK_STRING_BY_INT = {v: k for k, v in RANK_BY_STRING.items()}
 
+COLOR_CHOICES = (
+    ('white', _('White')),
+    ('red', _('Red')),
+    ('orange', _('Orange')),
+    ('yellow', _('Yellow')),
+    ('pink', _('Pink')),
+    ('pink-lilac', _('Pink Lilac')),
+    ('lilac', _('Lilac')),
+    ('blue', _('Blue')),
+    ('light-blue', _('Light Blue')),
+    ('green', _('Green')),
+    ('purple', _('Purple')),
+    ('black', _('Black')),
+    ('brown', _('Brown')),
+    ('nut-brown', _('Nut Brown')),
+    ('wine', _('Wine')),
+    ('cream', _('Cream')),
+)
+
+FLOWER_TYPES_CHOICES = (
+    ('inflorescence', _('Inflorescence')),
+    ('pseudanthium', _('Composite Flower')),
+    ('solitary', _('Solitary Flower')),
+)
+
+# taken from https://courses.botany.wisc.edu/botany_400/Lab/LabWK03Fruitkey.html
+FRUIT_TYPES_CHOICES = (
+    ('simple', _('Simple')),
+        ('dry', _('Dry')),
+            ('dehiscent', _('Dehiscent')),
+            ('legume', _('Legume')),
+            ('follicle', _('Follicle')),
+            ('capsule', _('Capsule')),
+                ('capsule-loculicidal', _('Loculicidal Capsule')),
+                ('capsule-septicidal', _('Septicidal Capsule')),
+                ('capsule-silique', _('Silique Capsule')),
+                ('capsule-silicle', _('Silicle Capsule')),
+                ('capsule-pyxis', _('Pyxis Capsule')),
+                ('capsule-poricidal', _('Poricidal Capsule')),
+            ('indehiscent', _('Indehiscent')),
+                ('achene', _('Achene')),
+                ('nut', _('Nut')),
+                ('samara', _('Samara')),
+                ('grain', _('Grain')),
+                ('schizocarp', _('Schizocarp')),
+    ('fleshy', _('Fleshy')),
+        ('drupe', _('Drupe')),
+        ('berry', _('Berry')),
+            ('hesperidium', _('Hesperidium')),
+            ('pepo', _('Pepo')),
+        ('pome', _('Pome')),
+    ('aggregate', _('Aggregate')),
+    ('multiple', _('Multiple')),
+)
 
 def limit_by_commonName_contenttype():
     try:
@@ -64,6 +119,8 @@ class LifeNode(DocumentBase):
     description = models.TextField(null=True, blank=True)
 
     edibility = models.IntegerField(null=True)
+    flower_colors = ArrayField(models.CharField(choices=COLOR_CHOICES, max_length=25), null=True, blank=True)
+    flower_types = ArrayField(models.CharField(choices=FRUIT_TYPES_CHOICES, max_length=45), null=True, blank=True)
 
     gbif_id = models.IntegerField(null=True, blank=True)
 

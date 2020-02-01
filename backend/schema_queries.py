@@ -73,7 +73,9 @@ class Query(UserQuery, ShortnerQuery, graphene.ObjectType):
     lifeNodeByIntID = GetBy(LifeNode, document_id=graphene.Int(required=True))
     allLifeNode = DjangoFilterConnectionField(LifeNode, args={
         'search': graphene.Argument(graphene.String, required=False),
-        'edibles': graphene.Argument(graphene.Boolean, required=False)
+        'edibles': graphene.Argument(graphene.Boolean, required=False),
+        'flower_colors': graphene.Argument(graphene.List(graphene.String), required=False),
+        'flower_types': graphene.Argument(graphene.List(graphene.String), required=False)
     }, total_found2=graphene.Int(required=False, name='totalFound2'))
 
     occurrence = relay.Node.Field(Occurrence)
@@ -110,6 +112,10 @@ class Query(UserQuery, ShortnerQuery, graphene.ObjectType):
         qs = LifeNode._meta.model.objects.all()
         if 'edibles' in args and bool(args['edibles']):
             qs = qs.filter(edibility__gte=1)
+        if 'flower_colors' in args:
+            qs = qs.filter(flower_colors__contains=args['flower_colors'])
+        if 'flower_types' in args:
+            qs = qs.filter(flower_types__contains=args['flower_types'])
         if 'search' in args and len(args['search']) > 2:
             s = args['search'].strip()
             q_objects = Q(title__icontains=s)

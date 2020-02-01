@@ -358,3 +358,59 @@ class LifeNodeTest(UserTestCase):
             }
         }
         self.assertEqual(response.json(), expected)
+
+    def test_filter_by_flower_colors(self):
+        self._do_login()
+        LifeNodeFactory(flower_colors=['red'])
+        LifeNodeFactory(flower_colors=['white'])
+        LifeNodeFactory(flower_colors=['red', 'white'])
+
+        response = self.graphql({
+            'query': '''
+                query M($colors: [String]) {
+                    allLifeNode(flowerColors: $colors) {
+                        totalCount
+                    }
+                }
+                ''',
+            'variables': {
+                'colors': ['white'],
+            },
+        }, client=self.client)
+
+        expected = {
+            'data': {
+                'allLifeNode': {
+                    'totalCount': 2
+                },
+            }
+        }
+        self.assertEqual(response.json(), expected)
+
+    def test_filter_by_flower_types(self):
+        self._do_login()
+        LifeNodeFactory(flower_types=['fleshy'])
+        LifeNodeFactory(flower_types=['simple'])
+        LifeNodeFactory(flower_types=['simple', 'dehiscent'])
+
+        response = self.graphql({
+            'query': '''
+                query M($flowerTypes: [String]) {
+                    allLifeNode(flowerTypes: $flowerTypes) {
+                        totalCount
+                    }
+                }
+                ''',
+            'variables': {
+                'flowerTypes': ['simple', 'dehiscent'],
+            },
+        }, client=self.client)
+
+        expected = {
+            'data': {
+                'allLifeNode': {
+                    'totalCount': 1
+                },
+            }
+        }
+        self.assertEqual(response.json(), expected)

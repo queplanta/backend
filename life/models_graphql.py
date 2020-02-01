@@ -103,6 +103,9 @@ class LifeNode(DjangoObjectType, DocumentBase):
     rank = graphene.Field(Rank)
     rankDisplay = graphene.String()
 
+    flower_colors = graphene.List(graphene.String)
+    flower_types = graphene.List(graphene.String)
+
     edibility = graphene.Field(Edibility)
     edibilityDisplay = graphene.String()
 
