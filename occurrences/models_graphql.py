@@ -1,6 +1,8 @@
 import django_filters
 import graphene
 import graphql_geojson
+from decimal import Decimal
+from django.contrib.gis.geos import Polygon
 from graphene.relay import Node
 from graphene_django import DjangoConnectionField, DjangoObjectType
 from graphene_django.converter import convert_django_field
@@ -17,6 +19,12 @@ from life.models_graphql import LifeNode
 from commenting.models_graphql import CommentsNode
 from voting.models_graphql import VotesNode
 from images.models_graphql import Image
+
+
+class OccurrenceCluster(graphene.ObjectType):
+    count = graphene.Int()
+    polygon = graphql_geojson.Geometry()
+    occurrences = graphene.List(graphene.Int)
 
 
 class Occurrence(DjangoObjectType, DocumentBase):
@@ -60,8 +68,21 @@ class Occurrence(DjangoObjectType, DocumentBase):
         return qs.order_by('-document__votestats__sum_values')
 
 
+class BoundBoxFilter(django_filters.CharFilter):
+    description = "4 numbers separated by comma that represents a polygon object from the given bounding-box, e.g.: xmin,ymin,xmax,ymax)"
+
+    def filter(self, qs, value):
+        if not value:
+            return qs
+
+        bbox = [Decimal(v) for v in value.split(',')]
+        geom = Polygon.from_bbox(bbox)
+        return qs.filter(location__coveredby=geom)
+
+
 class OccurrenceFilter(django_filters.FilterSet):
     isIdentityNull = django_filters.BooleanFilter(field_name='identity', lookup_expr='isnull')
+    within_bbox = BoundBoxFilter()
 
     class Meta:
         model = OccurrenceModel
