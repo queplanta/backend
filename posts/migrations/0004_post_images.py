@@ -16,6 +16,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='post',
             name='images',
-            field=db.fields.ManyToManyField(limit_choices_to=images.models.limit_by_image_contenttype, related_name='post_image', to='db.DocumentID'),
+            field=db.fields.ManyToManyField(limit_choices_to=db.fields.limit_by_contenttype('images.Image'), related_name='post_image', to='db.DocumentID'),
         ),
     ]

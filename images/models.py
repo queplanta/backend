@@ -14,13 +14,3 @@ class Image(DocumentBase):
     description = models.TextField(null=True, blank=True)
 
     REPUTATION_VALUE = 1
-
-
-def limit_by_image_contenttype():
-    try:
-        ct = ContentType.objects.get_for_model(Image)
-        return {
-            'content_type': ct
-        }
-    except ContentType.DoesNotExist:
-        return {}

@@ -16,9 +16,7 @@ from pages.models_graphql import Page
 from tags.models_graphql import Tag
 from voting.models_graphql import Vote
 from commenting.models_graphql import Comment
-from life.models_graphql import (
-    LifeNode, Quizz, generate_quiz, CommonName
-)
+from life.models_graphql import Query as LifeNodeQuery
 from occurrences.models_graphql import Occurrence, OccurrenceFilter, SuggestionID, OccurrenceCluster
 from db.models_graphql import Revision, Document
 from lists.models_graphql import List
@@ -45,7 +43,7 @@ class NodeField(RelayNodeField):
         return get_node
 
 
-class Query(UserQuery, ShortnerQuery, graphene.ObjectType):
+class Query(UserQuery, ShortnerQuery, LifeNodeQuery, graphene.ObjectType):
     id = graphene.ID(required=True)
     viewer = graphene.Field(lambda: Query)
 
@@ -72,14 +70,6 @@ class Query(UserQuery, ShortnerQuery, graphene.ObjectType):
 
     vote = relay.Node.Field(Vote)
 
-    lifeNode = relay.Node.Field(LifeNode)
-    lifeNodeByIntID = GetBy(LifeNode, document_id=graphene.Int(required=True))
-    allLifeNode = DjangoFilterConnectionField(LifeNode, args={
-        'search': graphene.Argument(graphene.String, required=False),
-        'order_by': graphene.Argument(graphene.String, required=False),
-        'edibles': graphene.Argument(graphene.Boolean, required=False)
-    }, total_found2=graphene.Int(required=False, name='totalFound2'))
-
     occurrence = relay.Node.Field(Occurrence)
     allOccurrences = DjangoFilterConnectionField(Occurrence, filterset_class=OccurrenceFilter)
     allOccurrencesCluster = graphene.List(OccurrenceCluster, args={
@@ -89,8 +79,6 @@ class Query(UserQuery, ShortnerQuery, graphene.ObjectType):
     suggestionID = relay.Node.Field(SuggestionID)
 
     list = relay.Node.Field(List)
-
-    lifeNodeQuizz = graphene.Field(Quizz, resolver=generate_quiz)
 
     node = NodeField(relay.Node)
 
@@ -145,39 +133,6 @@ class Query(UserQuery, ShortnerQuery, graphene.ObjectType):
     def resolve_allWhatIsThis(self, info, **kwargs):
         qs = Occurrence._meta.model.objects.all()
         return qs.order_by('-document__created_at').filter(is_request=True)
-
-    def resolve_allLifeNode(self, info, **args):
-        qs = LifeNode._meta.model.objects.all()
-        if 'edibles' in args and bool(args['edibles']):
-            qs = qs.filter(edibility__gte=1)
-        if 'search' in args and len(args['search']) > 2:
-            s = args['search'].strip()
-            q_objects = Q(title__icontains=s)
-
-            commonNames = CommonName._meta.model.objects.filter(
-                name__icontains=s
-            ).distinct().values_list('document_id', flat=True)
-
-            if len(commonNames) > 0:
-                q_objects |= Q(commonNames__id__in=commonNames)
-
-            qs = qs.filter(q_objects)
-            return qs.distinct()
-
-        order_by = args.get('order_by')
-
-        if order_by == '-wish_count':
-            qs = qs.filter(document__liststats__isnull=False)
-            qs = qs.order_by('-document__liststats__wish_count')
-
-        if order_by == '-collection_count':
-            qs = qs.filter(document__liststats__isnull=False)
-            qs = qs.order_by('-document__liststats__collection_count')
-
-        if not order_by:
-            qs = qs.order_by('document_id')
-
-        return qs.distinct()
 
     def resolve_version(self, info):
         return os.getenv('VERSION', 'master')

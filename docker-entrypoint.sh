@@ -18,4 +18,5 @@ exec gunicorn backend.wsgi:application \
     --timeout $GUNICORN_TIMEOUT \
     --log-file=/var/log/gunicorn.log \
     --access-logfile=/var/log/access.log \
+    --reload
     "$@"
