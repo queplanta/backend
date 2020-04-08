@@ -21,6 +21,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='occurrence',
             name='images',
-            field=db.fields.ManyToManyField(limit_choices_to=occurrences.models.limit_by_image_contenttype, related_name='occurrence_image', to='db.DocumentID'),
+            field=db.fields.ManyToManyField(limit_choices_to=db.fields.limit_by_contenttype('images.Image'), related_name='occurrence_image', to='db.DocumentID'),
         ),
     ]

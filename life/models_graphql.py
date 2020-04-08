@@ -99,6 +99,11 @@ def get_wish_item_type():
     return WishItem
 
 
+def GraphQLAttribute(model, key, django_graphql_types_mapping):
+    if key.value_type == "string":
+        return graphene.String()
+
+
 class CommonNamesFilter(django_filters.FilterSet):
     language = django_filters.CharFilter(field_name='language')
     country = django_filters.CharFilter(field_name='country')
@@ -120,6 +125,14 @@ class LifeNode(DjangoObjectType, DocumentBase):
 
     edibility = graphene.Field(Edibility)
     edibilityDisplay = graphene.String()
+
+    title = GraphQLAttribute()
+    parent = GraphQLAttribute(LifeNodeModel, 'parent', {
+        LifeNodeModel: lambda: LifeNode
+    })
+    author = GraphQLAttribute(LifeNodeModel, 'author', {
+        UserModel: UserGraphQLType
+    })
 
     commonNames = DjangoFilterConnectionField(lambda: CommonName, filterset_class=CommonNamesFilter)
     children = DjangoConnectionField(lambda: LifeNode)

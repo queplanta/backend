@@ -36,7 +36,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='lifenode',
             name='commonNames',
-            field=db.fields.ManyToManyField(limit_choices_to=life.models.limit_by_commonName_contenttype, related_name='lifeNode_commonName', to='db.DocumentID'),
+            field=db.fields.ManyToManyField(limit_choices_to=db.fields.limit_by_contenttype('life.CommonName'), related_name='lifeNode_commonName', to='db.DocumentID'),
         ),
         migrations.AlterField(
             model_name='lifenode',
@@ -46,7 +46,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='lifenode',
             name='images',
-            field=db.fields.ManyToManyField(limit_choices_to=life.models.limit_by_image_contenttype, related_name='lifeNode_image', to='db.DocumentID'),
+            field=db.fields.ManyToManyField(limit_choices_to=db.fields.limit_by_contenttype('images.Image'), related_name='lifeNode_image', to='db.DocumentID'),
         ),
         migrations.AlterField(
             model_name='lifenode',

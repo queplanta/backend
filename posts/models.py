@@ -2,20 +2,9 @@ from django.db import models
 from django.contrib.contenttypes.models import ContentType
 
 from db.models import DocumentBase, DocumentID
-from db.fields import ManyToManyField
+from db.fields import ManyToManyField, limit_by_contenttype
 
 from tags.models import Tag
-from images.models import limit_by_image_contenttype
-
-
-def limit_by_tag_contenttype():
-    try:
-        ct = ContentType.objects.get_for_model(Tag)
-        return {
-            'content_type': ct
-        }
-    except ContentType.DoesNotExist:
-        return {}
 
 
 class Post(DocumentBase):
@@ -28,7 +17,7 @@ class Post(DocumentBase):
 
     images = ManyToManyField(
         DocumentID,
-        limit_choices_to=limit_by_image_contenttype,
+        limit_choices_to=limit_by_contenttype('images.Image'),
         related_name='post_image'
     )
     main_image = models.ForeignKey(
@@ -41,7 +30,7 @@ class Post(DocumentBase):
 
     tags = ManyToManyField(
         DocumentID,
-        limit_choices_to=limit_by_tag_contenttype,
+        limit_choices_to=limit_by_contenttype('tags.Tag'),
         related_name='post_tagged'
     )
 

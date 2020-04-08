@@ -3,19 +3,9 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import JSONField
 
 from db.models import DocumentBase, DocumentID
-from db.fields import ManyToManyField
+from db.fields import ManyToManyField, limit_by_contenttype
 
 from images.models import Image
-
-
-def limit_by_image_contenttype():
-    try:
-        ct = ContentType.objects.get_for_model(Image)
-        return {
-            'content_type': ct
-        }
-    except ContentType.DoesNotExist:
-        return {}
 
 
 class Occurrence(DocumentBase):
@@ -26,7 +16,7 @@ class Occurrence(DocumentBase):
     author = models.ForeignKey(DocumentID, related_name="occurrence_author", on_delete=models.CASCADE)
     images = ManyToManyField(
         DocumentID,
-        limit_choices_to=limit_by_image_contenttype,
+        limit_choices_to=limit_by_contenttype('images.Image'),
         related_name='occurrence_image'
     )
 

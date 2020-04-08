@@ -231,11 +231,11 @@ GRAPHENE = {
     'RELAY_CONNECTION_MAX_LIMIT': 10000,
 }
 
-# Testing
-EMAIL_BACKEND="djmail.backends.default.EmailBackend"
-DJMAIL_REAL_BACKEND = os.getenv('EMAIL_BACKEND', 'django.core.mail.backends.locmem.EmailBackend')
+EMAIL_BACKEND = os.getenv('EMAIL_BACKEND', 'django.core.mail.backends.locmem.EmailBackend')
 
 SENDGRID_API_KEY = os.getenv('SENDGRID_API_KEY')
+
+# Testing
 # TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'public')
