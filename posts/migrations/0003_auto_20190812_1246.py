@@ -26,6 +26,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='post',
             name='tags',
-            field=db.fields.ManyToManyField(limit_choices_to=posts.models.limit_by_tag_contenttype, related_name='post_tagged', to='db.DocumentID'),
+            field=db.fields.ManyToManyField(limit_choices_to=db.fields.limit_by_contenttype('tags.Tag'), related_name='post_tagged', to='db.DocumentID'),
         ),
     ]

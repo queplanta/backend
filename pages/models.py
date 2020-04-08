@@ -1,9 +1,7 @@
 from django.db import models
 
 from db.models import DocumentBase, DocumentID
-from db.fields import ManyToManyField
-
-from images.models import limit_by_image_contenttype
+from db.fields import ManyToManyField, limit_by_contenttype
 
 
 class Page(DocumentBase):
@@ -13,7 +11,7 @@ class Page(DocumentBase):
 
     images = ManyToManyField(
         DocumentID,
-        limit_choices_to=limit_by_image_contenttype,
+        limit_choices_to=limit_by_contenttype('images.Image'),
         related_name='page_image'
     )
 

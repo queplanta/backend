@@ -20,6 +20,7 @@ from commenting.models_graphql import CommentsNode
 from voting.models_graphql import VotesNode
 from images.models_graphql import Image
 from tags.models_graphql import Tag
+from backend.fields import GetBy
 
 
 class Rank(graphene.Enum):
@@ -89,6 +90,17 @@ EDIBILITY_CHOICES_DESCRIPTION = {
 }
 
 
+def get_display(config, value, default=""):
+    return dict(config).get(value, default)
+
+
+def get_array_display(config, values) :
+    l = []
+    for value in values:
+        l.append(get_display(config, value, value))
+    return l
+
+
 def get_collection_item_type():
     from lists.models_graphql import CollectionItem
     return CollectionItem
@@ -117,6 +129,17 @@ class LifeNode(DjangoObjectType, DocumentBase):
     parents = graphene.List(lambda: LifeNode)
     rank = graphene.Field(Rank)
     rankDisplay = graphene.String()
+
+    flower_colors = graphene.List(graphene.String)
+    flower_types = graphene.List(graphene.String)
+    fruit_type = graphene.List(graphene.String)
+    growth_habit = graphene.List(graphene.String)
+    phyllotaxy = graphene.String()
+    leaf_type = graphene.String()
+    leaf_texture = graphene.List(graphene.String)
+    threatened = graphene.String()
+    habitat = graphene.List(graphene.String)
+    endemism = graphene.List(graphene.String)
 
     edibility = graphene.Field(Edibility)
     edibilityDisplay = graphene.String()
@@ -222,6 +245,30 @@ class LifeNode(DjangoObjectType, DocumentBase):
             plant=self.document_id,
         ).order_by('-document__created_at')
 
+    def resolve_threatened(self, info):
+        return self.get_threatened_display()
+
+    def resolve_phyllotaxy(self, info):
+        return self.get_phyllotaxy_display()
+
+    def resolve_leaf_type(self, info):
+        return self.get_leaf_type_display()
+
+    def resolve_leaf_texture(self, info):
+        return get_array_display(LEAF_TEXTURE_CHOICES, self.leaf_texture)
+
+    def resolve_growth_habit(self, info):
+        return get_array_display(GROWTH_HABIT_CHOICES, self.growth_habit)
+
+    def resolve_fruit_type(self, info):
+        return get_array_display(FRUIT_TYPES_CHOICES, self.fruit_type)
+
+    def resolve_flower_types(self, info):
+        return get_array_display(FLOWER_TYPES_CHOICES, self.flower_types)
+
+    def resolve_flower_colors(self, info):
+        return get_array_display(COLOR_CHOICES, self.flower_color)
+
 
 class CommonName(DjangoObjectType, DocumentBase):
     class Meta:
@@ -282,3 +329,81 @@ def generate_quiz(root, info):
         choices=choices,
         correct=make_password("%d" % correct.document_id, hasher='sha1')
     )
+
+
+class Query(object):
+    lifeNode = Node.Field(LifeNode)
+    lifeNodeByIntID = GetBy(LifeNode, document_id=graphene.Int(required=True))
+    allLifeNode = DjangoFilterConnectionField(LifeNode, args={
+        'rank': graphene.Argument(Rank, required=False),
+        'edibility': graphene.Argument(Edibility, required=False),
+        'search': graphene.Argument(graphene.String, required=False),
+        'order_by': graphene.Argument(graphene.String, required=False),
+        'edibles': graphene.Argument(graphene.Boolean, required=False),
+        'phyllotaxy': graphene.Argument(graphene.String, required=False),
+        'leaf_type': graphene.Argument(graphene.String, required=False),
+        'threatened': graphene.Argument(graphene.String, required=False),
+        'flower_colors': graphene.Argument(graphene.List(graphene.String), required=False),
+        'flower_types': graphene.Argument(graphene.List(graphene.String), required=False),
+        'fruit_type': graphene.Argument(graphene.List(graphene.String), required=False),
+        'growth_habit': graphene.Argument(graphene.List(graphene.String), required=False),
+        'leaf_texture': graphene.Argument(graphene.List(graphene.String), required=False),
+        'habitat': graphene.Argument(graphene.List(graphene.String), required=False),
+    }, total_found2=graphene.Int(required=False, name='totalFound2'))
+
+    lifeNodeQuizz = graphene.Field(Quizz, resolver=generate_quiz)
+
+    def resolve_allLifeNode(self, info, **args):
+        qs = LifeNode._meta.model.objects.all()
+        if 'rank' in args:
+            qs = qs.filter(rank=args['rank'])
+        if 'edibility' in args:
+            qs = qs.filter(edibility=args['edibility'])
+        if 'edibles' in args and bool(args['edibles']):
+            qs = qs.filter(edibility__gte=1)
+        if 'phyllotaxy' in args:
+            qs = qs.filter(phyllotaxy=args['phyllotaxy'])
+        if 'leaf_type' in args:
+            qs = qs.filter(leaf_type=args['leaf_type'])
+        if 'threatened' in args:
+            qs = qs.filter(threatened=args['threatened'])
+        if 'flower_colors' in args:
+            qs = qs.filter(flower_colors__contains=args['flower_colors'])
+        if 'flower_types' in args:
+            qs = qs.filter(flower_types__contains=args['flower_types'])
+        if 'fruit_type' in args:
+            qs = qs.filter(fruit_type__contains=args['fruit_type'])
+        if 'growth_habit' in args:
+            qs = qs.filter(growth_habit__contains=args['growth_habit'])
+        if 'leaf_texture' in args:
+            qs = qs.filter(leaf_texture__contains=args['leaf_texture'])
+        if 'habitat' in args:
+            qs = qs.filter(habitat__contains=args['habitat'])
+        if 'search' in args and len(args['search']) > 2:
+            s = args['search'].strip()
+            q_objects = Q(title__icontains=s)
+
+            commonNames = CommonName._meta.model.objects.filter(
+                name__icontains=s
+            ).distinct().values_list('document_id', flat=True)
+
+            if len(commonNames) > 0:
+                q_objects |= Q(commonNames__id__in=commonNames)
+
+            qs = qs.filter(q_objects)
+            return qs.distinct()
+
+        order_by = args.get('order_by')
+
+        if order_by == '-wish_count':
+            qs = qs.filter(document__liststats__isnull=False)
+            qs = qs.order_by('-document__liststats__wish_count')
+
+        if order_by == '-collection_count':
+            qs = qs.filter(document__liststats__isnull=False)
+            qs = qs.order_by('-document__liststats__collection_count')
+
+        if not order_by:
+            qs = qs.order_by('document_id')
+
+        return qs.distinct()
