@@ -1,6 +1,9 @@
+from django.apps import apps
 from django.db import models
 from django.db.models.fields.related import lazy_related_operation
 from django.db.models.fields.related_descriptors import ManyToManyDescriptor
+from django.contrib.contenttypes.models import ContentType
+from django.utils.deconstruct import deconstructible
 from django.utils.functional import curry
 
 
@@ -88,3 +91,19 @@ class ManyToManyField(models.ManyToManyField):
 
         # Set up the accessor for the m2m table name for the relation.
         self.m2m_db_table = curry(self._get_m2m_db_table, cls._meta)
+
+
+@deconstructible
+class limit_by_contenttype(object):
+    def __init__(self, model_name):
+        self.model_name = model_name
+
+    def __call__(self, *args, **kwargs):
+        #  try:
+        model = apps.get_model(self.model_name)
+        ct = ContentType.objects.get_for_model(model)
+        return {
+            'content_type': ct
+        }
+        #  except ContentType.DoesNotExist:
+        #      return {}
