@@ -1,4 +1,5 @@
 import graphene
+import graphql_social_auth
 
 from django import forms
 from django.conf import settings
@@ -327,3 +328,19 @@ class ProfileChangeAvatar(Mutation):
         else:
             errors = form_erros(form, errors)
         return ProfileChangeAvatar(user=user, errors=errors)
+
+
+class Mutations(object):
+    register = Register.Field()
+    register_and_authenticate = RegisterAndAuthenticate.Field()
+
+    authenticate = Authenticate.Field()
+    deauthenticate = Deauthenticate.Field()
+    social_auth = graphql_social_auth.relay.SocialAuth.Field()
+
+    me_password_change = PasswordChange.Field()
+    me_password_reset_email = PasswordResetEmail.Field()
+    me_password_reset_complete = PasswordResetComplete.Field()
+
+    me_profile_edit = ProfileEdit.Field()
+    me_profile_change_avatar = ProfileChangeAvatar.Field()

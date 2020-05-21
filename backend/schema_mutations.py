@@ -1,6 +1,6 @@
 import graphene
 
-from accounts import mutations as accounts_mutations
+from accounts.mutations import Mutations as AccountsMutations
 from posts import mutations as posts_mutations
 from tags.mutations import TagCreate, TagEdit, TagDelete
 from commenting.mutations import CommentCreate, CommentEdit, CommentDelete
@@ -17,22 +17,7 @@ def m_field(m):
     return m.Field()
 
 
-class Mutation(ImagesMutations, LifeMutations, ListsMutations, graphene.ObjectType):
-    register = m_field(accounts_mutations.Register)
-    registerAndAuthenticate = m_field(
-        accounts_mutations.RegisterAndAuthenticate)
-    authenticate = m_field(accounts_mutations.Authenticate)
-    deauthenticate = m_field(accounts_mutations.Deauthenticate)
-    mePasswordChange = m_field(accounts_mutations.PasswordChange)
-    mePasswordResetEmail = m_field(
-        accounts_mutations.PasswordResetEmail)
-    mePasswordResetComplete = m_field(
-        accounts_mutations.PasswordResetComplete)
-    meProfileEdit = m_field(
-        accounts_mutations.ProfileEdit)
-    meProfileChangeAvatar = m_field(
-        accounts_mutations.ProfileChangeAvatar)
-
+class Mutation(AccountsMutations, ImagesMutations, LifeMutations, ListsMutations, graphene.ObjectType):
     postCreate = m_field(posts_mutations.PostCreate)
     postEdit = m_field(posts_mutations.PostEdit)
     postDelete = m_field(posts_mutations.PostDelete)

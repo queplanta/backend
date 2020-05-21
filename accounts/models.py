@@ -7,6 +7,7 @@ from django.contrib.auth.models import (
     AbstractBaseUser, PermissionsMixin,
     UserManager as DjangoUserManager
 )
+from django.contrib.postgres.fields import CICharField
 
 from db.models import DocumentBase, TipManager
 from utils.upload import set_upload_to_random_filename
@@ -17,7 +18,7 @@ class UserManager(TipManager, DjangoUserManager):
 
 
 class User(AbstractBaseUser, PermissionsMixin, DocumentBase):
-    username = models.CharField(
+    username = CICharField(
         _('username'),
         max_length=30,
         help_text=_('Required. 30 characters or fewer. Letters, digits and @/./+/-/_ only.'),
