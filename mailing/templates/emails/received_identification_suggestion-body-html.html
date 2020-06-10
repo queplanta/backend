@@ -1,0 +1,11 @@
+{% extends "emails/base.html" %}
+
+{% block body %}
+  <div class="qp-body">
+    <div class="qp-container">
+      <p>
+        Você recebeu uma sugestão no <a href="/observacoes/{{ occurrenceId }}">seu pedido de identificação</a>
+      <p>
+    </div>
+  </div>
+{% endblock body %}

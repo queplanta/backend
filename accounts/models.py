@@ -89,3 +89,4 @@ class User(AbstractBaseUser, PermissionsMixin, DocumentBase):
             # of simplicy for now we use this workaround
             kwargs['request'] = None
         super(User, self).save(*args, **kwargs)
+

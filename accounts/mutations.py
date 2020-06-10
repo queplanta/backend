@@ -1,6 +1,8 @@
 import graphene
 import graphql_social_auth
 
+import mailing
+
 from django import forms
 from django.conf import settings
 from django.contrib.auth import (
@@ -74,6 +76,9 @@ class RegisterAbstract(graphene.AbstractType):
         if form.is_valid():
             user = form.save(commit=False)
             user.save(request=info.context)
+
+            email = mailing.Welcome()
+            email.send(user.email, {})
         else:
             errors = form_erros(form, errors)
         return Register(user=user, errors=errors)
@@ -183,10 +188,10 @@ class PasswordResetEmail(Mutation):
                 'use_https': info.context.is_secure(),
                 'token_generator': default_token_generator,
                 'from_email': None,
-                'email_template_name': 'registration/password_reset_email.html',
-                'subject_template_name': 'registration/password_reset_subject.txt',
+                'email_template_name': 'emails/password_reset-body-text.html',
+                'subject_template_name': 'emails/password_reset-subject.html',
                 'request': info.context,
-                'html_email_template_name': None,
+                'html_email_template_name': 'emails/password_reset-body-html.html',
                 'extra_email_context': None,
             }
             form.save(**opts)

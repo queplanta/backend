@@ -1,10 +1,13 @@
 import graphene
 import graphql_geojson
 
-from graphql_relay.node.node import from_global_id
+import mailing
+
+from graphql_relay.node.node import from_global_id, to_global_id
 from graphql_relay.connection.arrayconnection import offset_to_cursor
 
 from django import forms
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
 from multiupload.fields import MultiImageField
@@ -17,6 +20,7 @@ from db.models_graphql import Document
 from utils.forms import form_erros
 from images.models import Image as ImageModel
 from .models_graphql import Occurrence, SuggestionID
+
 
 class MyMultiImageField(MultiImageField):
     def run_validators(self, value):
@@ -223,6 +227,18 @@ class SuggestionIDCreate(Mutation):
             )
 
         suggestion.save(request=info.context)
+        if suggestion.author.id != suggestion.occurrence.owner.id:
+            occurrence = suggestion.occurrence.get_object()
+            email = mailing.ReceivedIdentificationSuggestion()
+            email.send(
+                suggestion.occurrence.owner.get_object().email,
+                {
+                    'domain': settings.APP_BASE_URL,
+                    'occurrence': occurrence,
+                    'occurrenceId': to_global_id("Occurrence", occurrence.document.pk),
+                    'suggestion': suggestion,
+                }
+            )
         return SuggestionIDCreate(
             occurrence=suggestion.occurrence.get_object(),
             suggestionID=SuggestionID._meta.connection.Edge(
