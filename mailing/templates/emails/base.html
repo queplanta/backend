@@ -1,0 +1,130 @@
+{% load i18n %}
+{% load premailer %}
+{% load static %}
+{% premailer %}
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Que Planta</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <style type="text/css">
+      html, body, *{
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        background-color: #4caf50;
+        text-align: center;
+        color: #2d354d;
+        font-size: 16px;
+      }
+      body,h1,h2,h3,p,a,b {
+        font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+      }
+      h1,h2,h3 {
+        margin: 0;
+        padding: 0;
+        font-weight: bold;
+        font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+      }
+      p {
+        color: #444;
+        margin-bottom: 20px;
+      }
+      a {
+      }
+      .qp-h1 {
+        font-size: 28px;
+        margin-bottom: 40px;
+      }
+      .qp-h2 {
+        font-size: 20px;
+        margin-bottom: 22px;
+      }
+      .qp-link {
+        text-decoration: none;
+        color: #4caf50;
+      }
+      .qp-link:hover {
+        text-decoration: underline;
+      }
+      .qp-container {
+        min-width: 320px;
+        max-width: 600px;
+        margin: 0 auto;
+        line-height: 26px;
+      }
+      .qp-header, .qp-footer {
+        background-color: #4caf50;
+        padding: 40px 20px;
+      }
+      .qp-header{
+        background: #FFF;
+        border-top: solid 7px #4caf50;
+        border-bottom: solid 1px #ccc;
+        text-align: center;
+      }
+      .qp-slogan {
+        color: #666;
+      }
+      .qp-body {
+        padding: 40px 20px;
+        background: #fff;
+        text-align: left;
+      }
+      .qp-footer {
+        color: #fff;
+      }
+      .qp-footer-group-links {
+        margin-top: 15px;
+      }
+      .qp-footer-group-links a {
+        color: #fff;
+        display: inline-block;
+        margin: 0 10px;
+        font-size: 14px;
+      }
+      .qp-btn {
+        color:#000;
+        text-transform:uppercase;
+        text-decoration:none;
+        font-weight: bold;
+        background:#4caf50;
+        padding:10px 19px;
+        border-radius:4px;      
+      }
+      .qp-btn:hover {
+        background: #409043;
+      }
+      .qp-center {
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <center>
+      <div class="qp-header">
+        <div class="qp-container">
+          <div>
+            <img src="{% static 'queplanta-icon.svg' %}" height="42">
+            <img src="{% static 'queplanta-text-dark.svg' %}" height="32" alt="Que Planta">
+          </div>
+          <span class="qp-slogan">Conectando pessoas e plantas</span>
+        </div>
+      </div>
+      {% block body %}{% endblock body %}
+      <div class="qp-footer">
+        <div class="qp-container">
+          <b>Que Planta: Conectando pessoas e plantas.</b>
+          <div class="qp-footer-group-links">
+            <a href="https://www.facebook.com/queplantae" class="qp-link">Facebook</a>
+            <a href="https://www.instagram.com/queplanta/" class="qp-link">Instagram</a>
+            <a href="https://www.youtube.com/channel/UCY_KvBSxHZBcDTntfBxq2PQ/" class="qp-link">Youtube</a>
+          </div>
+        </div>
+      </div>
+    </center>
+  </body>
+</html>
+{% endpremailer %}

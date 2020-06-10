@@ -22,6 +22,12 @@ DEBUG = True if os.getenv('DEBUG') == 'true' else False
 
 ALLOWED_HOSTS = ['*']
 
+APP_BASE_URL = 'https://queplanta.com'
+
+PREMAILER_OPTIONS = dict(
+    base_url=APP_BASE_URL,
+    remove_classes=False
+)
 
 # Application definition
 
@@ -33,11 +39,15 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.gis',
+    # Third-party apps
     'rosetta',
     'sorl.thumbnail',
     'django_nose',
     'graphene_django',
     'social_django',
+    'djmail',
+    'django_premailer',
+    # Project apps
     'shortener',
     'db',
     'accounts',
@@ -67,7 +77,7 @@ ROOT_URLCONF = 'backend.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': ['templates',],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -207,6 +217,9 @@ LOCALE_PATHS = []
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "backend/static"),
+]
 
 AUTH_USER_MODEL = 'accounts.User'
 
@@ -219,7 +232,9 @@ GRAPHENE = {
 }
 
 # Testing
-EMAIL_BACKEND = os.getenv('EMAIL_BACKEND', 'django.core.mail.backends.locmem.EmailBackend')
+EMAIL_BACKEND="djmail.backends.default.EmailBackend"
+DJMAIL_REAL_BACKEND = os.getenv('EMAIL_BACKEND', 'django.core.mail.backends.locmem.EmailBackend')
+
 SENDGRID_API_KEY = os.getenv('SENDGRID_API_KEY')
 # TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 
