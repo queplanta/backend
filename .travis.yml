@@ -1,4 +1,4 @@
-dist: bionic
+dist: focal
 sudo: false
 language: python
 python:
@@ -7,17 +7,17 @@ python:
 # virtualenv:
 #   system_site_packages: true
 before_install:
-  - sudo apt-get install -y libgeos-dev libgeos-3.6.2 libgeos-c1v5 gdal-bin libgdal-dev
+  - sudo apt-get install -y libgeos-dev libgeos-3.8.0 libgeos-c1v5 gdal-bin libgdal-dev
   - export DJANGO_SETTINGS_MODULE=backend.settings_test
 install:
   - pip install -r requirements.txt
 services:
   - postgresql
 addons:
-  postgresql: "9.6"
+  postgresql: "12"
   apt:
     packages:
-      - postgresql-9.6-postgis-2.3
+      - postgresql-12-postgis-3
 before_script:
   - python manage.py migrate --noinput
 script: python manage.py test --noinput
