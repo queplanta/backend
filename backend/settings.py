@@ -215,7 +215,7 @@ LOCALE_PATHS = []
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
 
-STATIC_URL = '/static/'
+STATIC_URL = os.getenv('STATIC_URL', '/static/')
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "backend/static"),
@@ -239,7 +239,7 @@ SENDGRID_API_KEY = os.getenv('SENDGRID_API_KEY')
 # TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'public')
-MEDIA_URL = '/public/'
+MEDIA_URL = os.getenv('MEDIA_URL', '/public/')
 
 DEFAULT_USER_AVATAR = 'default_user_avatar.jpg'
 
