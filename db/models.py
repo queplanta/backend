@@ -108,6 +108,12 @@ class DocumentBase(models.Model):
     def revisions(self):
         return self.__class__.objects_revisions.filter(document=self.document)
 
+    def save_all_revisions(self, fields):
+        for revision in self.revisions:
+            for field_name in fields:
+                setattr(revision, field_name, getattr(self, field_name))
+            revision.save(None, update_fields=fields)
+
     def save(self, request, parent=None, message=None, **kwargs):
         if 'update_fields' in kwargs:
             # does not create a new revion if update_fields present

@@ -94,6 +94,8 @@ class CommonName(DocumentBase):
     country = models.CharField(max_length=3, null=True, blank=True)
     region = models.CharField(max_length=3, null=True, blank=True)
 
+    plant = models.ForeignKey(DocumentID, related_name="commonNamesNew", on_delete=models.CASCADE, null=True)
+
     REPUTATION_VALUE = 1
 
 

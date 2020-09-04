@@ -153,8 +153,14 @@ class Query(UserQuery, ShortnerQuery, graphene.ObjectType):
             s = args['search'].strip()
             q_objects = Q(title__icontains=s)
 
-            commonNames = CommonName._meta.model.objects.filter(
-                name__icontains=s
+            commonNames = CommonName._meta.model.objects.annocate(
+                sim=TrigramSimilarity('name', s)
+            ).filter(sim_gt=0.3).order_by('-sim')[:100].values_list('document_id', 'sim', flat=True)
+
+
+
+            filter(
+                name__icontains=s,
             ).distinct().values_list('document_id', flat=True)
 
             if len(commonNames) > 0:
