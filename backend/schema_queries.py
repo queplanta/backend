@@ -106,7 +106,10 @@ class Query(UserQuery, ShortnerQuery, graphene.ObjectType):
     def resolve_allOccurrences(self, info, **kwargs):
         qs = Occurrence._meta.model.objects.all()
         return qs.order_by('-document__created_at').filter(
-            location__isnull=False, identity__isnull=False)
+            location__isnull=False,
+            identity__isnull=False,
+            identity__deleted_at__isnull=True
+        )
 
     def resolve_allOccurrencesCluster(self, info, **kwargs):
         items = []
