@@ -9,6 +9,9 @@ from decimal import Decimal
 from django.db import connection
 from django.db.models import Q
 from django.contrib.gis.geos import Polygon
+from django.contrib.postgres.search import TrigramSimilarity
+from django.db.models import Max
+from django.db.models.functions import Greatest
 
 from accounts.models_graphql import Query as UserQuery
 from posts.models_graphql import Post
@@ -151,22 +154,14 @@ class Query(UserQuery, ShortnerQuery, graphene.ObjectType):
             qs = qs.filter(edibility__gte=1)
         if 'search' in args and len(args['search']) > 2:
             s = args['search'].strip()
-            q_objects = Q(title__icontains=s)
 
-            commonNames = CommonName._meta.model.objects.annocate(
-                sim=TrigramSimilarity('name', s)
-            ).filter(sim_gt=0.3).order_by('-sim')[:100].values_list('document_id', 'sim', flat=True)
+            qs = qs.annotate(
+                sim_biname=TrigramSimilarity('title', s),
+                sim_conames=Max(TrigramSimilarity('document__commonNamesNew__name', s))
+            ).annotate(
+                sim=Greatest('sim_biname', 'sim_conames')
+            ).filter(sim__gt=0.3).order_by('-sim')
 
-
-
-            filter(
-                name__icontains=s,
-            ).distinct().values_list('document_id', flat=True)
-
-            if len(commonNames) > 0:
-                q_objects |= Q(commonNames__id__in=commonNames)
-
-            qs = qs.filter(q_objects)
             return qs.distinct()
 
         return qs.order_by('document_id').distinct()

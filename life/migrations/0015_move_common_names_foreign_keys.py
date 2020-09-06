@@ -3,16 +3,32 @@
 from __future__ import unicode_literals
 
 from django.db import migrations
+from django.contrib.postgres.operations import TrigramExtension, UnaccentExtension
 from django.utils.text import slugify
 
 
 def forwards_func(apps, schema_editor):
-    CommonName = apps.get_model("life", "CommonName")
-    LifeNode = apps.get_model("life", "LifeNode")
+    from life.models import CommonName, LifeNode
     for name in CommonName.objects_revisions.all():
-        lifeNode = LifeNode.objects_revisions.get(commonNames__id=name.pk)
-        name.plant = lifeNode.document_id
-        name.save_all_revisions(fields=['plant'])
+        try:
+            lifeNode = LifeNode.objects_revisions.get(commonNames__id=name.document_id)
+            name.plant = lifeNode.document
+            name.save(update_fields=['plant'], request=None)
+        except LifeNode.MultipleObjectsReturned:
+            lifeNodes = LifeNode.objects_revisions.filter(commonNames__id=name.document_id)
+
+            name.plant = lifeNodes[0].document
+            name.save(update_fields=['plant'], request=None)
+
+            for lifeNode in lifeNodes[1:]:
+                name_2 = CommonName(
+                    name=name.name,
+                    language=name.language,
+                    country=name.country,
+                    region=name.region,
+                    plant=lifeNode.document
+                )
+                name_2.save(request=None)
 
 
 class Migration(migrations.Migration):
@@ -22,5 +38,7 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        TrigramExtension(),
+        UnaccentExtension(),
         migrations.RunPython(forwards_func, migrations.RunPython.noop)
     ]
