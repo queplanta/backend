@@ -1,6 +1,8 @@
 import graphene
+import django_filters
 from graphene.relay import Node
 from graphene_django import DjangoObjectType, DjangoConnectionField
+from graphene_django.filter import DjangoFilterConnectionField
 from django.contrib.auth.hashers import make_password
 from random import shuffle
 
@@ -97,6 +99,19 @@ def get_wish_item_type():
     return WishItem
 
 
+class CommonNamesFilter(django_filters.FilterSet):
+    language = django_filters.CharFilter(field_name='language')
+    country = django_filters.CharFilter(field_name='country')
+    order = django_filters.OrderingFilter(
+        choices=(
+            ('avg', 'Media'),
+        ),
+        fields={
+            'document__votestats__sum_values': 'avg',
+        },
+    )
+
+
 class LifeNode(DjangoObjectType, DocumentBase):
     parent = graphene.Field(lambda: LifeNode)
     parents = graphene.List(lambda: LifeNode)
@@ -106,7 +121,7 @@ class LifeNode(DjangoObjectType, DocumentBase):
     edibility = graphene.Field(Edibility)
     edibilityDisplay = graphene.String()
 
-    commonNames = DjangoConnectionField(lambda: CommonName)
+    commonNames = DjangoFilterConnectionField(lambda: CommonName, filterset_class=CommonNamesFilter)
     children = DjangoConnectionField(lambda: LifeNode)
     images = DjangoConnectionField(Image)
     characteristics = DjangoConnectionField(lambda: Characteristic)
@@ -152,7 +167,7 @@ class LifeNode(DjangoObjectType, DocumentBase):
     def resolve_commonNames(self, info, **kwargs):
         return CommonName._meta.model.objects.filter(
             document_id__in=self.commonNames.values_list('id', flat=True)
-        ).order_by('name')
+        )
 
     def resolve_commonName(self, info):
         return CommonName._meta.model.objects.filter(
