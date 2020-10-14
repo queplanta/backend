@@ -1,5 +1,6 @@
 import django_filters
 
+from django.db import models
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
@@ -98,12 +99,19 @@ class UserFilter(django_filters.FilterSet):
         fields=(
             ('reputation', 'reputation'),
             ('date_joined', 'date_joined'),
+            ('document__liststats__collection_count', 'collection_count'),
+            ('document__liststats__wish_count', 'wish_count'),
         )
     )
 
     class Meta:
         model = UserModel
         fields = ['name_startswith', 'order_by']
+
+
+    # @property
+    # def qs(self):
+    #     return super(UserFilter, self).qs.annotate(how_many_plants_have=models.Count('document__wish_item_user'))
 
 
 class Query(object):
