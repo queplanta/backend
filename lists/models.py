@@ -37,11 +37,13 @@ class CollectionItem(DocumentBase):
 
     def save(self, *args, **kwargs):
         super(WishItem, self).save(*args, **kwargs)
-        update_count(self)
+        update_count_user(self.user)
+        update_count_plan(self.plant)
 
     def delete(self, *args, **kwargs):
         super(WishItem, self).delete(*args, **kwargs)
-        update_count(self)
+        update_count_user(self.user)
+        update_count_plant(self.plant)
 
 
 class WishItem(DocumentBase):
@@ -52,19 +54,30 @@ class WishItem(DocumentBase):
 
     def save(self, *args, **kwargs):
         super(WishItem, self).save(*args, **kwargs)
-        update_count(self)
+        update_count_user(self.user)
+        update_count_plant(self.plant)
 
     def delete(self, *args, **kwargs):
         super(WishItem, self).delete(*args, **kwargs)
-        update_count(self)
+        update_count_user(self.user)
+        update_count_plant(self.plant)
 
 
-def update_count(user):
+def update_count_user(user):
     stats, created = ListStats.objects.get_or_create(
-        document=user.document
+        document=user
     )
-    stats.collection_count = CollectionItem.objects.filter(user=user.document).count()
-    stats.wish_count = WishItem.objects.filter(user=user.document).count()
+    stats.collection_count = CollectionItem.objects.filter(user=user).count()
+    stats.wish_count = WishItem.objects.filter(user=user).count()
+    stats.save()
+
+
+def update_count_plant(plant):
+    stats, created = ListStats.objects.get_or_create(
+        document=plant
+    )
+    stats.collection_count = CollectionItem.objects.filter(plant=plant).count()
+    stats.wish_count = WishItem.objects.filter(plant=plant).count()
     stats.save()
 
 

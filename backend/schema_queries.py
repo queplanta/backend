@@ -76,6 +76,7 @@ class Query(UserQuery, ShortnerQuery, graphene.ObjectType):
     lifeNodeByIntID = GetBy(LifeNode, document_id=graphene.Int(required=True))
     allLifeNode = DjangoFilterConnectionField(LifeNode, args={
         'search': graphene.Argument(graphene.String, required=False),
+        'order_by': graphene.Argument(graphene.String, required=False),
         'edibles': graphene.Argument(graphene.Boolean, required=False)
     }, total_found2=graphene.Int(required=False, name='totalFound2'))
 
@@ -163,7 +164,20 @@ class Query(UserQuery, ShortnerQuery, graphene.ObjectType):
             qs = qs.filter(q_objects)
             return qs.distinct()
 
-        return qs.order_by('document_id').distinct()
+        order_by = args.get('order_by')
+
+        if order_by == '-wish_count':
+            qs = qs.filter(document__liststats__isnull=False)
+            qs = qs.order_by('-document__liststats__wish_count')
+
+        if order_by == '-collection_count':
+            qs = qs.filter(document__liststats__isnull=False)
+            qs = qs.order_by('-document__liststats__collection_count')
+
+        if not order_by:
+            qs = qs.order_by('document_id')
+
+        return qs.distinct()
 
     def resolve_version(self, info):
         return os.getenv('VERSION', 'master')
