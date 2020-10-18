@@ -22,6 +22,7 @@ class Post(DocumentBase):
     title = models.CharField(max_length=255)
     url = models.URLField(max_length=255)
     body = models.TextField()
+    summary = models.TextField(blank=True, default="")
 
     published_at = models.DateTimeField(null=True)
 
@@ -29,6 +30,13 @@ class Post(DocumentBase):
         DocumentID,
         limit_choices_to=limit_by_image_contenttype,
         related_name='post_image'
+    )
+    main_image = models.ForeignKey(
+        DocumentID,
+        limit_choices_to=limit_by_image_contenttype,
+        related_name='post_main_image',
+        null=True,
+        on_delete=models.SET_NULL
     )
 
     tags = ManyToManyField(

@@ -6,6 +6,7 @@ from django.utils.text import slugify
 from accounts.decorators import login_required
 from accounts.permissions import has_permission
 from db.types import DateTimeField
+from db.models_graphql import Document
 from backend.mutations import Mutation
 from .models_graphql import Post
 
@@ -14,7 +15,14 @@ def post_save(post, args, request):
     post.url = args.get('url')
     post.title = args.get('title')
     post.body = args.get('body')
+    post.summary = args.get('summary')
     post.published_at = args.get('published_at')
+
+    image_id = args.get('main_image')
+    if image_id:
+        gid_type, gid = from_global_id(image_id)
+        post.main_image = Document._meta.model.objects.get(pk=gid)
+
     post.save(request=request)
 
     post.tags.clear()
@@ -46,7 +54,9 @@ class PostCreate(Mutation):
         url = graphene.String(required=True)
         title = graphene.String(required=True)
         body = graphene.String(required=True)
+        summary = graphene.String(required=False)
         published_at = DateTimeField(required=True)
+        main_image = graphene.ID(required=False)
         tags = graphene.String()
 
     post = graphene.Field(Post)
@@ -65,7 +75,9 @@ class PostEdit(Mutation):
         url = graphene.String(required=True)
         title = graphene.String(required=True)
         body = graphene.String(required=True)
+        summary = graphene.String(required=False)
         published_at = DateTimeField(required=True)
+        main_image = graphene.ID(required=False)
         tags = graphene.String()
 
     post = graphene.Field(Post)
