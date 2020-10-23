@@ -109,9 +109,13 @@ class UserFilter(django_filters.FilterSet):
         fields = ['name_startswith', 'order_by']
 
 
-    # @property
-    # def qs(self):
-    #     return super(UserFilter, self).qs.annotate(how_many_plants_have=models.Count('document__wish_item_user'))
+    @property
+    def qs(self):
+        qs = super().qs
+        order_by = self.data.get('order_by')
+        if 'collection_count' in order_by and 'collection_count' in order_by:
+            qs = qs.filter(document__liststats__isnull=False)
+        return qs
 
 
 class Query(object):
