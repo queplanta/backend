@@ -231,7 +231,8 @@ GRAPHENE = {
     'RELAY_CONNECTION_MAX_LIMIT': 10000,
 }
 
-EMAIL_BACKEND = os.getenv('EMAIL_BACKEND', 'django.core.mail.backends.locmem.EmailBackend')
+EMAIL_BACKEND = 'djmail.backends.default.EmailBackend'
+DJMAIL_REAL_BACKEND = os.getenv('EMAIL_BACKEND', 'django.core.mail.backends.locmem.EmailBackend')
 
 SENDGRID_API_KEY = os.getenv('SENDGRID_API_KEY')
 

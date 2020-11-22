@@ -44,6 +44,13 @@ RANK_BY_STRING = {
 RANK_STRING_BY_INT = {v: k for k, v in RANK_BY_STRING.items()}
 
 
+SUCCESSION_CHOICES = (
+    (10, _('Primary')),
+    (20, _('Secondary')),
+    (30, _('Climax')),
+)
+
+
 class LifeNode(DocumentBase):
     rank = models.IntegerField(choices=RANK_CHOICES)
     parent = models.ForeignKey(DocumentID, related_name="children", null=True, on_delete=models.SET_NULL)
@@ -68,6 +75,12 @@ class LifeNode(DocumentBase):
         related_name='lifeNode_image'
     )
 
+    height = DecimalRangeField(null=True)
+    spread = DecimalRangeField(null=True)
+    sun = DecimalRangeField(null=True)  # percentage of sun
+    time_to_harvest = DecimalRangeField(null=True)
+    growth_rate = ArrayField(models.IntegerField(choices=GROWTH_RATE_CHOICES))
+    succession = models.IntegerField(null=True, choices=SUCCESSION_CHOICES)
 
 
     #  body_parts = ManyToManyField(

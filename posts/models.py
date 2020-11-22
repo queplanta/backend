@@ -22,7 +22,7 @@ class Post(DocumentBase):
     )
     main_image = models.ForeignKey(
         DocumentID,
-        limit_choices_to=limit_by_image_contenttype,
+        limit_choices_to=limit_by_contenttype('images.Image'),
         related_name='post_main_image',
         null=True,
         on_delete=models.SET_NULL
@@ -41,4 +41,4 @@ class Post(DocumentBase):
         ordering = ('-published_at',)
 
     def __str__(self):
-        return "%d: %s" % (self.revision_id, self.title) if self.revision_id else self.title
+        return "%d: %s" % (self.revision_id, self.title)
