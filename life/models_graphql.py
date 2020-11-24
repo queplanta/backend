@@ -335,7 +335,7 @@ class Query(object):
     lifeNode = Node.Field(LifeNode)
     lifeNodeByIntID = GetBy(LifeNode, document_id=graphene.Int(required=True))
     allLifeNode = DjangoFilterConnectionField(LifeNode, args={
-        'rank': graphene.Argument(Rank, required=False),
+        'rank': graphene.Argument(graphene.List(Rank), required=False),
         'edibility': graphene.Argument(Edibility, required=False),
         'search': graphene.Argument(graphene.String, required=False),
         'order_by': graphene.Argument(graphene.String, required=False),
@@ -356,7 +356,7 @@ class Query(object):
     def resolve_allLifeNode(self, info, **args):
         qs = LifeNode._meta.model.objects.all()
         if 'rank' in args:
-            qs = qs.filter(rank=args['rank'])
+            qs = qs.filter(rank__in=args['rank'])
         if 'edibility' in args:
             qs = qs.filter(edibility=args['edibility'])
         if 'edibles' in args and bool(args['edibles']):
