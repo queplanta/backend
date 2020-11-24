@@ -335,50 +335,51 @@ class Query(object):
     lifeNode = Node.Field(LifeNode)
     lifeNodeByIntID = GetBy(LifeNode, document_id=graphene.Int(required=True))
     allLifeNode = DjangoFilterConnectionField(LifeNode, args={
-        'rank': graphene.Argument(Rank, required=False),
-        'edibility': graphene.Argument(Edibility, required=False),
+        'rank': graphene.Argument(graphene.List(Rank), required=False),
+        'edibility': graphene.Argument(graphene.List(Edibility), required=False),
         'search': graphene.Argument(graphene.String, required=False),
         'order_by': graphene.Argument(graphene.String, required=False),
         'edibles': graphene.Argument(graphene.Boolean, required=False),
-        'phyllotaxy': graphene.Argument(graphene.String, required=False),
-        'leaf_type': graphene.Argument(graphene.String, required=False),
-        'threatened': graphene.Argument(graphene.String, required=False),
+        'phyllotaxy': graphene.Argument(graphene.List(graphene.String), required=False),
+        'leaf_type': graphene.Argument(graphene.List(graphene.String), required=False),
+        'threatened': graphene.Argument(graphene.List(graphene.String), required=False),
         'flower_colors': graphene.Argument(graphene.List(graphene.String), required=False),
         'flower_types': graphene.Argument(graphene.List(graphene.String), required=False),
         'fruit_type': graphene.Argument(graphene.List(graphene.String), required=False),
         'growth_habit': graphene.Argument(graphene.List(graphene.String), required=False),
         'leaf_texture': graphene.Argument(graphene.List(graphene.String), required=False),
-        'habitat': graphene.Argument(graphene.List(graphene.String), required=False),
     }, total_found2=graphene.Int(required=False, name='totalFound2'))
 
     lifeNodeQuizz = graphene.Field(Quizz, resolver=generate_quiz)
 
     def resolve_allLifeNode(self, info, **args):
         qs = LifeNode._meta.model.objects.all()
-        if 'rank' in args:
-            qs = qs.filter(rank=args['rank'])
-        if 'edibility' in args:
-            qs = qs.filter(edibility=args['edibility'])
+
+        def has_items(fieldname, a):
+            return fieldname in a and len(a[fieldname]) > 0
+
+        if has_items('rank', args):
+            qs = qs.filter(rank__in=args['rank'])
+        if has_items('edibility', args):
+            qs = qs.filter(edibility__in=args['edibility'])
         if 'edibles' in args and bool(args['edibles']):
             qs = qs.filter(edibility__gte=1)
-        if 'phyllotaxy' in args:
-            qs = qs.filter(phyllotaxy=args['phyllotaxy'])
-        if 'leaf_type' in args:
-            qs = qs.filter(leaf_type=args['leaf_type'])
-        if 'threatened' in args:
-            qs = qs.filter(threatened=args['threatened'])
-        if 'flower_colors' in args:
+        if has_items('phyllotaxy', args):
+            qs = qs.filter(phyllotaxy__in=args['phyllotaxy'])
+        if has_items('leaf_type', args):
+            qs = qs.filter(leaf_type__in=args['leaf_type'])
+        if has_items('threatened', args):
+            qs = qs.filter(threatened__in=args['threatened'])
+        if has_items('flower_colors', args):
             qs = qs.filter(flower_colors__contains=args['flower_colors'])
-        if 'flower_types' in args:
+        if has_items('flower_types', args):
             qs = qs.filter(flower_types__contains=args['flower_types'])
-        if 'fruit_type' in args:
+        if has_items('fruit_type', args):
             qs = qs.filter(fruit_type__contains=args['fruit_type'])
-        if 'growth_habit' in args:
+        if has_items('growth_habit', args):
             qs = qs.filter(growth_habit__contains=args['growth_habit'])
-        if 'leaf_texture' in args:
+        if has_items('leaf_texture', args):
             qs = qs.filter(leaf_texture__contains=args['leaf_texture'])
-        if 'habitat' in args:
-            qs = qs.filter(habitat__contains=args['habitat'])
         if 'search' in args and len(args['search']) > 2:
             s = args['search'].strip()
             q_objects = Q(title__icontains=s)
