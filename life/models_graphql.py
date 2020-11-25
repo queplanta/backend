@@ -336,19 +336,18 @@ class Query(object):
     lifeNodeByIntID = GetBy(LifeNode, document_id=graphene.Int(required=True))
     allLifeNode = DjangoFilterConnectionField(LifeNode, args={
         'rank': graphene.Argument(graphene.List(Rank), required=False),
-        'edibility': graphene.Argument(Edibility, required=False),
+        'edibility': graphene.Argument(graphene.List(Edibility), required=False),
         'search': graphene.Argument(graphene.String, required=False),
         'order_by': graphene.Argument(graphene.String, required=False),
         'edibles': graphene.Argument(graphene.Boolean, required=False),
-        'phyllotaxy': graphene.Argument(graphene.String, required=False),
-        'leaf_type': graphene.Argument(graphene.String, required=False),
-        'threatened': graphene.Argument(graphene.String, required=False),
+        'phyllotaxy': graphene.Argument(graphene.List(graphene.String), required=False),
+        'leaf_type': graphene.Argument(graphene.List(graphene.String), required=False),
+        'threatened': graphene.Argument(graphene.List(graphene.String), required=False),
         'flower_colors': graphene.Argument(graphene.List(graphene.String), required=False),
         'flower_types': graphene.Argument(graphene.List(graphene.String), required=False),
         'fruit_type': graphene.Argument(graphene.List(graphene.String), required=False),
         'growth_habit': graphene.Argument(graphene.List(graphene.String), required=False),
         'leaf_texture': graphene.Argument(graphene.List(graphene.String), required=False),
-        'habitat': graphene.Argument(graphene.List(graphene.String), required=False),
     }, total_found2=graphene.Int(required=False, name='totalFound2'))
 
     lifeNodeQuizz = graphene.Field(Quizz, resolver=generate_quiz)
@@ -358,15 +357,15 @@ class Query(object):
         if 'rank' in args:
             qs = qs.filter(rank__in=args['rank'])
         if 'edibility' in args:
-            qs = qs.filter(edibility=args['edibility'])
+            qs = qs.filter(edibility__in=args['edibility'])
         if 'edibles' in args and bool(args['edibles']):
             qs = qs.filter(edibility__gte=1)
         if 'phyllotaxy' in args:
-            qs = qs.filter(phyllotaxy=args['phyllotaxy'])
+            qs = qs.filter(phyllotaxy__in=args['phyllotaxy'])
         if 'leaf_type' in args:
-            qs = qs.filter(leaf_type=args['leaf_type'])
+            qs = qs.filter(leaf_type__in=args['leaf_type'])
         if 'threatened' in args:
-            qs = qs.filter(threatened=args['threatened'])
+            qs = qs.filter(threatened__in=args['threatened'])
         if 'flower_colors' in args:
             qs = qs.filter(flower_colors__contains=args['flower_colors'])
         if 'flower_types' in args:
@@ -377,8 +376,6 @@ class Query(object):
             qs = qs.filter(growth_habit__contains=args['growth_habit'])
         if 'leaf_texture' in args:
             qs = qs.filter(leaf_texture__contains=args['leaf_texture'])
-        if 'habitat' in args:
-            qs = qs.filter(habitat__contains=args['habitat'])
         if 'search' in args and len(args['search']) > 2:
             s = args['search'].strip()
             q_objects = Q(title__icontains=s)
