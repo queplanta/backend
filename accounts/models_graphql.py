@@ -46,7 +46,7 @@ class User(DjangoObjectType, DocumentBase):
 
     collection_list = DjangoConnectionField(get_collection_item_type)
     wish_list = DjangoConnectionField(get_wish_item_type)
-    occurrence_list = DjangoConnectionField(get_occurrence_type)
+    occurrences_list = DjangoConnectionField(get_occurrence_type)
 
     my_perms = graphene.List(graphene.String)
 
@@ -93,6 +93,7 @@ class User(DjangoObjectType, DocumentBase):
         ).order_by('-document__created_at')
 
     def resolve_occurrences_list(self, info, **kwargs):
+        Occurrence = get_occurrence_type()
         qs = Occurrence._meta.model.objects.filter(author=self.document)
         return qs.order_by('-document__created_at').filter(
             location__isnull=False,
