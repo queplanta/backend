@@ -33,6 +33,11 @@ def get_wish_item_type():
     return WishItem
 
 
+def get_occurrence_type():
+    from occurrences.models_graphql import Occurrence
+    return Occurrence
+
+
 class User(DjangoObjectType, DocumentBase):
     is_authenticated = graphene.Boolean()
     avatar = Thumbnail()
@@ -41,6 +46,7 @@ class User(DjangoObjectType, DocumentBase):
 
     collection_list = DjangoConnectionField(get_collection_item_type)
     wish_list = DjangoConnectionField(get_wish_item_type)
+    occurrences_list = DjangoConnectionField(get_occurrence_type)
 
     my_perms = graphene.List(graphene.String)
 
@@ -85,6 +91,15 @@ class User(DjangoObjectType, DocumentBase):
         return WishItem._meta.model.objects.filter(
             user_id=self.document_id
         ).order_by('-document__created_at')
+
+    def resolve_occurrences_list(self, info, **kwargs):
+        Occurrence = get_occurrence_type()
+        qs = Occurrence._meta.model.objects.filter(author=self.document)
+        return qs.order_by('-document__created_at').filter(
+            location__isnull=False,
+            identity__isnull=False,
+            identity__deleted_at__isnull=True
+        )
 
     def resolve_my_perms(self, info, **kwargs):
         if self.is_superuser:
