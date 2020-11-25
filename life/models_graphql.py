@@ -354,27 +354,31 @@ class Query(object):
 
     def resolve_allLifeNode(self, info, **args):
         qs = LifeNode._meta.model.objects.all()
-        if 'rank' in args:
+
+        def has_items(fieldname, a):
+            return fieldname in a and len(a[fieldname]) > 0
+
+        if has_items('rank', args):
             qs = qs.filter(rank__in=args['rank'])
-        if 'edibility' in args:
+        if has_items('edibility', args):
             qs = qs.filter(edibility__in=args['edibility'])
         if 'edibles' in args and bool(args['edibles']):
             qs = qs.filter(edibility__gte=1)
-        if 'phyllotaxy' in args:
+        if has_items('phyllotaxy', args):
             qs = qs.filter(phyllotaxy__in=args['phyllotaxy'])
-        if 'leaf_type' in args:
+        if has_items('leaf_type', args):
             qs = qs.filter(leaf_type__in=args['leaf_type'])
-        if 'threatened' in args:
+        if has_items('threatened', args):
             qs = qs.filter(threatened__in=args['threatened'])
-        if 'flower_colors' in args:
+        if has_items('flower_colors', args):
             qs = qs.filter(flower_colors__contains=args['flower_colors'])
-        if 'flower_types' in args:
+        if has_items('flower_types', args):
             qs = qs.filter(flower_types__contains=args['flower_types'])
-        if 'fruit_type' in args:
+        if has_items('fruit_type', args):
             qs = qs.filter(fruit_type__contains=args['fruit_type'])
-        if 'growth_habit' in args:
+        if has_items('growth_habit', args):
             qs = qs.filter(growth_habit__contains=args['growth_habit'])
-        if 'leaf_texture' in args:
+        if has_items('leaf_texture', args):
             qs = qs.filter(leaf_texture__contains=args['leaf_texture'])
         if 'search' in args and len(args['search']) > 2:
             s = args['search'].strip()
