@@ -86,7 +86,7 @@ class OccurrenceFilter(django_filters.FilterSet):
 
     class Meta:
         model = OccurrenceModel
-        fields = ['isIdentityNull', 'identity']
+        fields = ['isIdentityNull', 'identity', 'author']
 
 
 class SuggestionID(DjangoObjectType, DocumentBase):
