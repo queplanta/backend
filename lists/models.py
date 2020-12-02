@@ -36,12 +36,12 @@ class CollectionItem(DocumentBase):
     user = models.ForeignKey(DocumentID, related_name="collection_item_user", on_delete=models.CASCADE)
 
     def save(self, *args, **kwargs):
-        super(WishItem, self).save(*args, **kwargs)
+        super(CollectionItem, self).save(*args, **kwargs)
         update_count_user(self.user)
         update_count_plan(self.plant)
 
     def delete(self, *args, **kwargs):
-        super(WishItem, self).delete(*args, **kwargs)
+        super(CollectionItem, self).delete(*args, **kwargs)
         update_count_user(self.user)
         update_count_plant(self.plant)
 
