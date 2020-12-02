@@ -38,7 +38,7 @@ class CollectionItem(DocumentBase):
     def save(self, *args, **kwargs):
         super(CollectionItem, self).save(*args, **kwargs)
         update_count_user(self.user)
-        update_count_plan(self.plant)
+        update_count_plant(self.plant)
 
     def delete(self, *args, **kwargs):
         super(CollectionItem, self).delete(*args, **kwargs)
