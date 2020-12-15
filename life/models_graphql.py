@@ -4,6 +4,7 @@ from graphene.relay import Node
 from graphene_django import DjangoObjectType, DjangoConnectionField
 from graphene_django.filter import DjangoFilterConnectionField
 from django.contrib.auth.hashers import make_password
+from django.db.models import Q
 from random import shuffle
 
 from db.types_revision import DocumentNode, DocumentBase
