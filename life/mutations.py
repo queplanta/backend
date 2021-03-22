@@ -13,6 +13,7 @@ from db.models_graphql import Document
 from backend.mutations import Mutation
 from .models_graphql import (
     LifeNode, Characteristic, Rank, Edibility,
+    FlowerColor, FlowerType, GrowthHabit,
     Quizz, generate_quiz, CommonName
 )
 from .models import (
@@ -121,6 +122,10 @@ class LifeNodeCreate(Mutation):
         description = graphene.String()
         rank = graphene.Field(Rank, required=True)
         edibility = graphene.Field(Edibility)
+        flower_colors = graphene.Field(FlowerColor)
+        flower_types = graphene.Field(FlowerType)
+
+        growth_habit = graphene.Field(GrowthHabit)
         parent = graphene.ID()
         gbif_id = graphene.Int()
         commonNames = graphene.List(CommonNameInput)
@@ -143,6 +148,10 @@ class LifeNodeEdit(Mutation):
         description = graphene.String()
         rank = graphene.Field(Rank)
         edibility = graphene.Field(Edibility)
+        flower_colors = graphene.Field(FlowerColor)
+        flower_types = graphene.Field(FlowerType)
+
+        growth_habit = graphene.Field(GrowthHabit)
         parent = graphene.ID()
         gbif_id = graphene.Int()
         commonNames = graphene.List(CommonNameInput)
