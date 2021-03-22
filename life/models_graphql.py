@@ -12,6 +12,8 @@ from db.graphene import CountedConnection
 
 from .models import (
     RANK_CHOICES, RANK_GENUS, RANK_SPECIES,
+    FLOWER_TYPES_CHOICES, COLOR_CHOICES,
+    GROWTH_HABIT_CHOICES,
     LifeNode as LifeNodeModel,
     CommonName as CommonNameModel,
     Characteristic as CharacteristicModel
@@ -22,6 +24,54 @@ from voting.models_graphql import VotesNode
 from images.models_graphql import Image
 from tags.models_graphql import Tag
 from backend.fields import GetBy
+
+
+class FlowerColor(graphene.Enum):
+    WHITE = 'white'
+    RED = 'red'
+    ORANGE = 'orange'
+    YELLOW = 'yellow'
+    PINK = 'pink'
+    LILAC = 'lilac'
+    BLUE = 'blue'
+    LIGHT_BLUE = 'light-blue'
+    GREEN = 'green'
+    PURPLE = 'purple'
+    BLACK = 'black'
+    BROWN = 'brown'
+    NUT_BROWN = 'nut-brown'
+    WINE = 'wine'
+    CREAM = 'cream'
+
+    @property
+    def description(self):
+        return dict(COLOR_CHOICES)[self._value_]
+
+
+class FlowerType(graphene.Enum):
+    INFLORESCENCE = 'inflorescence'
+    PSEUDANTHIUM = 'pseudanthium'
+    SOLITARY = 'solitary'
+
+    @property
+    def description(self):
+        return dict(FLOWER_TYPES_CHOICES)[self._value_]
+
+
+class GrowthHabit(graphene.Enum):
+    HERB = 'herb'
+    GRAMINOID = 'graminoid'
+    LICHENOUS = 'lichenous'
+    NONVASCULAR = 'nonvascular'
+    SUCCULENT = 'succulent'
+    SHRUB = 'shrub'
+    SUBSHRUB = 'subshrub'
+    TREE = 'tree'
+    VINE = 'vine'
+
+    @property
+    def description(self):
+        return dict(GROWTH_HABIT_CHOICES)[self._value_]
 
 
 class Rank(graphene.Enum):
@@ -131,10 +181,10 @@ class LifeNode(DjangoObjectType, DocumentBase):
     rank = graphene.Field(Rank)
     rankDisplay = graphene.String()
 
-    flower_colors = graphene.List(graphene.String)
-    flower_types = graphene.List(graphene.String)
+    flower_colors = graphene.Field(FlowerColor)
+    flower_types = graphene.Field(FlowerType)
     fruit_type = graphene.List(graphene.String)
-    growth_habit = graphene.List(graphene.String)
+    growth_habit = graphene.Field(GrowthHabit)
     phyllotaxy = graphene.String()
     leaf_type = graphene.String()
     leaf_texture = graphene.List(graphene.String)
