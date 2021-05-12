@@ -37,6 +37,10 @@ def node_save(node, args, info):
     node.rank = args.get('rank', node.rank)
     node.edibility = args.get('edibility', node.edibility)
 
+    node.flower_colors = args.get('flower_colors', node.flower_colors)
+    node.flower_types = args.get('flower_types', node.flower_types)
+    node.growth_habit = args.get('growth_habit', node.growth_habit)
+
     parent_id = args.get('parent')
     if parent_id:
         gid_type, gid = from_global_id(parent_id)
@@ -148,8 +152,8 @@ class LifeNodeEdit(Mutation):
         description = graphene.String()
         rank = graphene.Field(Rank)
         edibility = graphene.Field(Edibility)
-        flower_colors = graphene.Field(FlowerColor)
-        flower_types = graphene.Field(FlowerType)
+        flower_colors = graphene.List(FlowerColor)
+        flower_types = graphene.List(FlowerType)
 
         growth_habit = graphene.Field(GrowthHabit)
         parent = graphene.ID()
