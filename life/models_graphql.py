@@ -181,8 +181,8 @@ class LifeNode(DjangoObjectType, DocumentBase):
     rank = graphene.Field(Rank)
     rankDisplay = graphene.String()
 
-    flower_colors = graphene.Field(FlowerColor)
-    flower_types = graphene.Field(FlowerType)
+    flower_colors = graphene.List(FlowerColor)
+    flower_types = graphene.List(FlowerType)
     fruit_type = graphene.List(graphene.String)
     growth_habit = graphene.Field(GrowthHabit)
     phyllotaxy = graphene.String()
