@@ -182,9 +182,12 @@ class LifeNode(DjangoObjectType, DocumentBase):
     rankDisplay = graphene.String()
 
     flower_colors = graphene.List(FlowerColor)
+    flower_colorsDisplay = graphene.String()
     flower_types = graphene.List(FlowerType)
+    flower_typesDisplay = graphene.String()
     fruit_type = graphene.List(graphene.String)
-    growth_habit = graphene.Field(GrowthHabit)
+    growth_habit = graphene.List(GrowthHabit)
+    growth_habitDisplay = graphene.String()
     phyllotaxy = graphene.String()
     leaf_type = graphene.String()
     leaf_texture = graphene.List(graphene.String)
@@ -308,17 +311,17 @@ class LifeNode(DjangoObjectType, DocumentBase):
     def resolve_leaf_texture(self, info):
         return get_array_display(LEAF_TEXTURE_CHOICES, self.leaf_texture)
 
-    def resolve_growth_habit(self, info):
-        return get_array_display(GROWTH_HABIT_CHOICES, self.growth_habit)
+    def resolve_growth_habit_display(self, info):
+        return self.get_growth_habit_display()
 
     def resolve_fruit_type(self, info):
         return get_array_display(FRUIT_TYPES_CHOICES, self.fruit_type)
 
-    def resolve_flower_types(self, info):
-        return get_array_display(FLOWER_TYPES_CHOICES, self.flower_types)
+    def resolve_flower_types_display(self, info):
+        return self.get_flower_types_display()
 
-    def resolve_flower_colors(self, info):
-        return get_array_display(COLOR_CHOICES, self.flower_color)
+    def resolve_flower_colors_display(self, info):
+        return self.get_flower_colors_display()
 
 
 class CommonName(DjangoObjectType, DocumentBase):

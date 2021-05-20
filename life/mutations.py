@@ -154,8 +154,7 @@ class LifeNodeEdit(Mutation):
         edibility = graphene.Field(Edibility)
         flower_colors = graphene.List(FlowerColor)
         flower_types = graphene.List(FlowerType)
-
-        growth_habit = graphene.Field(GrowthHabit)
+        growth_habit = graphene.List(GrowthHabit)
         parent = graphene.ID()
         gbif_id = graphene.Int()
         commonNames = graphene.List(CommonNameInput)
