@@ -41,6 +41,19 @@ def node_save(node, args, info):
     node.flower_types = args.get('flower_types', node.flower_types)
     node.growth_habit = args.get('growth_habit', node.growth_habit)
 
+    node.height = args.get('height', node.height)
+    node.sun = args.get('sun', node.sun)
+    node.spread = args.get('spread', node.spread)
+    node.time_to_fruit = args.get('time_to_fruit', node.time_to_fruit)
+
+    node.succession = args.get('succession', node.succession)
+    node.growth_rate = args.get('growth_rate', node.growth_rate)
+    node.fruit_type = args.get('fruit_type', node.fruit_type)
+    node.leaf_type = args.get('leaf_type', node.leaf_type)
+    node.leaf_texture = args.get('leaf_texture', node.leaf_texture)
+    node.phyllotaxy = args.get('phyllotaxy', node.phyllotaxy)
+    node.threatened = args.get('threatened', node.threatened)
+
     parent_id = args.get('parent')
     if parent_id:
         gid_type, gid = from_global_id(parent_id)
@@ -155,6 +168,11 @@ class LifeNodeEdit(Mutation):
         flower_colors = graphene.List(FlowerColor)
         flower_types = graphene.List(FlowerType)
         growth_habit = graphene.List(GrowthHabit)
+
+        sun = graphene.String()
+        spread = graphene.String()
+        height = graphene.String()
+
         parent = graphene.ID()
         gbif_id = graphene.Int()
         commonNames = graphene.List(CommonNameInput)
