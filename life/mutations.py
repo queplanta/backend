@@ -168,6 +168,11 @@ class LifeNodeEdit(Mutation):
         flower_colors = graphene.List(FlowerColor)
         flower_types = graphene.List(FlowerType)
         growth_habit = graphene.List(GrowthHabit)
+
+        sun = graphene.String()
+        spread = graphene.String()
+        height = graphene.String()
+
         parent = graphene.ID()
         gbif_id = graphene.Int()
         commonNames = graphene.List(CommonNameInput)
