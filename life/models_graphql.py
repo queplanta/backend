@@ -192,6 +192,11 @@ class LifeNode(DjangoObjectType, DocumentBase):
     leaf_type = graphene.String()
     leaf_texture = graphene.List(graphene.String)
     threatened = graphene.String()
+    sun = graphene.String()
+    height = graphene.String()
+    spread = graphene.String()
+    time_to_fruit = graphene.String()
+
     habitat = graphene.List(graphene.String)
     endemism = graphene.List(graphene.String)
 
