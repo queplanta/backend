@@ -14,7 +14,7 @@ from backend.mutations import Mutation
 from .models_graphql import (
     LifeNode, Characteristic, Rank, Edibility,
     FlowerColor, FlowerType, GrowthHabit,
-    Quizz, generate_quiz, CommonName
+    Quizz, generate_quiz, CommonName, DecimalRangeType
 )
 from .models import (
     RANK_BY_STRING, CommonName as CommonNameModel,
@@ -171,7 +171,7 @@ class LifeNodeEdit(Mutation):
 
         sun = graphene.String()
         spread = graphene.String()
-        height = graphene.String()
+        height = graphene.Field(DecimalRangeType)
 
         parent = graphene.ID()
         gbif_id = graphene.Int()
