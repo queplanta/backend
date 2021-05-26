@@ -1,5 +1,6 @@
 import graphene
 import django_filters
+
 from graphene.relay import Node
 from graphene_django import DjangoObjectType, DjangoConnectionField
 from graphene_django.filter import DjangoFilterConnectionField
@@ -24,6 +25,14 @@ from voting.models_graphql import VotesNode
 from images.models_graphql import Image
 from tags.models_graphql import Tag
 from backend.fields import GetBy
+
+
+class DecimalRangeType(graphene.InputObjectType):
+    lower = graphene.Decimal()
+    upper = graphene.Decimal()
+
+    def resolve_full_name(parent, info):
+        return f"{parent.lower} {parent.upper}"
 
 
 class FlowerColor(graphene.Enum):
