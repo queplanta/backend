@@ -13,16 +13,30 @@ from db.models_graphql import Document
 from backend.mutations import Mutation
 from .models_graphql import (
     LifeNode, Characteristic, Rank, Edibility,
-    FlowerColor, FlowerType, GrowthHabit,
+    FlowerColor, FlowerType, GrowthHabit, GrowthRate,
+    Succession, Threatened,
     Quizz, generate_quiz, CommonName, DecimalRangeType
 )
 from .models import (
     RANK_BY_STRING, CommonName as CommonNameModel,
     LifeNode as LifeNodeModel,
-    Characteristic as CharacteristicModel
+    Characteristic as CharacteristicModel, SUCCESSION_CHOICES
 )
 from tags.models import Tag as TagModel
 from images.models import Image as ImageModel
+
+
+from psycopg2.extras import NumericRange
+
+def get_numeric_range(value):
+    if isinstance(value, NumericRange):
+        return value
+    if isinstance(value, dict):
+        return NumericRange(lower=value["lower"], upper=value["upper"])
+    if isinstance(value, list) or isinstance(value, tuple):
+        return NumericRange(*value)
+    if not value:
+        return NumericRange(empty=True)
 
 
 class ImageForm(forms.Form):
@@ -41,10 +55,10 @@ def node_save(node, args, info):
     node.flower_types = args.get('flower_types', node.flower_types)
     node.growth_habit = args.get('growth_habit', node.growth_habit)
 
-    node.height = args.get('height', node.height)
-    node.sun = args.get('sun', node.sun)
-    node.spread = args.get('spread', node.spread)
-    node.time_to_fruit = args.get('time_to_fruit', node.time_to_fruit)
+    node.height = get_numeric_range(args.get('height', node.height))
+    node.sun = get_numeric_range(args.get('sun', node.sun))
+    node.spread = get_numeric_range(args.get('spread', node.spread))
+    node.time_to_fruit = get_numeric_range(args.get('time_to_fruit', node.time_to_fruit))
 
     node.succession = args.get('succession', node.succession)
     node.growth_rate = args.get('growth_rate', node.growth_rate)
@@ -168,9 +182,12 @@ class LifeNodeEdit(Mutation):
         flower_colors = graphene.List(FlowerColor)
         flower_types = graphene.List(FlowerType)
         growth_habit = graphene.List(GrowthHabit)
+        growth_rate = graphene.List(GrowthRate)
+        succession = graphene.List(Succession)
+        threatened = graphene.List(Threatened)
 
-        sun = graphene.String()
-        spread = graphene.String()
+        sun = graphene.Field(DecimalRangeType)
+        spread = graphene.Field(DecimalRangeType)
         height = graphene.Field(DecimalRangeType)
 
         parent = graphene.ID()

@@ -14,7 +14,8 @@ from db.graphene import CountedConnection
 from .models import (
     RANK_CHOICES, RANK_GENUS, RANK_SPECIES,
     FLOWER_TYPES_CHOICES, COLOR_CHOICES,
-    GROWTH_HABIT_CHOICES,
+    GROWTH_HABIT_CHOICES, GROWTH_RATE_CHOICES,
+    SUCCESSION_CHOICES, THREATENED_CHOICES,
     LifeNode as LifeNodeModel,
     CommonName as CommonNameModel,
     Characteristic as CharacteristicModel
@@ -28,6 +29,13 @@ from backend.fields import GetBy
 
 
 class DecimalRangeType(graphene.InputObjectType):
+    lower = graphene.Decimal()
+    upper = graphene.Decimal()
+
+    def resolve_full_name(parent, info):
+        return f"{parent.lower} {parent.upper}"
+
+class DecimalRangeObjectType(graphene.ObjectType):
     lower = graphene.Decimal()
     upper = graphene.Decimal()
 
@@ -97,6 +105,43 @@ class Rank(graphene.Enum):
     @property
     def description(self):
         return dict(RANK_CHOICES)[self._value_]
+
+
+class GrowthRate(graphene.Enum):
+    SLOW = 'slow'
+    MODERATE = 'moderate'
+    FAST = 'fast'
+
+    @property
+    def description(self):
+        return dict(GROWTH_RATE_CHOICES)[self._value_]
+
+
+class Succession(graphene.Enum):
+    PRIMARY = 10
+    SECONDARY = 20
+    CLIMAX = 30
+
+    @property
+    def description(self):
+        return dict(SUCCESSION_CHOICES)[self._value_]
+
+
+class Threatened(graphene.Enum):
+    EXTINCT = 'EX'
+    EXTINCT_IN_THE_WILD = 'EW'
+    CRITICALLY_ENDANGERED = 'CR'
+    ENDANGERED = 'EN'
+    VULNERABLE = 'VU'
+    NEAR_THREATENED = 'NT'
+    CONSERVATION_DEPENDENT = 'CD'
+    LEAST_CONCERN = 'LC'
+    DATA_DEFICIENT = 'DD'
+    NOT_EVALUATED = 'NE'
+
+    @property
+    def description(self):
+        return dict(THREATENED_CHOICES)[self._value_]
 
 
 class Edibility(graphene.Enum):
@@ -197,14 +242,19 @@ class LifeNode(DjangoObjectType, DocumentBase):
     fruit_type = graphene.List(graphene.String)
     growth_habit = graphene.List(GrowthHabit)
     growth_habitDisplay = graphene.String()
+    growth_rate = graphene.List(GrowthRate)
+    growth_rateDisplay = graphene.String()
     phyllotaxy = graphene.String()
     leaf_type = graphene.String()
     leaf_texture = graphene.List(graphene.String)
-    threatened = graphene.String()
-    sun = graphene.String()
-    height = graphene.String()
-    spread = graphene.String()
-    time_to_fruit = graphene.String()
+    threatened = graphene.List(Threatened)
+    threatenedDisplay = graphene.String()
+    succession = graphene.List(Succession)
+    successionDisplay = graphene.String()
+    sun = graphene.Field(DecimalRangeType)
+    height = graphene.Field(DecimalRangeType)
+    spread = graphene.Field(DecimalRangeType)
+    time_to_fruit = graphene.Field(DecimalRangeType)
 
     habitat = graphene.List(graphene.String)
     endemism = graphene.List(graphene.String)
