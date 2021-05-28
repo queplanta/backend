@@ -1,3 +1,6 @@
+from calendar import timegm
+from datetime import datetime
+
 import graphene
 import graphql_social_auth
 
@@ -17,6 +20,8 @@ from django.contrib.auth.tokens import default_token_generator
 from django.utils.encoding import force_text
 from django.utils.http import urlsafe_base64_decode
 from django.utils.translation import ugettext_lazy as _
+
+from graphql_jwt.settings import jwt_settings
 
 from backend.fields import Error
 from backend.mutations import Mutation
@@ -90,6 +95,10 @@ class Register(RegisterAbstract, Mutation):
 
 
 class RegisterAndAuthenticate(RegisterAbstract, Mutation):
+    token = graphene.String(required=False)
+    payload = graphene.String(required=False)
+    refresh_expires_in = graphene.Int(required=False)
+
     class Input(RegisterInput):
         pass
 
@@ -97,15 +106,34 @@ class RegisterAndAuthenticate(RegisterAbstract, Mutation):
     def mutate_and_get_payload(cls, root, info, **data):
         register = super().mutate_and_get_payload(root, info, **data)
         if register.user:
-            # workarout to re authenticate the user
-            # when as change the user on the DB it gets disconected
             register.user.backend = settings.DEFAULT_AUTHENTICATION_BACKENDS
             auth_login(info.context, register.user)
+            payload, token = get_payload_and_token(register.user, info.context)
+            refresh_expires_in = get_refresh_expires_in()
+            return RegisterAndAuthenticate(user=register.user, token=token, refresh_expires_in=refresh_expires_in, errors=register.errors)
         return RegisterAndAuthenticate(user=register.user,
                                        errors=register.errors)
 
 
+def get_payload_and_token(user, context, **extra):
+    payload = jwt_settings.JWT_PAYLOAD_HANDLER(user, context)
+    payload.update(extra)
+    token = jwt_settings.JWT_ENCODE_HANDLER(payload, context)
+    return payload, token
+
+
+def get_refresh_expires_in():
+    return (
+        timegm(datetime.utcnow().utctimetuple()) +
+        jwt_settings.JWT_REFRESH_EXPIRATION_DELTA.total_seconds()
+    )
+
+
 class Authenticate(Mutation):
+    token = graphene.String(required=False)
+    payload = graphene.String(required=False)
+    refresh_expires_in = graphene.Int(required=False)
+
     class Input:
         username = graphene.String(required=True)
         password = graphene.String(required=True)
@@ -123,6 +151,10 @@ class Authenticate(Mutation):
         if form.is_valid():
             user = form.get_user()
             auth_login(request, user)
+
+            payload, token = get_payload_and_token(user, request)
+            refresh_expires_in = get_refresh_expires_in()
+            return Authenticate(token=token, refresh_expires_in=refresh_expires_in, errors=errors)
         else:
             errors = form_erros(form, errors)
 

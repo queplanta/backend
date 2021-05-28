@@ -137,6 +137,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 DEFAULT_AUTHENTICATION_BACKENDS = 'accounts.authentication.ModelBackend'
 AUTHENTICATION_BACKENDS = [
+    'graphql_jwt.backends.JSONWebTokenBackend',
     DEFAULT_AUTHENTICATION_BACKENDS,
     'social_core.backends.google.GoogleOAuth2',
     'social_core.backends.facebook.FacebookOAuth2',
@@ -232,6 +233,7 @@ GRAPHENE = {
     'SCHEMA': 'backend.schema.schema',
     'MIDDLEWARE': [
         'graphene_django.debug.DjangoDebugMiddleware',
+        'graphql_jwt.middleware.JSONWebTokenMiddleware',
     ],
     'RELAY_CONNECTION_MAX_LIMIT': 10000,
 }

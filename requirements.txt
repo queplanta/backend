@@ -19,6 +19,8 @@ iso8601
 djmail==2.0.0
 django-premailer==0.2.0
 django-cors-headers==3.7.0
+django-graphql-jwt==0.3.1
+PyJWT==1.7.1
 
 # Tests
 django-nose==1.4.4
