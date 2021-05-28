@@ -1,4 +1,5 @@
 import os
+from datetime import timedelta
 
 #########
 # PATHS #
@@ -142,6 +143,12 @@ AUTHENTICATION_BACKENDS = [
     'social_core.backends.google.GoogleOAuth2',
     'social_core.backends.facebook.FacebookOAuth2',
 ]
+
+GRAPHQL_JWT = {
+    'JWT_VERIFY_EXPIRATION': False,
+    'JWT_EXPIRATION_DELTA': timedelta(days=30),
+    'JWT_REFRESH_EXPIRATION_DELTA': timedelta(days=60),
+}
 
 
 # Social Auth
