@@ -1,4 +1,4 @@
-django==2.2.13
+django==2.2.22
 psycopg2==2.8.3
 gunicorn==19.9.0
 graphene==2.1.7
