@@ -195,7 +195,7 @@ class LifeNode(DocumentBase):
     height = DecimalRangeField(null=True)
     spread = DecimalRangeField(null=True)
     sun = DecimalRangeField(null=True)  # percentage of sun
-    growth_rate = ArrayField(models.IntegerField(choices=GROWTH_RATE_CHOICES), null=True)
+    growth_rate = ArrayField(models.CharField(choices=GROWTH_RATE_CHOICES, max_length=25), null=True, blank=True)
     succession = models.IntegerField(null=True, choices=SUCCESSION_CHOICES)
     time_to_fruit = DecimalRangeField(null=True)
 

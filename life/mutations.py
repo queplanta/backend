@@ -25,8 +25,8 @@ from .models import (
 from tags.models import Tag as TagModel
 from images.models import Image as ImageModel
 
-
 from psycopg2.extras import NumericRange
+
 
 def get_numeric_range(value):
     if isinstance(value, NumericRange):
@@ -183,8 +183,8 @@ class LifeNodeEdit(Mutation):
         flower_types = graphene.List(FlowerType)
         growth_habit = graphene.List(GrowthHabit)
         growth_rate = graphene.List(GrowthRate)
-        succession = graphene.List(Succession)
-        threatened = graphene.List(Threatened)
+        succession = graphene.Field(Succession)
+        threatened = graphene.Field(Threatened)
 
         sun = graphene.Field(DecimalRangeType)
         spread = graphene.Field(DecimalRangeType)
