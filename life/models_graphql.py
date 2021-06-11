@@ -233,24 +233,24 @@ class LifeNode(DjangoObjectType, DocumentBase):
     parent = graphene.Field(lambda: LifeNode)
     parents = graphene.List(lambda: LifeNode)
     rank = graphene.Field(Rank)
-    rankDisplay = graphene.String()
+    rank_display = graphene.String()
 
     flower_colors = graphene.List(FlowerColor)
-    flower_colorsDisplay = graphene.String()
+    flower_colors_display = graphene.String()
     flower_types = graphene.List(FlowerType)
-    flower_typesDisplay = graphene.String()
+    flower_types_display = graphene.String()
     fruit_type = graphene.List(graphene.String)
     growth_habit = graphene.List(GrowthHabit)
-    growth_habitDisplay = graphene.String()
+    growth_habit_display = graphene.String()
     growth_rate = graphene.List(GrowthRate)
-    growth_rateDisplay = graphene.String()
+    growth_rate_display = graphene.String()
     phyllotaxy = graphene.String()
     leaf_type = graphene.String()
     leaf_texture = graphene.List(graphene.String)
-    threatened = graphene.List(Threatened)
-    threatenedDisplay = graphene.String()
-    succession = graphene.List(Succession)
-    successionDisplay = graphene.String()
+    threatened = graphene.Field(Threatened)
+    threatened_display = graphene.String()
+    succession = graphene.Field(Succession)
+    succession_display = graphene.String()
     sun = graphene.Field(DecimalRangeObjectType)
     height = graphene.Field(DecimalRangeObjectType)
     spread = graphene.Field(DecimalRangeObjectType)
@@ -260,7 +260,7 @@ class LifeNode(DjangoObjectType, DocumentBase):
     endemism = graphene.List(graphene.String)
 
     edibility = graphene.Field(Edibility)
-    edibilityDisplay = graphene.String()
+    edibility_display = graphene.String()
 
     commonNames = DjangoFilterConnectionField(lambda: CommonName, filterset_class=CommonNamesFilter)
     children = DjangoConnectionField(lambda: LifeNode)
@@ -299,10 +299,10 @@ class LifeNode(DjangoObjectType, DocumentBase):
             return parents
         return get_parents(self)
 
-    def resolve_rankDisplay(self, info):
+    def resolve_rank_display(self, info):
         return self.get_rank_display()
 
-    def resolve_edibilityDisplay(self, info):
+    def resolve_edibility_display(self, info):
         return EDIBILITY_CHOICES.get(self.edibility, '')
 
     def resolve_commonNames(self, info, **kwargs):
@@ -363,22 +363,22 @@ class LifeNode(DjangoObjectType, DocumentBase):
             plant=self.document_id,
         ).order_by('-document__created_at')
 
-    def resolve_threatened(self, info):
+    def resolve_threatened_display(self, info):
         return self.get_threatened_display()
 
-    def resolve_phyllotaxy(self, info):
+    def resolve_phyllotaxy_display(self, info):
         return self.get_phyllotaxy_display()
 
-    def resolve_leaf_type(self, info):
+    def resolve_leaf_type_display(self, info):
         return self.get_leaf_type_display()
 
-    def resolve_leaf_texture(self, info):
+    def resolve_leaf_texture_display(self, info):
         return get_array_display(LEAF_TEXTURE_CHOICES, self.leaf_texture)
 
     def resolve_growth_habit_display(self, info):
         return self.get_growth_habit_display()
 
-    def resolve_fruit_type(self, info):
+    def resolve_fruit_type_display(self, info):
         return get_array_display(FRUIT_TYPES_CHOICES, self.fruit_type)
 
     def resolve_flower_types_display(self, info):
