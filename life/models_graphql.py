@@ -366,6 +366,9 @@ class LifeNode(DjangoObjectType, DocumentBase):
     def resolve_threatened_display(self, info):
         return self.get_threatened_display()
 
+    def resolve_succession_display(self, info):
+        return self.get_succession_display()
+
     def resolve_phyllotaxy_display(self, info):
         return self.get_phyllotaxy_display()
 
@@ -376,7 +379,10 @@ class LifeNode(DjangoObjectType, DocumentBase):
         return get_array_display(LEAF_TEXTURE_CHOICES, self.leaf_texture)
 
     def resolve_growth_habit_display(self, info):
-        return self.get_growth_habit_display()
+        return get_array_display(GROWTH_HABIT_CHOICES, self.growth_habit)
+
+    def resolve_growth_rate_display(self, info):
+        return get_array_display(GROWTH_RATE_CHOICES, self.growth_rate)
 
     def resolve_fruit_type_display(self, info):
         return get_array_display(FRUIT_TYPES_CHOICES, self.fruit_type)
