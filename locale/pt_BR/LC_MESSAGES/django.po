@@ -8,53 +8,52 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-10-26 23:22+0000\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"POT-Creation-Date: 2021-07-21 01:51+0000\n"
+"PO-Revision-Date: 2021-07-21 01:51+0000\n"
+"Last-Translator: b'Alisson Patricio  <alisson@queplanta.com>'\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Translated-Using: django-rosetta 0.9.3\n"
 
-#: src/multiupload/examples/contact_form/models.py:6
-msgid "Name"
+#: templates/emails/password_reset-body-html.html:7
+#: templates/emails/password_reset-subject.html:2
+#, python-format
+msgid "Password reset on %(site_name)s"
 msgstr ""
 
-#: src/multiupload/examples/contact_form/models.py:7
-msgid "Email"
-msgstr ""
-
-#: src/multiupload/examples/contact_form/models.py:8
-msgid "Content"
-msgstr ""
-
-#: src/multiupload/examples/contact_form/models.py:12
-msgid "Message"
-msgstr ""
-
-#: src/multiupload/examples/contact_form/models.py:13
-msgid "Attachment"
-msgstr ""
-
-#: src/multiupload/multiupload/fields.py:43
+#: templates/emails/password_reset-body-html.html:10
+#: templates/emails/password_reset-body-text.html:3
 #, python-format
 msgid ""
-"Ensure at least %(min_num)s files are uploaded (received %(num_files)s)."
+"You're receiving this email because you requested a password reset for your "
+"user account at %(site_name)s."
 msgstr ""
 
-#: src/multiupload/multiupload/fields.py:46
-#, python-format
-msgid "Ensure at most %(max_num)s files are uploaded (received %(num_files)s)."
+#: templates/emails/password_reset-body-html.html:13
+#: templates/emails/password_reset-body-text.html:5
+msgid "Please go to the following page and choose a new password:"
 msgstr ""
 
-#: src/multiupload/multiupload/fields.py:49
-#, python-format
-msgid "File %(uploaded_file_name)s exceeded maximum upload size."
+#: templates/emails/password_reset-body-html.html:17
+msgid "password reset"
 msgstr ""
 
-#: src/multiupload/multiupload/fields.py:117
+#: templates/emails/password_reset-body-html.html:21
+#: templates/emails/password_reset-body-text.html:9
+msgid "Your username, in case you’ve forgotten:"
+msgstr ""
+
+#: templates/emails/password_reset-body-html.html:24
+#: templates/emails/password_reset-body-text.html:11
+msgid "Thanks for using our site!"
+msgstr ""
+
+#: templates/emails/password_reset-body-html.html:27
+#: templates/emails/password_reset-body-text.html:13
 #, python-format
-msgid "Invalid media_type. Valid types are: %(valid_types)s"
+msgid "The %(site_name)s team"
 msgstr ""

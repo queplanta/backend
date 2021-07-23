@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-10-26 23:22+0000\n"
+"POT-Creation-Date: 2021-07-21 01:51+0000\n"
 "PO-Revision-Date: 2019-09-14 18:14+0000\n"
 "Last-Translator: b'  <eu@alisson.net>'\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,38 +19,366 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "X-Translated-Using: django-rosetta 0.9.3\n"
 
-#: life/models.py:23
+#: life/models.py:22
 msgid "Kingdom"
 msgstr "Reino"
 
-#: life/models.py:24
+#: life/models.py:23
 msgid "Phylum"
 msgstr "Filo"
 
-#: life/models.py:25
+#: life/models.py:24
 msgid "Class"
 msgstr "Classe"
 
-#: life/models.py:26
+#: life/models.py:25
 msgid "Order"
 msgstr "Ordem"
 
-#: life/models.py:27
+#: life/models.py:26
 msgid "Family"
 msgstr "Família"
 
-#: life/models.py:28
+#: life/models.py:27
 msgid "Genus"
 msgstr "Género"
 
-#: life/models.py:29
+#: life/models.py:28
 msgid "Species"
 msgstr "Espécie"
 
-#: life/models.py:30
+#: life/models.py:29
 msgid "Infraspecies"
 msgstr "Subespécie"
 
-#: life/models.py:31
+#: life/models.py:30
 msgid "Variety"
 msgstr "Cultivar"
+
+#: life/models.py:48
+msgid "Primary"
+msgstr ""
+
+#: life/models.py:49
+msgid "Secondary"
+msgstr ""
+
+#: life/models.py:50
+msgid "Climax"
+msgstr ""
+
+#: life/models.py:55
+msgid "Extinct"
+msgstr ""
+
+#: life/models.py:56
+msgid "Extinct in the Wild"
+msgstr ""
+
+#: life/models.py:57
+msgid "Critically Endangered"
+msgstr ""
+
+#: life/models.py:58
+msgid "Endangered"
+msgstr ""
+
+#: life/models.py:59
+msgid "Vulnerable"
+msgstr ""
+
+#: life/models.py:60
+msgid "Near Threatened"
+msgstr ""
+
+#: life/models.py:61
+msgid "Conservation Dependent"
+msgstr ""
+
+#: life/models.py:62
+msgid "Least Concern"
+msgstr ""
+
+#: life/models.py:63
+msgid "Data Deficient"
+msgstr ""
+
+#: life/models.py:64
+msgid "Not Evaluated"
+msgstr ""
+
+#: life/models.py:69
+msgid "White"
+msgstr ""
+
+#: life/models.py:70
+msgid "Red"
+msgstr ""
+
+#: life/models.py:71
+msgid "Orange"
+msgstr ""
+
+#: life/models.py:72
+msgid "Yellow"
+msgstr ""
+
+#: life/models.py:73
+msgid "Pink"
+msgstr ""
+
+#: life/models.py:74
+msgid "Lilac"
+msgstr ""
+
+#: life/models.py:75
+msgid "Blue"
+msgstr ""
+
+#: life/models.py:76
+msgid "Light Blue"
+msgstr ""
+
+#: life/models.py:77
+msgid "Green"
+msgstr ""
+
+#: life/models.py:78
+msgid "Purple"
+msgstr ""
+
+#: life/models.py:79
+msgid "Black"
+msgstr ""
+
+#: life/models.py:80
+msgid "Brown"
+msgstr ""
+
+#: life/models.py:81
+msgid "Nut Brown"
+msgstr ""
+
+#: life/models.py:82
+msgid "Wine"
+msgstr ""
+
+#: life/models.py:83
+msgid "Cream"
+msgstr ""
+
+#: life/models.py:88
+msgid "Inflorescence"
+msgstr ""
+
+#: life/models.py:89
+msgid "Composite Flower"
+msgstr ""
+
+#: life/models.py:90
+msgid "Solitary Flower"
+msgstr ""
+
+#: life/models.py:96 life/models.py:150
+msgid "Simple"
+msgstr ""
+
+#: life/models.py:97
+msgid "Dry"
+msgstr ""
+
+#: life/models.py:98
+msgid "Dehiscent"
+msgstr ""
+
+#: life/models.py:99
+msgid "Legume"
+msgstr ""
+
+#: life/models.py:100
+msgid "Follicle"
+msgstr ""
+
+#: life/models.py:101
+msgid "Capsule"
+msgstr ""
+
+#: life/models.py:102
+msgid "Loculicidal Capsule"
+msgstr ""
+
+#: life/models.py:103
+msgid "Septicidal Capsule"
+msgstr ""
+
+#: life/models.py:104
+msgid "Silique Capsule"
+msgstr ""
+
+#: life/models.py:105
+msgid "Silicle Capsule"
+msgstr ""
+
+#: life/models.py:106
+msgid "Pyxis Capsule"
+msgstr ""
+
+#: life/models.py:107
+msgid "Poricidal Capsule"
+msgstr ""
+
+#: life/models.py:108
+msgid "Indehiscent"
+msgstr ""
+
+#: life/models.py:109
+msgid "Achene"
+msgstr ""
+
+#: life/models.py:110
+msgid "Nut"
+msgstr ""
+
+#: life/models.py:111
+msgid "Samara"
+msgstr ""
+
+#: life/models.py:112
+msgid "Grain"
+msgstr ""
+
+#: life/models.py:113
+msgid "Schizocarp"
+msgstr ""
+
+#: life/models.py:114
+msgid "Fleshy"
+msgstr ""
+
+#: life/models.py:115
+msgid "Drupe"
+msgstr ""
+
+#: life/models.py:116
+msgid "Berry"
+msgstr ""
+
+#: life/models.py:117
+msgid "Hesperidium"
+msgstr ""
+
+#: life/models.py:118
+msgid "Pepo"
+msgstr ""
+
+#: life/models.py:119
+msgid "Pome"
+msgstr ""
+
+#: life/models.py:120
+msgid "Aggregate"
+msgstr ""
+
+#: life/models.py:121
+msgid "Multiple"
+msgstr ""
+
+#: life/models.py:127
+msgid "Herb"
+msgstr ""
+
+#: life/models.py:128
+msgid "Graminoid"
+msgstr ""
+
+#: life/models.py:129
+msgid "Lichenous"
+msgstr ""
+
+#: life/models.py:130
+msgid "Nonvascular"
+msgstr ""
+
+#: life/models.py:131 life/models.py:160
+msgid "Succulent"
+msgstr ""
+
+#: life/models.py:132
+msgid "Shrub"
+msgstr ""
+
+#: life/models.py:133
+msgid "Subshrub"
+msgstr ""
+
+#: life/models.py:134
+msgid "Tree"
+msgstr ""
+
+#: life/models.py:135
+msgid "Vine"
+msgstr ""
+
+#: life/models.py:140
+msgid "Opposite"
+msgstr ""
+
+#: life/models.py:141
+msgid "Opposite Distichous"
+msgstr ""
+
+#: life/models.py:142
+msgid "Alternate"
+msgstr ""
+
+#: life/models.py:143
+msgid "Alternate Spiral"
+msgstr ""
+
+#: life/models.py:144
+msgid "Alternate Distichous"
+msgstr ""
+
+#: life/models.py:145
+msgid "Whorl"
+msgstr ""
+
+#: life/models.py:146
+msgid "Rosette"
+msgstr ""
+
+#: life/models.py:151
+msgid "Compound"
+msgstr ""
+
+#: life/models.py:152
+msgid "Spine"
+msgstr ""
+
+#: life/models.py:156
+msgid "Cartácea"
+msgstr ""
+
+#: life/models.py:157
+msgid "Membranácea"
+msgstr ""
+
+#: life/models.py:158
+msgid "Herbácea"
+msgstr ""
+
+#: life/models.py:159
+msgid "Coríaceas"
+msgstr ""
+
+#: life/models.py:165
+msgid "Slow"
+msgstr ""
+
+#: life/models.py:166
+msgid "Moderate"
+msgstr ""
+
+#: life/models.py:167
+msgid "Fast"
+msgstr ""
