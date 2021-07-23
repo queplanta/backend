@@ -153,10 +153,18 @@ class LifeNodeCreate(Mutation):
         description = graphene.String()
         rank = graphene.Field(Rank, required=True)
         edibility = graphene.Field(Edibility)
-        flower_colors = graphene.Field(FlowerColor)
-        flower_types = graphene.Field(FlowerType)
+        
+        flower_colors = graphene.List(FlowerColor)
+        flower_types = graphene.List(FlowerType)
+        growth_habit = graphene.List(GrowthHabit)
+        growth_rate = graphene.List(GrowthRate)
+        succession = graphene.Field(Succession)
+        threatened = graphene.Field(Threatened)
 
-        growth_habit = graphene.Field(GrowthHabit)
+        sun = graphene.Field(DecimalRangeType)
+        spread = graphene.Field(DecimalRangeType)
+        height = graphene.Field(DecimalRangeType)
+
         parent = graphene.ID()
         gbif_id = graphene.Int()
         commonNames = graphene.List(CommonNameInput)
