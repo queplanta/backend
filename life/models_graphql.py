@@ -472,6 +472,7 @@ class Query(object):
         'fruit_type': graphene.Argument(graphene.List(graphene.String), required=False),
         'growth_habit': graphene.Argument(graphene.List(graphene.String), required=False),
         'leaf_texture': graphene.Argument(graphene.List(graphene.String), required=False),
+        'exclude': graphene.Argument(graphene.Int, required=False),
     }, total_found2=graphene.Int(required=False, name='totalFound2'))
 
     lifeNodeQuizz = graphene.Field(Quizz, resolver=generate_quiz)
@@ -504,6 +505,8 @@ class Query(object):
             qs = qs.filter(growth_habit__contains=args['growth_habit'])
         if has_items('leaf_texture', args):
             qs = qs.filter(leaf_texture__contains=args['leaf_texture'])
+        if 'exclude' in args:
+            qs = qs.exclude(document_id=args['exclude'])
         if 'search' in args and len(args['search']) > 2:
             s = args['search'].strip()
             q_objects = Q(title__icontains=s)
