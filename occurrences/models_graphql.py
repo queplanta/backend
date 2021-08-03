@@ -43,11 +43,11 @@ class TrunkType(graphene.Enum):
 
 
 class CanopyPosition(graphene.Enum):
-   EMERGING = 'emerging'
-   CANOPY = 'canopy'
-   SUB_CANOPY = 'sub-canopy'
-   SUB_FOREST = 'sub-forest'
-   ISOLATED = 'isolated'
+    EMERGENT = 'emergent'
+    CANOPY = 'canopy'
+    SUB_CANOPY = 'sub-canopy'
+    SUB_FOREST = 'sub-forest'
+    ISOLATED = 'isolated'
 
     @property
     def description(self):
