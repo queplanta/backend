@@ -60,7 +60,7 @@ class Occurrence(DocumentBase):
     cbh = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True, help_text=_("Circumference at breast height"))
     dbh = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True, help_text=_("Diameter at breast height"))
     total_height = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
-    cup_height = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    canopy_height = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
     canopy_position = models.CharField(choices=CANOPY_POSITION_CHOICES, max_length=25, null=True, blank=True)
     current_health_state = models.CharField(choices=HEALTH_STATE_CHOICES, max_length=25, null=True, blank=True)
     current_health_state_description = models.TextField(blank=True, null=True)
