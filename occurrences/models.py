@@ -52,7 +52,6 @@ class Occurrence(DocumentBase):
     where = models.CharField(max_length=256, blank=True, null=True)
 
     notes = models.TextField(blank=True, null=True)
-    is_cultivated = models.BooleanField(default=False)
     is_request = models.BooleanField(default=False)
 
     # plant nursery fields
