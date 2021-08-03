@@ -58,7 +58,7 @@ class Occurrence(DocumentBase):
     # plant nursery fields
     type = models.CharField(choices=OCCURRANCE_TYPE_CHOICES, max_length=25, null=True, blank=True)
     regional_name = models.CharField(max_length=255, null=True, blank=True)
-    cap = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    cbh = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True, help_text=_("Circumference at breast height"))
     dap = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
     total_height = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
     cup_height = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
