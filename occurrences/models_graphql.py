@@ -77,19 +77,19 @@ class Occurrence(DjangoObjectType, DocumentBase):
     identity = graphene.Field(LifeNode)
 
     type = graphene.Field(OccurranceType)
-    typeDisplay = graphene.String()
+    type_display = graphene.String()
     regional_name = graphene.String()
     cap = graphene.Decimal()
     dap = graphene.Decimal()
     total_height = graphene.Decimal()
     cup_height = graphene.Decimal()
     canopy_position = graphene.Field(CanopyPosition)
-    canopy_positionDisplay = graphene.String()
+    canopy_position_display = graphene.String()
     current_health_state = graphene.Field(HealthState)
-    current_health_stateDisplay = graphene.String()
+    current_health_state_display = graphene.String()
     current_health_state_description = graphene.String()
     type_of_trunk = graphene.Field(TrunkType)
-    type_of_trunkDisplay = graphene.String()
+    type_of_trunk_display = graphene.String()
     local_population = graphene.String()
 
     class Meta:
