@@ -20,7 +20,7 @@ TRUNK_TYPE_CHOICES = (
 )
 
 CANOPY_POSITION_CHOICES = (
-    ('emerging', _('Emerging')),
+    ('emergent', _('Emergent')),
     ('canopy', _('Canopy')),
     ('sub-canopy', _('Sub-canopy')),
     ('sub-forest', _('Sub-forest')),
