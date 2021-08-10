@@ -19,7 +19,11 @@ from backend.mutations import Mutation
 from db.models_graphql import Document
 from utils.forms import form_erros
 from images.models import Image as ImageModel
-from .models_graphql import Occurrence, SuggestionID
+from .models_graphql import (
+    Occurrence, SuggestionID,
+    OccurranceType, CanopyPosition,
+    HealthState, TrunkType
+)
 
 
 class MyMultiImageField(MultiImageField):
@@ -51,6 +55,18 @@ class OccurrenceCreate(Mutation):
         life_id = graphene.ID(required=False)
         location = graphene.Field(graphql_geojson.Geometry, required=False)
 
+        type = graphene.Field(OccurranceType, required=False)
+        regional_name = graphene.String(required=False)
+        cbh = graphene.Decimal(required=False)
+        dbh = graphene.Decimal(required=False)
+        total_height = graphene.Decimal(required=False)
+        canopy_height = graphene.Decimal(required=False)
+        canopy_position = graphene.Field(CanopyPosition, required=False)
+        current_health_state = graphene.Field(HealthState, required=False)
+        current_health_state_description = graphene.String(required=False)
+        type_of_trunk = graphene.Field(TrunkType, required=False)
+        local_population = graphene.String(required=False)
+
     occurrence = graphene.Field(Occurrence._meta.connection.Edge)
 
     @classmethod
@@ -64,6 +80,17 @@ class OccurrenceCreate(Mutation):
             occurrence.when = input.get('when')
             occurrence.where = input.get('where')
             occurrence.notes = input.get('notes')
+            occurrence.type = input.get('type')
+            occurrence.regional_name = input.get('regional_name')
+            occurrence.cbh = input.get('cbh')
+            occurrence.dbh = input.get('dbh')
+            occurrence.total_height = input.get('total_height')
+            occurrence.canopy_height = input.get('canopy_height')
+            occurrence.canopy_position = input.get('canopy_position')
+            occurrence.current_health_state = input.get('current_health_state')
+            occurrence.current_health_state_description = input.get('current_health_state_description')
+            occurrence.type_of_trunk = input.get('type_of_trunk')
+            occurrence.local_population = input.get('local_population')
             occurrence.is_request = False
 
             location = input.get('location')
