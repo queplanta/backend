@@ -7,7 +7,7 @@ on:
 #     branches: [ "master" ]
 
 env:
-  REGISTRY: registry.digitalocean.com/levitar
+  REGISTRY: docker.io
   IMAGE_NAME: queplanta-${{ github.repository }}
 
 jobs:
