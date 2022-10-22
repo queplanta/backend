@@ -6,6 +6,10 @@ on:
   pull_request:
 #     branches: [ "master" ]
 
+env:
+  REGISTRY: registry.digitalocean.com/levitar
+  IMAGE_NAME: queplanta-${{ github.repository }}
+
 jobs:
   build:
     runs-on: ubuntu-latest
