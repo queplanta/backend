@@ -8,9 +8,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-07-21 01:51+0000\n"
-"PO-Revision-Date: 2019-09-14 18:02+0000\n"
-"Last-Translator: b'  <eu@alisson.net>'\n"
+"POT-Creation-Date: 2021-08-17 03:22+0000\n"
+"PO-Revision-Date: 2021-08-17 03:22+0000\n"
+"Last-Translator: b'Alisson Patricio  <alisson@queplanta.com>'\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
 "MIME-Version: 1.0\n"
@@ -19,7 +19,63 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "X-Translated-Using: django-rosetta 0.9.3\n"
 
-#: occurrences/mutations.py:225
+#: occurrences/models.py:13
+msgid "Natural"
+msgstr "Natural"
+
+#: occurrences/models.py:14
+msgid "Planted"
+msgstr "Plantada"
+
+#: occurrences/models.py:18
+msgid "Straight"
+msgstr "Reto"
+
+#: occurrences/models.py:19
+msgid "Bifurcated"
+msgstr "Bifurcado"
+
+#: occurrences/models.py:20
+msgid "Crooked"
+msgstr "Tortuoso"
+
+#: occurrences/models.py:24
+msgid "Emergent"
+msgstr "Emergente"
+
+#: occurrences/models.py:25
+msgid "Canopy"
+msgstr "Dossel"
+
+#: occurrences/models.py:26
+msgid "Sub-canopy"
+msgstr "Sub-dossel"
+
+#: occurrences/models.py:27
+msgid "Sub-forest"
+msgstr "Chão da floresta"
+
+#: occurrences/models.py:28
+msgid "Isolated"
+msgstr "Isolada"
+
+#: occurrences/models.py:32
+msgid "Healthy"
+msgstr "Saudável"
+
+#: occurrences/models.py:33
+msgid "Damaged"
+msgstr "Danificada"
+
+#: occurrences/models.py:61
+msgid "Circumference at breast height"
+msgstr "Circunferência à Altura do Peito"
+
+#: occurrences/models.py:62
+msgid "Diameter at breast height"
+msgstr "Diâmetro à Altura do Peito"
+
+#: occurrences/mutations.py:252
 msgid ""
 "This name was already suggested. Please vote on that suggestion or suggest "
 "another one."

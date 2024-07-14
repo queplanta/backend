@@ -8,9 +8,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-07-21 01:51+0000\n"
-"PO-Revision-Date: 2019-09-14 18:14+0000\n"
-"Last-Translator: b'  <eu@alisson.net>'\n"
+"POT-Creation-Date: 2021-08-17 03:22+0000\n"
+"PO-Revision-Date: 2021-08-17 03:13+0000\n"
+"Last-Translator: b'Alisson Patricio  <alisson@queplanta.com>'\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
 "MIME-Version: 1.0\n"
@@ -57,131 +57,131 @@ msgstr "Cultivar"
 
 #: life/models.py:48
 msgid "Primary"
-msgstr ""
+msgstr "Pioneira"
 
 #: life/models.py:49
 msgid "Secondary"
-msgstr ""
+msgstr "Secundária"
 
 #: life/models.py:50
 msgid "Climax"
-msgstr ""
+msgstr "Clímax"
 
 #: life/models.py:55
 msgid "Extinct"
-msgstr ""
+msgstr "Extinta"
 
 #: life/models.py:56
 msgid "Extinct in the Wild"
-msgstr ""
+msgstr "Extinta na natureza"
 
 #: life/models.py:57
 msgid "Critically Endangered"
-msgstr ""
+msgstr "Criticamente em perigo"
 
 #: life/models.py:58
 msgid "Endangered"
-msgstr ""
+msgstr "Em perigo"
 
 #: life/models.py:59
 msgid "Vulnerable"
-msgstr ""
+msgstr "Vulnerável"
 
 #: life/models.py:60
 msgid "Near Threatened"
-msgstr ""
+msgstr "Quase ameaçada"
 
 #: life/models.py:61
 msgid "Conservation Dependent"
-msgstr ""
+msgstr "Dependente de conservação"
 
 #: life/models.py:62
 msgid "Least Concern"
-msgstr ""
+msgstr "Pouco preocupante"
 
 #: life/models.py:63
 msgid "Data Deficient"
-msgstr ""
+msgstr "Dados deficientes"
 
 #: life/models.py:64
 msgid "Not Evaluated"
-msgstr ""
+msgstr "Não avaliada"
 
 #: life/models.py:69
 msgid "White"
-msgstr ""
+msgstr "Branco"
 
 #: life/models.py:70
 msgid "Red"
-msgstr ""
+msgstr "Vermelho"
 
 #: life/models.py:71
 msgid "Orange"
-msgstr ""
+msgstr "Laranja"
 
 #: life/models.py:72
 msgid "Yellow"
-msgstr ""
+msgstr "Amarelo"
 
 #: life/models.py:73
 msgid "Pink"
-msgstr ""
+msgstr "Rosa"
 
 #: life/models.py:74
 msgid "Lilac"
-msgstr ""
+msgstr "Lilás"
 
 #: life/models.py:75
 msgid "Blue"
-msgstr ""
+msgstr "Azul"
 
 #: life/models.py:76
 msgid "Light Blue"
-msgstr ""
+msgstr "Azul claro"
 
 #: life/models.py:77
 msgid "Green"
-msgstr ""
+msgstr "Verde"
 
 #: life/models.py:78
 msgid "Purple"
-msgstr ""
+msgstr "Roxo"
 
 #: life/models.py:79
 msgid "Black"
-msgstr ""
+msgstr "Preto"
 
 #: life/models.py:80
 msgid "Brown"
-msgstr ""
+msgstr "Marrom"
 
 #: life/models.py:81
 msgid "Nut Brown"
-msgstr ""
+msgstr "Castanho"
 
 #: life/models.py:82
 msgid "Wine"
-msgstr ""
+msgstr "Vinho"
 
 #: life/models.py:83
 msgid "Cream"
-msgstr ""
+msgstr "Creme"
 
 #: life/models.py:88
 msgid "Inflorescence"
-msgstr ""
+msgstr "Inflorescência"
 
 #: life/models.py:89
 msgid "Composite Flower"
-msgstr ""
+msgstr "Flor Composta"
 
 #: life/models.py:90
 msgid "Solitary Flower"
-msgstr ""
+msgstr "Flor Solitária"
 
 #: life/models.py:96 life/models.py:150
 msgid "Simple"
-msgstr ""
+msgstr "Simples"
 
 #: life/models.py:97
 msgid "Dry"
