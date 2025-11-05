@@ -19,6 +19,8 @@ class Sowing(DjangoObjectType, DocumentBase):
     author = graphene.Field(User)
     species = DjangoConnectionField(lambda: LifeNode)
     images = DjangoConnectionField(lambda: Image)
+    authorName = graphene.String()
+    authorEmail = graphene.String()
 
     class Meta:
         model = SowingModel
@@ -44,6 +46,12 @@ class Sowing(DjangoObjectType, DocumentBase):
         return LifeNode._meta.model.objects.filter(
             document__sowing_species=self)
 
+    def resolve_authorName(self, info):
+        return getattr(self, 'author_name', None)
+
+    def resolve_authorEmail(self, info):
+        return getattr(self, 'author_email', None)
+
 
 class BoundBoxFilter(django_filters.CharFilter):
     description = "4 numbers separated by comma that represents a polygon object from the given bounding-box, e.g.: xmin,ymin,xmax,ymax)"
@@ -61,4 +69,3 @@ class SowingFilter(django_filters.FilterSet):
     class Meta:
         model = SowingModel
         fields = ['author']
-

@@ -116,6 +116,69 @@ class SowingTest(UserTestCase):
         }
         self.assertEqual(response.json(), expected)
 
+    def test_create_sowing_guest_with_name_email(self):
+        # ensure we are logged out for a guest submission
+        self.client.logout()
+
+        with open('public/default_user_avatar.jpg', 'rb') as image1:
+            response = self.graphql({
+                'query': """
+                    mutation M($input_0: SowingCreateInput!) {
+                        sowingCreate(input: $input_0) {
+                            clientMutationId,
+                            sowing {
+                                node {
+                                    id
+                                    where
+                                    notes
+                                    author { username }
+                                    authorName
+                                    authorEmail
+                                    images { edges { node { id } } }
+                                }
+                            }
+                            errors { code location message }
+                        }
+                    }
+                """,
+                'variables': {
+                    'input_0': {
+                        'clientMutationId': '1',
+                        'where': 'bairro central',
+                        'notes': 'semeadura comunitária',
+                        'species': [self.species['id']],
+                        'name': 'Convidado',
+                        'email': 'convidado@example.com',
+                    }
+                },
+                'images': [image1],
+            }, content_type=MULTIPART_CONTENT)
+
+        sowing = response.json()['data']['sowingCreate']['sowing']['node']
+
+        expected = {
+            'data': {
+                'sowingCreate': {
+                    'sowing': {
+                        'node': {
+                            'id': sowing['id'],
+                            'where': 'bairro central',
+                            'notes': 'semeadura comunitária',
+                            'author': None,
+                            'authorName': 'Convidado',
+                            'authorEmail': 'convidado@example.com',
+                            'images': {
+                                'edges': [sowing['images']['edges'][0]],
+                            },
+                        }
+                    },
+                    'clientMutationId': '1',
+                    'errors': None,
+                }
+            }
+        }
+        self.assertEqual(response.json(), expected)
+
     def _do_create_life_node(self, client, node):
         return self.graphql({
             'query': """
