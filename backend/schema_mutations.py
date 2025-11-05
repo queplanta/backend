@@ -8,6 +8,7 @@ from voting import mutations as voting_mutations
 from db import mutations as db_mutations
 from life.mutations import Mutations as LifeMutations
 from occurrences import mutations as occurrences_mutations
+from sowing import mutations as sowing_mutations
 from pages import mutations as page_mutations
 from lists.mutations import Mutations as ListsMutations
 from images.mutations import Mutations as ImagesMutations
@@ -44,5 +45,7 @@ class Mutation(AccountsMutations, ImagesMutations, LifeMutations, ListsMutations
 
     suggestionIDCreate = m_field(occurrences_mutations.SuggestionIDCreate)
     suggestionIDDelete = m_field(occurrences_mutations.SuggestionIDDelete)
+
+    sowingCreate = m_field(sowing_mutations.SowingCreate)
 
     revisionRevert = m_field(db_mutations.RevisionRevert)

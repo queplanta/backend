@@ -1,12 +1,13 @@
-FROM python:3.7.4-buster
+FROM python:3.7.17-bullseye
 
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 
 ENV DEBIAN_FRONTEND noninteractive
-RUN apt-get update -qq 
+RUN apt-get update -qq
 RUN apt-get install -y libjpeg62-turbo libjpeg62-turbo-dev libfreetype6 libfreetype6-dev zlib1g-dev
-RUN apt-get install -y libgeos-dev libgeos-3.7.1 libgeos-c1v5 gdal-bin gettext
+RUN apt search libgeos
+RUN apt-get install -y libgeos-dev libgeos-3.9.0 libgeos-c1v5 gdal-bin gettext
 RUN apt-get install -y locales -qq
 RUN echo "pt_BR.UTF-8 UTF-8" >> /etc/locale.gen
 RUN echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen

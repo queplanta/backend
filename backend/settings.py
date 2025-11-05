@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     'life',
     'images',
     'occurrences',
+    'sowing',
     'lists',
     'corsheaders',
 ]

@@ -18,6 +18,7 @@ from voting.models_graphql import Vote
 from commenting.models_graphql import Comment
 from life.models_graphql import Query as LifeNodeQuery
 from occurrences.models_graphql import Occurrence, OccurrenceFilter, SuggestionID, OccurrenceCluster
+from sowing.models_graphql import Sowing, SowingFilter
 from db.models_graphql import Revision, Document
 from lists.models_graphql import List
 from images.models_graphql import Image
@@ -77,6 +78,9 @@ class Query(UserQuery, ShortnerQuery, LifeNodeQuery, graphene.ObjectType):
     })
     allWhatIsThis = DjangoFilterConnectionField(Occurrence, filterset_class=OccurrenceFilter)
     suggestionID = relay.Node.Field(SuggestionID)
+
+    sowing = relay.Node.Field(Sowing)
+    allSowings = DjangoFilterConnectionField(Sowing, filterset_class=SowingFilter)
 
     list = relay.Node.Field(List)
 
