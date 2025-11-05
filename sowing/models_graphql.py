@@ -19,8 +19,6 @@ class Sowing(DjangoObjectType, DocumentBase):
     author = graphene.Field(User)
     species = DjangoConnectionField(lambda: LifeNode)
     images = DjangoConnectionField(lambda: Image)
-    authorName = graphene.String()
-    authorEmail = graphene.String()
 
     class Meta:
         model = SowingModel
@@ -45,12 +43,6 @@ class Sowing(DjangoObjectType, DocumentBase):
     def resolve_species(self, info, **kwargs):
         return LifeNode._meta.model.objects.filter(
             document__sowing_species=self)
-
-    def resolve_authorName(self, info):
-        return getattr(self, 'author_name', None)
-
-    def resolve_authorEmail(self, info):
-        return getattr(self, 'author_email', None)
 
 
 class BoundBoxFilter(django_filters.CharFilter):
