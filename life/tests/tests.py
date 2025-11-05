@@ -205,10 +205,10 @@ class LifeNodeTest(UserTestCase):
                         'rank': 'SPECIES',
                         'commonNames': {
                             'edges': [
-                                {'node': {'name': 'dorme-dorme'}},
                                 {'node': {'name': 'dormideira'}},
                                 {'node': {'name': 'malícia'}},
-                                {'node': {'name': 'sensitiva'}}
+                                {'node': {'name': 'sensitiva'}},
+                                {'node': {'name': 'dorme-dorme'}},
                             ]
                         },
                         'revisionCreated': {

@@ -26,6 +26,7 @@ class CommentsTest(UserTestCase):
                     'url': post['url'],
                     'title': post['title'],
                     'body': post['body'],
+                    'summary': post['summary'],
                     'tags': post['tags'],
                     'publishedAt': post['publishedAt'],
                 }
@@ -37,6 +38,7 @@ class CommentsTest(UserTestCase):
             'url': 'new-post-title',
             'title': 'new post title',
             'body': 'new post content',
+            'summary': 'new post summary',
             'publishedAt': '2011-01-05T20:26:37',
             'tags': 'tést tãg, Outra Tag',
         }

@@ -10,6 +10,7 @@ class Tag(DocumentBase):
 
     class Meta:
         unique_together = ("is_tip", "slug")
+        app_label = 'tests'
 
     @property
     def pages(self):
@@ -23,6 +24,7 @@ class Page(DocumentBase):
 
     class Meta:
         unique_together = ("is_tip", "slug")
+        app_label = 'tests'
     # with migrations set unique_together using partial indexes
     # so we can have multiple is_tip = False values and just
     # one with is_tip = True

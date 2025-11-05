@@ -13,6 +13,7 @@ class PostsTest(UserTestCase):
                             url,
                             title,
                             body,
+                            summary,
                             publishedAt,
                             revisionCreated {
                                 author {
@@ -41,6 +42,7 @@ class PostsTest(UserTestCase):
                     'url': post['url'],
                     'title': post['title'],
                     'body': post['body'],
+                    'summary': post['summary'],
                     'tags': post['tags'],
                     'publishedAt': post['publishedAt'],
                     'revisionMessage': post['revisionMessage']
@@ -53,6 +55,7 @@ class PostsTest(UserTestCase):
             'url': 'new-post-title',
             'title': 'new post title',
             'body': 'new post content',
+            'summary': 'new post summary',
             'publishedAt': '2011-01-05T20:26:37',
             'tags': 'tést tãg, Outra Tag',
             'revisionMessage': 'initial revision message'
@@ -84,6 +87,7 @@ class PostsTest(UserTestCase):
                         'url': post['url'],
                         'title': post['title'],
                         'body': post['body'],
+                        'summary': post['summary'],
                         'publishedAt': post['publishedAt'],
                         'revisionCreated': {
                             'author': {
